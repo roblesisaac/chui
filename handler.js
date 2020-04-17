@@ -110,6 +110,7 @@ Chain.build("login", {
     },
     theyExist: function(user) {
       this.next({
+        body: this.user,
         user: user,
         message: "hi"
       });
@@ -119,8 +120,8 @@ Chain.build("login", {
     "lookupUser",
     {
       if: "userDoesntExist",
-      true: "theyExist",
-      false: "askToCreateUser"
+      true: "askToCreateUser",
+      false: "theyExist"
     }
   ],
   orders: [
