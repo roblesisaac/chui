@@ -81,11 +81,11 @@ Chain.build("login", {
       this.user = this.body;
       models.users.findOne({username: this.user.username}).then(function(user){
         self.dbUser = user;
-        self.next(user || "empty");
+        self.next(user);
       });
     },
     userDoesntExist: function(user) {
-      this.next(user==="empty");
+      this.next(user===null);
     },
     askToCreateUser: function() {
       this.next("No user " + this.user.username + " exists? Create one?");
@@ -109,7 +109,10 @@ Chain.build("login", {
   		});
     },
     theyExist: function(user) {
-      this.next(user);
+      this.next({
+        user: user,
+        message: "hi"
+      });
     }
   },
   order: [
