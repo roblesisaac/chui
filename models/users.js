@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-// const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 // const salt = bcrypt.genSaltSync(10);
 
 // const userSchema = new mongoose.Schema({
