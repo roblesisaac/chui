@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>{{ siteName }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.min.css" />
+    <!--<link rel="stylesheet" href="https://www.blockometry.com/plysheet/script/templates/css?select=text&type=text/css">-->
+    <!--<link rel="stylesheet" href="https://www.blockometry.com/plysheet/script/templates/slide?select=text&type=text/css" />-->
+    <!--<link class="plyStyle" rel="stylesheet" href="https://www.blockometry.com/{{siteUrl}}/script/templates/css?select=text&type=text/css" />-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:900|Lobster" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Coda:800|Maven+Pro:900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+    <style id="plyStyle"></style>
+  </head>
+  <body>
+    <div id="app" class="grid-x"></div>
+    <div>{{ username }}</div>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.23.0/polyfill.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.min.js"></script>
+  <script src="https://npmcdn.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js"></script>
+  
+  <script id="uisheet" type= "text/javascript" src=""></script>
+  <script type="text/javascript">
+    document.getElementById("uisheet").src = "{{ host }}/api/sheets?token=" + window.sessionStorage.token;
+  </script>
+  <!--<script src="https://www.blockometry.com/plysheet/script/js"></script>-->
+  <!--<script src="https://www.blockometry.com/exhaustbarn/sheetJs"></script>-->
+  <script src="https://js.braintreegateway.com/web/dropin/1.17.2/js/dropin.min.js"></script>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "chui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roblesisaac/chui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roblesisaac/chui/issues"
+  },
+  "homepage": "https://github.com/roblesisaac/chui#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "braintree": "^2.22.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.9"
+  }
+}
