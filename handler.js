@@ -90,13 +90,13 @@ Chain.build("login", {
     askToCreateUser: function() {
       this.next("No user " + this.user.username + " exists? Create one?");
     },
-    comparePassword: function(user) {
+    passwordAuthenticates: function(user) {
       var self = this;
 			user.comparePassword(user.password, function(err, isMatch) {
 			  self.next(isMatch && isMatch === true);
 			});  
     },
-    passwordAuthenticates: function() {
+    sendCredentials: function() {
       var self = this;
       this.next({
   		  token: jwt.sign({ 
@@ -108,12 +108,8 @@ Chain.build("login", {
   		  userid: self.dbUser._id
   		});
     },
-    theyExist: function(user) {
-      this.next({
-        body: this.user,
-        user: user,
-        message: "hi"
-      });
+    sayPasswordsDontMatch: function(user) {
+      this.next("Wrong password.");
     }
   },
   order: [
@@ -122,7 +118,6 @@ Chain.build("login", {
       if: "userDoesntExist",
       true: "askToCreateUser",
       false: [
-        "comparePassword",
         {
           if: "passwordAuthenticates",
           true: "sendCredentials",
