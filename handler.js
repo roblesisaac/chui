@@ -121,14 +121,6 @@ Chain.build("login", {
     {
       if: "userDoesntExist",
       true: "askToCreateUser",
-      false: "theyExist"
-    }
-  ],
-  orders: [
-    "lookupUser",
-    {
-      if: "userDoesntExist",
-      true: "askToCreateUser",
       false: [
         "comparePassword",
         {
