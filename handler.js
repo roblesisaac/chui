@@ -92,14 +92,14 @@ Chain.build("login", {
     },
     passwordAuthenticates: function(user) {
       var self = this;
-			user.comparePassword(user.password, function(err, isMatch) {
+			user.comparePassword(self.user.password, function(err, isMatch) {
 			  self.next(isMatch && isMatch === true);
 			});  
     },
     sendCredentials: function() {
       var self = this;
       this.next({
-  		  token: jwt.sign({ 
+  		  token: jwt.sign({
   		    _id: self.dbUser._id,
   		    username: self.dbUser.username,
   		    name: self.dbUser.name,
