@@ -100,12 +100,12 @@ Chain.build("login", {
       var self = this;
       this.next({
   		  token: jwt.sign({
-  		    _id: self.dbUser._id,
-  		    username: self.dbUser.username,
-  		    name: self.dbUser.name,
-  		    password: self.dbUser.password
-  		  }, self.dbUser.password, {	expiresIn: '15h' }),
-  		  userid: self.dbUser._id
+  		    _id: this.dbUser._id,
+  		    username: this.dbUser.username,
+  		    name: this.dbUser.name,
+  		    password: this.dbUser.password
+  		  }, this.dbUser.password, {	expiresIn: '15h' }),
+  		  userid: this.dbUser._id
   		});
     },
     sayPasswordsDontMatch: function(user) {
