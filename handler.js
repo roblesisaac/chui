@@ -105,7 +105,8 @@ Chain.build("login", {
   		    name: this.dbUser.name,
   		    password: this.dbUser.password
   		  }, this.dbUser.password, {	expiresIn: '15h' }),
-  		  userid: this.dbUser._id
+  		  userid: this.dbUser._id,
+  		  hello: "hi"
   		});
     },
     sayPasswordsDontMatch: function(user) {
