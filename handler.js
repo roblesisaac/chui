@@ -97,7 +97,6 @@ Chain.build("login", {
 			});  
     },
     sendCredentials: function() {
-      var self = this;
       this.next({
   		  token: jwt.sign({
   		    _id: this.dbUser._id,
