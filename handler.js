@@ -257,7 +257,7 @@ Chain.build("loadLandingPage", {
           host: this.host,
           siteName: this.site.url,
           token: token,
-          username: this.username || "public"
+          username: this.username || "public user"
         },
         body: tmplts.index,
         contentType: "html"
