@@ -151,7 +151,7 @@ Chain.build("serve", {
     thereAreVariables: function(res) {
       this.next(res.data !== undefined);
     },
-    fillBodyWithVariables: function(res) {
+    renderVariables: function(res) {
       var self = this;
       for(var key in res.data) {
         self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
@@ -175,7 +175,7 @@ Chain.build("serve", {
         "replaceBody",
         {
           if: "thereAreVariables",
-          true: "fillBodyWithVariables"
+          true: "renderVariables"
         }
       ],
       false: "stringifyBody"
@@ -257,7 +257,7 @@ Chain.build("loadLandingPage", {
           host: this.host,
           siteName: this.site.url,
           token: token,
-          username: this.username || "public user"
+          username: this.username || "public"
         },
         body: tmplts.index,
         contentType: "html"
@@ -357,7 +357,7 @@ module.exports.port = function(event, context, callback) {
     arg2: params.arg2,
     query: event.queryStringParameters || {},
     body: JSON.parse(event.body || "{}"),
-    domain: event.headers.Host,
-    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+    domain: (event.headers || {}).Host,
+    host: "https://"+this.domain.Host+"/dev/exhaustbarn"
   });
 };
