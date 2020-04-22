@@ -43,16 +43,16 @@ Chain.build("api", {
       });
     }  
   },
-  order: ["getModel", "relayData"]
+  order: ["buildModel"]
 });
-Chain.build("getModel", {
+Chain.build("buildModel", {
   steps: {
     sheetIsFoundational: function() {
       this.next(models[this.sheetName] !== undefined);
     },
     proceedFoundationalModel: function() {
-      this.model = models[this.sheetName];
-      this.next(this.model);
+      // this.model = models[this.sheetName];
+      this.next(this.sheetName);
     }
   },
   order: [
