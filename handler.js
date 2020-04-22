@@ -32,15 +32,39 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
+
+
 Chain.build("api", {
   steps: {
-    getModelNameFromSheet: function() {
-      
+    relayData: function() {
+      var self = this;
+      this.model.find().then(function(data){
+        self.next(data);
+      });
+    }  
+  },
+  order: ["getModel", "relayData"]
+});
+Chain.build("getModel", {
+  steps: {
+    sheetIsFoundational: function() {
+      this.next(models[this.sheetName] !== undefined);
+    },
+    proceedFoundationalModel: function() {
+      this.model = models[this.sheetName];
+      this.next(this.model);
     }
   },
   order: [
-    "lookupSheet"
-  ]
+    {
+      if: "sheetIsFoundational",
+      true: "proceedFoundationalModel",
+      false: [
+        "lookupSheet",
+        "buildModelFromObject"
+      ]
+    }
+  ]  
 });
 Chain.build("connectToDb", {
   steps: {
