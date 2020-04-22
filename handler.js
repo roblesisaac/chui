@@ -55,7 +55,8 @@ Chain.build("api", {
       this.next(this.sheetName);
     }
   },
-  order: [
+  order: ["proceedFoundationalModel"],
+  orders: [
     {
       if: "sheetIsFoundational",
       true: "proceedFoundationalModel",
