@@ -358,6 +358,6 @@ module.exports.port = function(event, context, callback) {
     query: event.queryStringParameters || {},
     body: JSON.parse(event.body || "{}"),
     domain: (event.headers || {}).Host,
-    host: "https://"+this.domain.Host+"/dev/exhaustbarn"
+    host: "https://"+(event.headers || {}).Host+"/dev/exhaustbarn"
   });
 };
