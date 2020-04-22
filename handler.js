@@ -257,7 +257,7 @@ Chain.build("loadLandingPage", {
           host: this.host,
           siteName: this.site.url,
           token: token,
-          cookie: (this.headers || {}).Cookie || "No Cookie",
+          cookie: this.headers.Cookie || "No Cookie",
           username: this.username || "public"
         },
         body: tmplts.index,
