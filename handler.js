@@ -34,7 +34,7 @@ let token;
 
 
 
-Chain.build("api", {
+Chain.build("apis", {
   steps: {
     relayData: function() {
       var self = this;
@@ -45,7 +45,7 @@ Chain.build("api", {
   },
   order: ["buildModel"]
 });
-Chain.build("buildModel", {
+Chain.build("api", {
   steps: {
     sheetIsFoundational: function() {
       this.next(models[this.sheetName] !== undefined);
