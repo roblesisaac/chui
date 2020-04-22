@@ -163,6 +163,7 @@ Chain.build("serve", {
       this.next();
     },
     initCallback: function() {
+      this.context.done(null, {"Cookie": "cookieString"});
       this.callback(null, this.format);
     }
   },
@@ -357,7 +358,7 @@ module.exports.port = function(event, context, callback) {
     arg2: params.arg2,
     query: event.queryStringParameters || {},
     body: JSON.parse(event.body || "{}"),
-    domain: (event.headers || {}).Host,
-    host: "https://"+(event.headers || {}).Host+"/dev/exhaustbarn"
+    domain: event.headers.Host,
+    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
   });
 };
