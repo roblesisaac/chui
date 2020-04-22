@@ -163,7 +163,6 @@ Chain.build("serve", {
       this.next();
     },
     initCallback: function() {
-      this.context.done(null, {"Cookie": "cookieString"});
       this.callback(null, this.format);
     }
   },
