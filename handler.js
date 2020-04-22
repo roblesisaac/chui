@@ -34,7 +34,7 @@ let token;
 
 
 
-Chain.build("apis", {
+Chain.build("api", {
   steps: {
     relayData: function() {
       var self = this;
@@ -43,20 +43,20 @@ Chain.build("apis", {
       });
     }  
   },
-  order: ["buildModel"]
+  order: ["getModel", "relayData"]
 });
-Chain.build("api", {
+Chain.build("getModel", {
   steps: {
     sheetIsFoundational: function() {
+      this.sheetName = this.arg1;
       this.next(models[this.sheetName] !== undefined);
     },
     proceedFoundationalModel: function() {
-      // this.model = models[this.sheetName];
-      this.next(this.sheetName);
+      this.model = models[this.sheetName];
+      this.next(this.model);
     }
   },
-  order: ["proceedFoundationalModel"],
-  orders: [
+  order: [
     {
       if: "sheetIsFoundational",
       true: "proceedFoundationalModel",
