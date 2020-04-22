@@ -21,6 +21,6 @@
     "braintree": "^2.22.0",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.9"
+    "mongoose": "^5.9.10"
   }
 }
