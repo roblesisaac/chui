@@ -39,11 +39,7 @@ Chain.build("api", {
     }
   },
   order: [
-    "lookupSheet",
-    "getModelNameFromSheet",
-    {
-      if: "modelAlreadyExists"
-    }
+    "lookupSheet"
   ]
 });
 Chain.build("connectToDb", {
@@ -194,14 +190,14 @@ Chain.build("scripts", {
     lookupSheet: function() {
       var self = this;
       this.sheetName = this.arg1;
-      this.scriptSheet = this.sheets.findOne({
+      this.sheet = this.sheets.findOne({
         name: self.sheetName,
         siteId: self.siteId
       });
-      this.next(this.scriptSheet);
+      this.next(this.sheet);
     },
     noSheetFound: function() {
-      this.next(this.scriptSheet === null);  
+      this.next(this.sheet === null);  
     },
     sayNoSheetFound: function() {
       this.next({
@@ -215,13 +211,13 @@ Chain.build("scripts", {
     },
     loadJavascript: function() {
       this.next({
-        body: this.scriptSheet.js,
+        body: this.sheet.js,
         contentType: "application/javascript"
       });
     },
     loadSpecificScriptText: function(findOne) {
       var self = this,
-          template = this.scriptSheet.templates.findOne({
+          template = this.sheet.templates.findOne({
             name: self.script
           });
       this.template = template || {};
@@ -265,9 +261,7 @@ Chain.build("loadLandingPage", {
       });
     }
   },
-  order: [
-    "showIndex"
-  ]
+  order: [ "showIndex" ]
 });
 Chain.build("port", {
   steps: {
