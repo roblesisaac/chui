@@ -38,7 +38,9 @@ Chain.build("api", {
   steps: {
     relayData: function() {
       var self = this;
-      this.model.find().then(function(data){
+      this.model.find({
+        siteId: self.siteId
+      }).then(function(data){
         self.next(data);
       });
     }  
