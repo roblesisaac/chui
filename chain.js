@@ -1,34 +1,3 @@
-function addMethodToArray(name, fn) {
-  Object.defineProperty(Array.prototype, name, {
-    enumerable: false,
-    writable: true,
-    value: fn
-  });  
-}
-function itemMatches(item, filter) {
-  var matches = [];
-  for(var key in filter) matches.push(filter[key] === item[key]);
-  return matches.indexOf(false) === -1; 
-}
-addMethodToArray('find', function(filter){
-  var match = [];
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) match.push(this[i]);
-  }
-  return match;  
-});
-addMethodToArray('findOne', function(filter){
-  var match = null;
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) {
-      match = this[i];
-      match.i = i;
-      i = this.length;
-    }
-  }
-  return match;
-});
-
 var Chain = {
   addStepGlobally: function(stepName, fn) {
     Chain.steps[stepName] = Chain.steps[stepName] || fn;
@@ -52,7 +21,8 @@ var Chain = {
         input: chainObj.input || {},
         output: chainObj.output,
         order: chainObj.order,
-        name: chainName
+        name: chainName,
+        data: chainObj.data
       }, overRides);
     };
   },
@@ -167,6 +137,10 @@ var Chain = {
   iterate: function(chain) {
     let step = Chain.currentStep(chain);
     
+    if(chain.data) {
+      Object.assign(step.input, chain.data.bind(step.input)());
+    }
+    
     if(!step.name) { // finished all steps
       var input = step.input;
       if(chain.output) {
@@ -187,10 +161,17 @@ var Chain = {
     }
     
     if(step.isAChain()) {
-      step.incorporateChainSteps().then(function(newChain){
-        step.blendInputs();
-        Chain.iterate(newChain);
+      step.blendInputs();
+      Chain.run(step.name, {
+        input: step.input,
+        output: function(res) {
+          Chain.iterate(chain);
+        }
       });
+      // step.incorporateChainSteps().then(function(newChain){
+      //   step.blendInputs();
+      //   Chain.iterate(newChain);
+      // });
       return;
     }
     
@@ -256,7 +237,8 @@ var Chain = {
         input: options.input || reference.input || {},
         output: options.output || reference.output,
         order: options.order || reference.order,
-        name: chainName
+        name: chainName,
+        data: options.data || reference.data
       };
     } else if(Array.isArray(options)) {
       chain = { order: options };
