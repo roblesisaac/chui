@@ -48,6 +48,11 @@ Chain.build("api", {
   order: ["getModel", "relayData"]
 });
 Chain.build("getModel", {
+  data: function() {
+    return {
+      sheetName: this.arg1
+    };
+  },
   steps: {
     sheetIsFoundational: function() {
       this.sheetName = this.arg1;
@@ -56,6 +61,10 @@ Chain.build("getModel", {
     proceedFoundationalModel: function() {
       this.model = models[this.sheetName];
       this.next(this.model);
+    },
+    relaySheetSchemaObj: function() {
+      this.schema = this.sheet._schema;
+      this.next();
     }
   },
   order: [
@@ -64,10 +73,16 @@ Chain.build("getModel", {
       true: "proceedFoundationalModel",
       false: [
         "lookupSheet",
+        "relaySheetSchemaObj",
         "buildModelFromObject"
       ]
     }
   ]  
+});
+Chain.build("buildModelFromObject", {
+  order: {
+    
+  }
 });
 Chain.build("connectToDb", {
   steps: {
