@@ -55,7 +55,6 @@ Chain.build("getModel", {
   },
   steps: {
     sheetIsFoundational: function() {
-      this.sheetName = this.arg1;
       this.next(models[this.sheetName] !== undefined);
     },
     proceedFoundationalModel: function() {
