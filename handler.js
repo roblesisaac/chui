@@ -117,13 +117,7 @@ Chain.build("api", {
   },
   order: [
     "getModel",
-    {
-      if: "routeMethod",
-      get: "relayData",
-      put: "sayMethod",
-      post: "sayMethod",
-      delete: "sayMethod"
-    }
+    "relayData"
   ]
 });
 Chain.build("getModel", {
