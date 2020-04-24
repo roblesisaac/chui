@@ -178,7 +178,7 @@ Chain.build("buildModelFromObject", {
       "array": "Arrays"
     }
   },
-  steps: {
+  stepss: {
     forEachItemInSchema: function() {
       this.schema = {
         customer: {
@@ -211,7 +211,7 @@ Chain.build("buildModelFromObject", {
       this.next(this.schema);
     }
   },
-  order: [
+  orderr: [
     "forEachItemInSchema",
     [
       {
@@ -221,12 +221,12 @@ Chain.build("buildModelFromObject", {
     ],
     "relayObj"
   ],
-  stepss: {
+  steps: {
     relaySchema: function() {
       this.next(this.a.b);
     }
   },
-  orders: [
+  order: [
     "relaySchema"  
   ]
 });
@@ -347,7 +347,8 @@ Chain.build("serve", {
       this.next();
     },
     initCallback: function() {
-      this.callback(null, this.format);
+      var data = this.error || this.format;
+      this.callback(null, data);
     }
   },
   order: [
