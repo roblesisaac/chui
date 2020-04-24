@@ -145,7 +145,7 @@ Chain.build("getModel", {
     },
     relaySheetSchemaObj: function() {
       this.schema = this.db.schema;
-      this.next();
+      this.next({});
     }
   },
   order: [
@@ -163,10 +163,15 @@ Chain.build("getModel", {
 Chain.build("buildModelFromObject", {
   data: function() {
     return {
-      obj: this.obj || {}
+      schema: this.schema || {skus: "number"}
     };
   },
-  order: []
+  steps: {
+    showSchema: function() {
+      this.next(this.schema);
+    }
+  },
+  order: ["showSchema"]
 });
 Chain.build("connectToDb", {
   steps: {
