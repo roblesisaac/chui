@@ -76,7 +76,17 @@ var Chain = {
           console.log("Could not find", name);
           return;
         }
-        fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);
+        try {
+          fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);
+        }
+        catch(err) {
+          chain.stepNumber = "error";
+          chain.input.last = err;
+          chain.output = function(err) {
+            console.log(err);
+          };
+          this.input.next(err);
+        }
       },
       incorporateResultSteps: function(result) {
         var fn;
