@@ -102,8 +102,8 @@ Chain.build("api", {
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;;
-      this.model.findById(sheet._id, function (err, sheet) {
-        self.next(sheet);
+      this.model.findById(sheet._id, function (err, sheetFound) {
+        self.next(sheetFound);
       });
     }
   },
