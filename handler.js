@@ -100,7 +100,7 @@ Chain.build("api", {
       });
     },
     updateFirstSheet: function() {
-      self.next(data[0]);  
+      self.next(this.data[0]);  
     }
   },
   order: ["getModel", "relayData", "updateFirstSheet"]
