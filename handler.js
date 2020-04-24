@@ -169,12 +169,64 @@ Chain.build("buildModelFromObject", {
       schema: this.schema || { skus: "number" }
     };
   },
+  input: {
+    types: { 
+      "string": "Strings",
+      "number": "Numbers",
+      "date": "Dates",
+      "boolean": "Booleans",
+      "array": "Arrays"
+    }
+  },
   steps: {
+    forEachItemInSchema: function() {
+      this.schema = {
+        customer: {
+          name: "string",
+          phone: "number",
+          email: "string"
+        },
+        parts: [
+          {
+            sku: "string",
+            info: "string",
+            price: "number"
+          }  
+        ],
+        street: "string",
+        zip: "string",
+        test: ["hshf",2,3,4]
+      };
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    },
+    relayObj: function() {
+      this.next(this.schema);
+    }
+  },
+  order: [
+    "forEachItemInSchema",
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
+    "relayObj"
+  ],
+  stepss: {
     relaySchema: function() {
       this.next(this.a.b);
     }
   },
-  order: [
+  orders: [
     "relaySchema"  
   ]
 });
