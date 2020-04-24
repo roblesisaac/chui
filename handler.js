@@ -32,6 +32,60 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
+Chain.build("schema", {
+  input: {
+    types: { 
+      "string": "Strings",
+      "number": "Numbers",
+      "date": "Dates",
+      "boolean": "Booleans",
+      "array": "Arrays"
+    }
+  },
+  steps: {
+    forEachItemInSchema: function() {
+      this.schema = {
+        customer: {
+          name: "string",
+          phone: "number",
+          email: "string"
+        },
+        parts: [
+          {
+            sku: "string",
+            info: "string",
+            price: "number"
+          }  
+        ],
+        street: "string",
+        zip: "string",
+        test: ["hshf",2,3,4]
+      };
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    },
+    relayObj: function() {
+      this.next(this.schema);
+    }
+  },
+  order: [
+    "forEachItemInSchema",
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
+    "relayObj"
+  ]
+});
 
 
 Chain.build("api", {
@@ -57,7 +111,7 @@ Chain.build("getModel", {
     sheetIsFoundational: function() {
       this.next(models[this.sheetName] !== undefined);
     },
-    proceedFoundationalModel: function() {
+    relayFoundationalModel: function() {
       this.model = models[this.sheetName];
       this.next(this.model);
     },
@@ -69,7 +123,7 @@ Chain.build("getModel", {
   order: [
     {
       if: "sheetIsFoundational",
-      true: "proceedFoundationalModel",
+      true: "relayFoundationalModel",
       false: [
         "lookupSheet",
         "relaySheetSchemaObj",
@@ -79,9 +133,12 @@ Chain.build("getModel", {
   ]  
 });
 Chain.build("buildModelFromObject", {
-  order: {
-    
-  }
+  data: function() {
+    return {
+      obj: this.obj || {}
+    };
+  },
+  order: []
 });
 Chain.build("connectToDb", {
   steps: {
