@@ -1,34 +1,3 @@
-function addMethodToArray(name, fn) {
-  Object.defineProperty(Array.prototype, name, {
-    enumerable: false,
-    writable: true,
-    value: fn
-  });  
-}
-function itemMatches(item, filter) {
-  var matches = [];
-  for(var key in filter) matches.push(filter[key] === item[key]);
-  return matches.indexOf(false) === -1; 
-}
-addMethodToArray('find', function(filter){
-  var match = [];
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) match.push(this[i]);
-  }
-  return match;  
-});
-addMethodToArray('findOne', function(filter){
-  var match = null;
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) {
-      match = this[i];
-      match.i = i;
-      i = this.length;
-    }
-  }
-  return match;
-});
-
 var Chain = {
   addStepGlobally: function(stepName, fn) {
     Chain.steps[stepName] = Chain.steps[stepName] || fn;
@@ -77,10 +46,15 @@ var Chain = {
           return;
         }
         try {
-          fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);
+          if(chain.error) {
+            Chain.steps.error.bind(this.input)(chain.error, this.input.next, this.input.vm);
+          } else {
+            fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);  
+          }
         }
         catch(err) {
           chain.order.push("error");
+          chain.error = err;
           chain.stepNumber = chain.order.length-2;
           this.input.next.bind(this.input)(err);
         }
@@ -199,17 +173,17 @@ var Chain = {
     
     if(step.isAChain()) {
       step.blendInputs();
-      Chain.run(step.name, {
-        input: step.input,
-        output: function(res) {
-          Object.assign(chain.input, {last: res});
-          Chain.iterate(chain);
-        }
-      });
-      // step.incorporateChainSteps().then(function(newChain){
-      //   step.blendInputs();
-      //   Chain.iterate(newChain);
+      // Chain.run(step.name, {
+      //   input: step.input,
+      //   output: function(res) {
+      //     Object.assign(chain.input, {last: res});
+      //     Chain.iterate(chain);
+      //   }
       // });
+      step.incorporateChainSteps().then(function(newChain){
+        step.blendInputs();
+        Chain.iterate(newChain);
+      });
       return;
     }
     
@@ -351,5 +325,3 @@ var Chain = {
     }
   }
 };
-
-module.exports = Chain;
