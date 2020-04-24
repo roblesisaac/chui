@@ -1,3 +1,34 @@
+function addMethodToArray(name, fn) {
+  Object.defineProperty(Array.prototype, name, {
+    enumerable: false,
+    writable: true,
+    value: fn
+  });  
+}
+function itemMatches(item, filter) {
+  var matches = [];
+  for(var key in filter) matches.push(filter[key] === item[key]);
+  return matches.indexOf(false) === -1; 
+}
+addMethodToArray('find', function(filter){
+  var match = [];
+  for (i = 0; i<this.length; i++) {
+    if(itemMatches(this[i], filter)) match.push(this[i]);
+  }
+  return match;  
+});
+addMethodToArray('findOne', function(filter){
+  var match = null;
+  for (i = 0; i<this.length; i++) {
+    if(itemMatches(this[i], filter)) {
+      match = this[i];
+      match.i = i;
+      i = this.length;
+    }
+  }
+  return match;
+});
+
 var Chain = {
   addStepGlobally: function(stepName, fn) {
     Chain.steps[stepName] = Chain.steps[stepName] || fn;
