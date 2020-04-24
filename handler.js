@@ -91,7 +91,7 @@ Chain.build("schema", {
 Chain.build("api", {
   data: function() {
     return {
-      method: this.event.httpMethod.toLowerCase
+      method: this.event.httpMethod.toLowerCase()
     };
   },
   steps: {
@@ -117,7 +117,13 @@ Chain.build("api", {
   },
   order: [
     "getModel",
-    "routeMethod"
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "sayMethod",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
   ]
 });
 Chain.build("getModel", {
