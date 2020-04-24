@@ -145,7 +145,7 @@ Chain.build("getModel", {
     },
     relaySheetSchemaObj: function() {
       this.sheet.db = this.sheet.db || {};
-      this.sheet.db.schema = this.sheet.db.schema || { skus: "number" };
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
       
       this.schema = this.sheet.db.schema;
       this.next(this.schema);
@@ -156,7 +156,8 @@ Chain.build("getModel", {
       if: "sheetIsFoundational",
       true: "relayFoundationalModel",
       false: [
-        "lookupSheet"
+        "lookupSheet",
+        "relaySheetSchemaObj"
       ]
     }
   ]  
@@ -164,7 +165,7 @@ Chain.build("getModel", {
 Chain.build("buildModelFromObject", {
   data: function() {
     return {
-      schema: this.schema || { name: "string" }
+      schema: this.schema || { skus: "number" }
     };
   },
   steps: {
