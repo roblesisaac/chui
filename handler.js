@@ -157,8 +157,7 @@ Chain.build("getModel", {
       true: "relayFoundationalModel",
       false: [
         "lookupSheet",
-        "relaySheetSchemaObj",
-        "buildModelFromObject"
+        "relaySheetSchemaObj"
       ]
     }
   ]  
