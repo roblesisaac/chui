@@ -80,12 +80,9 @@ var Chain = {
           fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);
         }
         catch(err) {
-          chain.stepNumber = "error";
-          chain.input.last = err;
-          chain.output = function(err) {
-            console.log(err);
-          };
-          this.input.next(err);
+          chain.order.push("error");
+          chain.stepNumber = chain.order.length-2;
+          this.input.next.bind(this.input)(err);
         }
       },
       incorporateResultSteps: function(result) {
@@ -181,7 +178,6 @@ var Chain = {
     if(chain.data) {
       Object.assign(chain.input, chain.data.bind(step.input)());
     }
-    
     if(!step.name) { // finished all steps
       var input = step.input;
       if(chain.output) {
@@ -348,7 +344,12 @@ var Chain = {
       Chain.iterate(chain);
     }
   },
-  steps: {}
+  steps: {
+    error: function() {
+      console.log(this.last);
+      this.next(this.last);
+    }
+  }
 };
 
 module.exports = Chain;
