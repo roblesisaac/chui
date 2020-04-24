@@ -171,7 +171,7 @@ Chain.build("buildModelFromObject", {
   },
   steps: {
     relaySchema: function() {
-      this.next(this.schema);
+      this.next(this.a.b);
     }
   },
   order: [
