@@ -78,7 +78,7 @@ var Chain = {
         }
         try {
           if(this.input.error) {
-            Chain.steps.error.bind(this.input)(this.input.error, this.input.next, this.input.vm);
+            fn.bind(this.input)(this.input.error, this.input.next, this.input.vm);
           } else {
             fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);  
           }
