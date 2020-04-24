@@ -103,7 +103,7 @@ Chain.build("api", {
       var sheet = this.data[0],
           self = this;
       this.model.findByIdAndUpdate(sheet._id, {db:{name:"string", link: "string"}}, { new: true }).then(function(data){
-        self.next(JSON.stringify(data));
+        self.next(data);
       });
     }
   },
