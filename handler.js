@@ -94,12 +94,16 @@ Chain.build("api", {
       var self = this;
       this.model.find({
         siteId: self.siteId
-      }).then(function(data){
+      }).then(function(data) {
+        self.data = data;
         self.next(data);
       });
-    }  
+    },
+    updateFirstSheet: function() {
+      self.next(data[0]);  
+    }
   },
-  order: ["getModel", "relayData"]
+  order: ["getModel", "relayData", "updateFirstSheet"]
 });
 Chain.build("getModel", {
   data: function() {
@@ -116,7 +120,7 @@ Chain.build("getModel", {
       this.next(this.model);
     },
     relaySheetSchemaObj: function() {
-      this.schema = this.sheet._schema;
+      this.schema = this.db.schema;
       this.next();
     }
   },
