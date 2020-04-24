@@ -119,7 +119,7 @@ var Chain = {
         };
       },
       isALoop: function() {
-        return !step.name.split || step.name.loop;
+        return Array.isArray(step.name) || step.name.loop;
       },
       isIncremental: function() {
         return step.name.loop;
@@ -148,7 +148,7 @@ var Chain = {
     
     return step;
   },
-  forEachItem: function(i, item, nxt) {
+  runEachItem: function(i, item, nxt) {
     Chain.run({
       input: {
         step: this,
@@ -212,12 +212,34 @@ var Chain = {
       
       if(step.isIncremental()) {
         Chain.plyLoop(data, {
-          fn: Chain.forEachItem.bind(step),
+          fn: Chain.runEachItem.bind(step),
           done: function() { Chain.iterate(chain) }
         });
       } else {
-        for(let i in data) Chain.forEachItem.bind(step)(i, data[i]);
-        Chain.iterate(chain);
+        if(Array.isArray(data)) {
+          
+          for(let i in data) Chain.runEachItem.bind(step)(i, data[i]);
+          
+          Chain.iterate(chain);
+          
+        } else if(typeof data === "object") {
+          
+          Chain.objLoop(data, function(obj, key, value) {
+            var input = {
+                step: step,
+                obj: obj,
+                key: key,
+                value: value            
+            };
+            Object.assign(input, step.input);
+            Chain.run({
+              input: input,
+              order: step.name
+            })
+          });
+          
+          Chain.iterate(chain);
+        }
       }
       
       return;
@@ -231,6 +253,31 @@ var Chain = {
     return {
       loop: order
     };
+  },
+  objLoop: function(obj, fn, parent) {
+    parent = parent || obj;
+    
+    for(var key in obj) {
+      let val = obj[key];
+      
+      if(Array.isArray(val)) {
+        for(var i in val) {
+          var item = val[i];
+          if(typeof item !== "object") {
+            fn(val, i, item, parent);
+          } else {
+            Chain.objLoop(item, fn, parent); 
+          }
+        }
+      } else if(typeof val === "object") {
+        Chain.objLoop(val, fn, parent);
+      } else {
+        fn(obj, key, val, parent); 
+      }
+    }
+    
+    return obj;
+
   },
   plyLoop: function(arr, o, vm) {
     if(o.fn === undefined) return console.log("Please define fn.");
