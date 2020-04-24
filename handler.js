@@ -102,7 +102,7 @@ Chain.build("api", {
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;
-      this.model.findByIdAndUpdate(sheet._id, {sort: 2, db:{name:"string", link: "string"}}, { new: true }).then(function(data){
+      this.model.findByIdAndUpdate(sheet._id, {sort: 0,db:{public:false, schema:{name:"string", link: "string"}}}, { new: true }).then(function(data){
         self.next(data);
       });
     }
