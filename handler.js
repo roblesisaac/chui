@@ -229,13 +229,13 @@ Chain.build("scripts", {
   },
   steps: {
     lookupSheet: function() {
-      var self = this;
-      this.sheetName = this.arg1;
-      this.sheet = this.sheets.findOne({
-        name: self.sheetName,
-        siteId: self.siteId
-      });
-      this.next(this.sheet);
+      // var self = this;
+      // this.sheetName = this.arg1;
+      // this.sheet = this.sheets.findOne({
+      //   name: self.sheetName,
+      //   siteId: self.siteId
+      // });
+      this.next("this.sheet");
     },
     noSheetFound: function() {
       this.next(this.sheet === null);  
