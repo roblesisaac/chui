@@ -15,7 +15,7 @@ const sheetSchema = new mongoose.Schema({
     "_init" : String,
     "db": {
       public: Boolean,
-      schema: Schema.Types.Mixed
+      schema: Array
     },
     "public" : Boolean, // to be replaced with db object
     "_schema" : [schm], // to be replaced with db object
