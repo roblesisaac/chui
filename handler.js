@@ -1,357 +1,499 @@
-function addMethodToArray(name, fn) {
-  Object.defineProperty(Array.prototype, name, {
-    enumerable: false,
-    writable: true,
-    value: fn
-  });  
+// const AWS = require('aws-sdk');
+// // http or https
+// const http = require('http');
+// const agent = new http.Agent({
+//   keepAlive: true
+// });
+
+// AWS.config.update({
+//   httpOptions: {
+//     agent
+//   }
+// });
+const Chain = require('./chain');
+const loop = Chain.loop;
+const models = { 
+  sheets: require('./models/sheets'), 
+  sites: require('./models/sites'), 
+  users: require('./models/users')
+};
+const mongoose = require('mongoose');
+const db = mongoose.connection;
+mongoose.Promise = global.Promise;
+let isConnected;
+const sessionModels = {};
+const fs = require('fs');
+const tmplts = {};
+if(!tmplts.index) {
+  fs.readdir('./templates', function (err, data) {
+    for (i=0; i<data.length; i++) tmplts[data[i].slice(0,-5)] = fs.readFileSync('./templates/' + data[i], 'utf8');
+  });
 }
-function itemMatches(item, filter) {
-  var matches = [];
-  for(var key in filter) matches.push(filter[key] === item[key]);
-  return matches.indexOf(false) === -1; 
-}
-addMethodToArray('find', function(filter){
-  var match = [];
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) match.push(this[i]);
-  }
-  return match;  
-});
-addMethodToArray('findOne', function(filter){
-  var match = null;
-  for (i = 0; i<this.length; i++) {
-    if(itemMatches(this[i], filter)) {
-      match = this[i];
-      match.i = i;
-      i = this.length;
-    }
-  }
-  return match;
-});
+const jwt = require('jsonwebtoken');
+let token;
 
-var Chain = {
-  addStepGlobally: function(stepName, fn) {
-    Chain.steps[stepName] = Chain.steps[stepName] || fn;
-    global["_"+stepName] = global["_"+stepName] || fn;
-  },
-  addStepsGlobally: function(stepsObject) {
-    if(!stepsObject) return;
-    if(stepsObject.name) {
-      Chain.addStepGlobally(stepsObject.name, stepsObject.fn);
-    }
-    for(var stepName in stepsObject) {
-      Chain.addStepGlobally(stepName, stepsObject[stepName]);
-    }    
-  },
-  build: function(chainName, chainObj) {
-    if(Array.isArray(chainObj)) chainObj = {order: chainObj};
-    Chain.addStepsGlobally(chainObj.steps);
-    Chain["_"+chainName] = chainObj;
-    global["_"+chainName] = global["_"+chainName] || function(overRides) {
-      Chain.run({
-        input: chainObj.input || {},
-        output: chainObj.output,
-        order: chainObj.order,
-        name: chainName,
-        data: chainObj.data
-      }, overRides);
-    };
-  },
-  currentStep: function(chain) {
-    chain.stepNumber === undefined ? chain.stepNumber = 0 : chain.stepNumber++;
-    if(!Array.isArray(chain.order)) chain.order = chain.order.split();
-    var step = {
-      chainName: chain.name,
-      number: chain.stepNumber,
-      name: chain.order[chain.stepNumber],
-      input: chain.input || {},
-      output: chain.output,
-      blendInputs: function() {
-        Object.assign(step.input, Chain["_"+step.name].input || {});
-      },
-      init: function(name) {
-        name = name || this.name;
-        var fn = Chain.steps[name];
-        if(!fn) {
-          console.log("Could not find", name);
-          return;
-        }
-        try {
-          if(this.input.error) {
-            fn.bind(this.input)(this.input.error, this.input.next, this.input.vm);
-          } else {
-            fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);  
-          }
-        }
-        catch(err) {
-          this.input.error = err;
-          this.input.next.bind(this.input)(err);
-        }
-      },
-      incorporateResultSteps: function(result) {
-        var fn;
-
-        if(!step.name[result]) {
-          fn = function(next) {
-            next(chain);
-          };
-        } else {
-          fn = function(next) {
-            Chain.insertArrayIntoArray(chain.order, step.name[result], step.number,
-            function(newArray) {
-              next({
-                name: chain.name,
-                stepNumber: step.number-1,
-                input: step.input,
-                output: step.output,
-                order: newArray
-              });
-            });            
-          };
-        }
-        
-        return {  then: fn  };
-      },
-      incorporateChainSteps: function() {
-        return {
-          then: function(next) {
-            Chain.insertArrayIntoArray(chain.order, Chain["_"+step.name].order, step.number,
-            function(newArray){
-              next({
-                name: chain.name,
-                stepNumber: step.number-1,
-                input: step.input,
-                output: step.output,
-                order: newArray
-              }); 
-            });  
-          }
-        };
-      },
-      isALoop: function() {
-        return Array.isArray(step.name) || step.name.loop;
-      },
-      isIncremental: function() {
-        return step.name.loop;
-      },
-      isConditional: function() {
-        return step.name.if !== undefined;
-      },
-      isAChain: function() {
-        return Chain["_"+step.name] !== undefined;
-      },
-      next: function(last) {
-        step.input.last = last;
-        Chain.iterate(chain);
-      },
-      resolveCondition: function(next) {
-        if(typeof step.name.if === "boolean") {
-          next(step.name.if);
-        } else {
-          step.input.next = next;
-          step.init(step.name.if); 
-        }
-      }
-    };
-    
-    step.input.next = step.next;
-    
-    return step;
-  },
-  runEachItem: function(i, item, nxt) {
-    Chain.run({
-      input: {
-        step: this,
-        item: item,
-        i: i,
-        last: this.input.last
-      },
-      output: nxt,
-      order: this.name.loop || this.name
-    });      
-  },
-  insertArrayIntoArray: function(parent, child, index, next) {
-    var copyOfArray = parent.slice();
-    Array.prototype.splice.apply(copyOfArray, [index, 1].concat(child));
-    if(next) next(copyOfArray);
-  },
-  iterate: function(chain) {
-    let step = Chain.currentStep(chain);
-    if(chain.data) {
-      Object.assign(chain.input, chain.data.bind(step.input)());
-    }
-    if(!step.name) { // finished all steps
-      var input = step.input;
-      if(chain.output) {
-        var output = chain.output.bind(input)(input.last, input.next, input.vm);
-        if(chain.name) Chain[chain.name] = output || input;
-      } else {
-        if(chain.name) Chain[chain.name] = input;
-      }
-      return;
-    }
-    
-    if(step.isConditional()) {
-      step.resolveCondition(function(conditionResult) {
-        step.incorporateResultSteps(conditionResult)
-        .then(Chain.iterate);
-      });
-      return;
-    }
-    
-    if(step.isAChain()) {
-      step.blendInputs();
-      Chain.run(step.name, {
-        input: step.input,
-        output: function(res) {
-          Object.assign(chain.input, this);
-          Chain.iterate(chain);
-        }
-      });
-      // step.incorporateChainSteps().then(function(newChain){
-      //   step.blendInputs();
-      //   Chain.iterate(newChain);
-      // });
-      return;
-    }
-    
-    if(step.isALoop()) {
-      var data = step.name.data || step.input.last;
-      
-      if(step.isIncremental()) {
-        Chain.plyLoop(data, {
-          fn: Chain.runEachItem.bind(step),
-          done: function() { Chain.iterate(chain) }
-        });
-      } else {
-        if(Array.isArray(data)) {
-          
-          for(let i in data) Chain.runEachItem.bind(step)(i, data[i]);
-          
-          Chain.iterate(chain);
-          
-        } else if(typeof data === "object") {
-          
-          Chain.objLoop(data, function(obj, key, value) {
-            var input = {
-                step: step,
-                obj: obj,
-                key: key,
-                value: value            
-            };
-            Object.assign(input, step.input);
-            Chain.run({
-              input: input,
-              order: step.name
-            })
-          });
-          
-          Chain.iterate(chain);
-        }
-      }
-      
-      return;
-    }
-    
-    step.init();
-    
-    return step.input;
-  },
-  loop: function(order) {
-    return {
-      loop: order
-    };
-  },
-  objLoop: function(obj, fn, parent) {
-    parent = parent || obj;
-    
-    for(var key in obj) {
-      let val = obj[key];
-      
-      if(Array.isArray(val)) {
-        for(var i in val) {
-          var item = val[i];
-          if(typeof item !== "object") {
-            fn(val, i, item, parent);
-          } else {
-            Chain.objLoop(item, fn, parent); 
-          }
-        }
-      } else if(typeof val === "object") {
-        Chain.objLoop(val, fn, parent);
-      } else {
-        fn(obj, key, val, parent); 
-      }
-    }
-    
-    return obj;
-
-  },
-  plyLoop: function(arr, o, vm) {
-    if(o.fn === undefined) return console.log("Please define fn.");
-    if(arr === undefined) return console.log("Please define array");
-    
-    o.i === undefined ? o.i = 0 : o.i++;
-    if(!arr[o.i]) {
-      if(o.done) o.done(vm);
-      return;
-    }
-    o.fn(o.i, arr[o.i], function(vm) {
-      if(vm) vm.progress = ((o.i+1) / arr.length) * 100; 
-      setTimeout(function(){
-        Chain.plyLoop(arr, o, vm);
-      }, 0);
-    });
-  },
-  run: function(options, overRide) {
-    var chain;
-    if(options.name || typeof options === "string") {
-      var chainName = options.name || options;
-      var reference = Chain["_"+chainName];
-      if(!reference) {
-        console.log(options + " does not exist.");
-        return;
-      }
-      
-      if(overRide) {
-        if(!overRide.input && !overRide.output) {
-          Object.assign(options.input, overRide);
-        } else {
-          options = overRide;  
-        }
-      }
-      chain = {
-        input: options.input || reference.input || {},
-        output: options.output || reference.output,
-        order: options.order || reference.order,
-        name: chainName,
-        data: options.data || reference.data
-      };
-    } else if(Array.isArray(options)) {
-      chain = { order: options };
-      if(overRide) {
-        if(!overRide.input && !overRide.output) {
-          chain.input = overRide;
-        } else {
-          chain.input = overRide.input || {};
-          chain.output =  chain.output;
-        }
-      }
-    } else {
-      chain = options;
-    }
-    if(chain.name) {
-      Chain[chain.name] = Chain.iterate(chain);
-    } else {
-      Chain.iterate(chain);
+Chain.build("schema", {
+  input: {
+    types: { 
+      "string": "Strings",
+      "number": "Numbers",
+      "date": "Dates",
+      "boolean": "Booleans",
+      "array": "Arrays"
     }
   },
   steps: {
-    error: function() {
-      console.log(this.error);
-      this.next(this.error);
+    forEachItemInSchema: function() {
+      this.schema = {
+        customer: {
+          name: "string",
+          phone: "number",
+          email: "string"
+        },
+        parts: [
+          {
+            sku: "string",
+            info: "string",
+            price: "number"
+          }  
+        ],
+        street: "string",
+        zip: "string",
+        test: ["hshf",2,3,4]
+      };
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    },
+    relayObj: function() {
+      this.next(this.schema);
     }
-  }
-};
+  },
+  order: [
+    "forEachItemInSchema",
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
+    "relayObj"
+  ]
+});
 
-module.exports = Chain;
+
+Chain.build("api", {
+  data: function() {
+    return {
+      method: this.event.httpMethod.toLowerCase(),
+      id: this.arg2
+    };
+  },
+  steps: {
+    relayData: function() {
+      var self = this;
+      this.model.find({
+        siteId: self.siteId
+      }).then(function(data) {
+        self.data = data;
+        self.next(data);
+      });
+    },
+    routeMethod: function() {
+      this.next(this.method);
+    },
+    sayId: function() {
+      this.next(this.body);  
+    },
+    updateItem: function() {
+      var self = this;
+      this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
+        self.next(data);
+      });
+    }
+  },
+  order: [
+    "getModel",
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "updateItem",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
+  ]
+});
+Chain.build("getModel", {
+  data: function() {
+    return {
+      sheetName: this.arg1
+    };
+  },
+  steps: {
+    sheetIsFoundational: function() {
+      this.next(models[this.sheetName] !== undefined);
+    },
+    relayFoundationalModel: function() {
+      this.model = models[this.sheetName];
+      this.next(this.model);
+    },
+    relaySheetSchemaObj: function() {
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
+      
+      this.schema = this.sheet.db.schema;
+      this.next(this.schema);
+    }
+  },
+  order: [
+    {
+      if: "sheetIsFoundational",
+      true: "relayFoundationalModel",
+      false: [
+        "lookupSheet",
+        "relaySheetSchemaObj",
+        "buildModelFromObject"
+      ]
+    }
+  ]  
+});
+Chain.build("buildModelFromObject", {
+  data: function() {
+    return {
+      schema: this.schema || { skus: "number" }
+    };
+  },
+  steps: {
+    relaySchema: function() {
+      this.next(this.schema);
+    }
+  },
+  order: [
+    "relaySchema"  
+  ]
+});
+Chain.build("connectToDb", {
+  steps: {
+    alreadyConnected: function() {
+      this.next(isConnected !== undefined);
+    },
+    promiseResolve: function() {
+      Promise.resolve();
+      this.next();
+    },
+    connect: function() {
+      var self = this;
+      mongoose.connect(this.tokens).then(function(database){
+        isConnected = database.connections[0].readyState;
+        self.next();
+      });
+    }
+  },
+  input: {
+    tokens: process.env.DB
+  },
+  order: [
+    {
+      if: "alreadyConnected",
+      true: "promiseResolve",
+      false: "connect"
+    }
+  ]
+});
+Chain.build("login", {
+  steps: {
+    lookupUser: function() {
+      var self = this;
+      this.user = this.body;
+      models.users.findOne({username: this.user.username}).then(function(user){
+        self.dbUser = user;
+        self.next(user);
+      });
+    },
+    userDoesntExist: function(user) {
+      this.next(user===null);
+    },
+    askToCreateUser: function() {
+      this.next("No user " + this.user.username + " exists? Create one?");
+    },
+    passwordAuthenticates: function(user) {
+      var self = this;
+			user.comparePassword(self.user.password, function(err, isMatch) {
+			  self.next(isMatch && isMatch === true);
+			});  
+    },
+    sendCredentials: function() {
+      this.next({
+  		  token: jwt.sign({
+  		    _id: this.dbUser._id,
+  		    username: this.dbUser.username,
+  		    name: this.dbUser.name,
+  		    password: this.dbUser.password
+  		  }, this.dbUser.password, {	expiresIn: '15h' }),
+  		  userid: this.dbUser._id
+  		});
+    },
+    sayPasswordsDontMatch: function(user) {
+      this.next("Wrong password.");
+    }
+  },
+  order: [
+    "lookupUser",
+    {
+      if: "userDoesntExist",
+      true: "askToCreateUser",
+      false: [
+        {
+          if: "passwordAuthenticates",
+          true: "sendCredentials",
+          false: "sayPasswordsDontMatch"
+        }
+      ]
+    }
+  ]
+});
+Chain.build("serve", {
+  steps: {
+    formatObject: function(res) {
+      this.format = {
+        statusCode: 200,
+        body: res
+      };
+      this.next(res);
+    },
+    itNeedsHeaders: function(res) {
+      this.next(res.contentType !== undefined);
+    },
+    addHeaders: function(res) {
+      this.format.headers = {
+        'Content-Type': res.contentType 
+      };
+      this.next(res);
+    },
+    replaceBody: function(res) {
+      this.format.body = res.body || "No text in body?";
+      this.next(res);
+    },
+    thereAreVariables: function(res) {
+      this.next(res.data !== undefined);
+    },
+    renderVariables: function(res) {
+      var self = this;
+      for(var key in res.data) {
+        self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
+      }
+      this.next(res);
+    },
+    stringifyBody: function() {
+      this.format.body = JSON.stringify(this.format.body);
+      this.next();
+    },
+    initCallback: function() {
+      this.callback(null, this.format);
+    }
+  },
+  order: [
+    "formatObject",
+    {
+      if: "itNeedsHeaders",
+      true: [
+        "addHeaders",
+        "replaceBody",
+        {
+          if: "thereAreVariables",
+          true: "renderVariables"
+        }
+      ],
+      false: "stringifyBody"
+    },
+    "initCallback"
+  ]
+});
+Chain.build("scripts", {
+  data: function() {
+    return {
+      sheetName: this.arg1,
+      scriptName: this.arg2
+    };
+  },
+  input: {
+    css: "text/css",
+    html: "text/html",
+    javascript: "application/javascript",
+    defaultTypes: ["text/css", "text/html", "application/javascript"]
+  },
+  steps: {
+    lookupSheet: function() {
+      var self = this;
+      this.sheet = this.sheets.findOne({
+        name: self.sheetName,
+        siteId: self.siteId
+      });
+      this.next(this.sheet);
+    },
+    noSheetFound: function() {
+      this.next(this.sheet === null);  
+    },
+    sayNoSheetFound: function() {
+      this.next({
+        body: "<h1>No " + this.sheetName + " found...</h1>",
+        contentType: "html"
+      });
+    },
+    noScriptSpecified: function() {
+      this.next(this.scriptName === undefined);
+    },
+    loadJavascript: function() {
+      this.next({
+        body: this.sheet.js,
+        contentType: "application/javascript"
+      });
+    },
+    loadSpecificScriptText: function(findOne) {
+      var self = this,
+          template = this.sheet.templates.findOne({
+            name: self.scriptName
+          });
+      this.template = template || {};
+      this.next({
+        body:  template.text
+      });
+    },
+    appendContentType: function(res) {
+      var contentType = this[this.template.contentType] || this.template.contentType;
+      if(this.defaultTypes.indexOf(contentType) === -1) contentType = "text/html";
+      res.contentType = contentType;
+      this.next(res);
+    }
+  },
+  order: [
+    "lookupSheet",
+    {
+      if: "noSheetFound",
+      true: "sayNoSheetFound",
+      false: {
+          if: "noScriptSpecified",
+          true: "loadJavascript",
+          false: ["loadSpecificScriptText", "appendContentType"]
+        }
+    }
+  ]
+});
+Chain.build("loadLandingPage", {
+  steps: {
+    showIndex: function() {
+      this.next({
+        data: {
+          host: this.host,
+          siteName: this.site.url,
+          token: token,
+          cookie: this.headers.Cookie || "No Cookie",
+          username: this.username || "public"
+        },
+        body: tmplts.index,
+        contentType: "html"
+      });
+    }
+  },
+  order: [ "showIndex" ]
+});
+Chain.build("port", {
+  steps: {
+    lookupSiteInDb: function(res, next, vm) {
+      var self = this;
+      models.sites.findOne({
+        name: self.siteName
+      }).then(function(site){
+        self.site = site;
+        self.siteId = site.id;
+        self.next(site);
+      });
+    },
+    noSiteExists: function(site) {
+      this.next(site === null);
+    },
+    askToCreateSite: function() {
+      this.next({
+        body: "<h1>" + this.siteName + " not found. Would you like to create one?</h1>", 
+        contentType: "text/html"
+      });
+    },
+    getSheetsForSite: function(site) {
+      var self = this;
+      models.sheets.find({
+        siteId: self.site._id
+      }).then(function(sheets) {
+        self.sheets = sheets;
+        self.next(sheets);
+      });
+    },
+    urlHasAChain: function() {
+      this.next(this.chain !== undefined);
+    },
+    runChain: function() {
+      var self = this,
+          pass = {};
+      Object.assign(pass, self, Chain["_"+this.chain].input);
+      Chain.run(this.chain, {
+        input: pass,
+        output: function(res) {
+          self.next(res); 
+        }
+      });
+    },
+    isVerbose: function() {
+      this.next(this.query.verbose);
+    },
+    addDetails: function(last) {
+      var index = {};
+      Object.assign(index, this);
+      this.next(index);
+    }
+  },
+  order: [
+    "connectToDb",
+    "lookupSiteInDb",
+    {
+      if: "noSiteExists",
+      true: "askToCreateSite",
+      false: [
+        "getSheetsForSite",
+        {
+          if: "urlHasAChain",
+          true: "runChain",
+          false: "loadLandingPage"
+        }
+      ]
+    },
+    {
+      if: "isVerbose",
+      true: "addDetails"
+    },
+    "serve"
+  ]
+});
+
+module.exports.port = function(event, context, callback) {
+  context.callbackWaitsForEmptyEventLoop = false;
+  var params = event.pathParameters || {};
+  _port({
+    event: event,
+    headers: event.headers || {},
+    context: context,
+    callback: callback,
+    siteName: params.site,
+    chain: params.chain,
+    arg1: params.arg1,
+    arg2: params.arg2,
+    query: event.queryStringParameters || {},
+    body: JSON.parse(event.body || "{}"),
+    domain: event.headers.Host,
+    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+  });
+};
