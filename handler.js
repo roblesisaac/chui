@@ -223,7 +223,8 @@ Chain.build("serve", {
 Chain.build("scripts", {
   data: function() {
     return {
-      sheetName: this.arg1
+      sheetName: this.arg1,
+      scriptName: this.arg2
     };
   },
   input: {
@@ -251,8 +252,7 @@ Chain.build("scripts", {
       });
     },
     noScriptSpecified: function() {
-      this.script = this.arg2;
-      this.next(this.script === undefined);
+      this.next(this.scriptName === undefined);
     },
     loadJavascript: function() {
       this.next({
@@ -263,7 +263,7 @@ Chain.build("scripts", {
     loadSpecificScriptText: function(findOne) {
       var self = this,
           template = this.sheet.templates.findOne({
-            name: self.script
+            name: self.scriptName
           });
       this.template = template || {};
       this.next({
@@ -277,8 +277,7 @@ Chain.build("scripts", {
       this.next(res);
     }
   },
-  order: ["lookupSheet"],
-  orders: [
+  order: [
     "lookupSheet",
     {
       if: "noSheetFound",
