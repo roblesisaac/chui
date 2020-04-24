@@ -144,8 +144,11 @@ Chain.build("getModel", {
       this.next(this.model);
     },
     relaySheetSchemaObj: function() {
-      this.schema = this.db.schema;
-      this.next({});
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number" };
+      
+      this.schema = this.sheet.db.schema;
+      this.next(this.schema);
     }
   },
   order: [
@@ -163,7 +166,7 @@ Chain.build("getModel", {
 Chain.build("buildModelFromObject", {
   data: function() {
     return {
-      schema: this.schema || {skus: "number"}
+      schema: this.schema || { name: "string" }
     };
   },
   steps: {
