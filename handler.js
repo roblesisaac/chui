@@ -221,6 +221,9 @@ Chain.build("serve", {
   ]
 });
 Chain.build("scripts", {
+  data: {
+    sheetName: this.arg1
+  },
   input: {
     css: "text/css",
     html: "text/html",
@@ -230,12 +233,11 @@ Chain.build("scripts", {
   steps: {
     lookupSheet: function() {
       var self = this;
-      this.sheetName = this.arg1;
-      // this.sheet = this.sheets.findOne({
-      //   name: self.sheetName,
-      //   siteId: self.siteId
-      // });
-      this.next(this.sheetName);
+      this.sheet = this.sheets.findOne({
+        name: self.sheetName,
+        siteId: self.siteId
+      });
+      this.next(this.sheet);
     },
     noSheetFound: function() {
       this.next(this.sheet === null);  
