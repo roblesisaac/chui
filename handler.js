@@ -223,7 +223,8 @@ Chain.build("serve", {
 Chain.build("scripts", {
   data: function() {
     return {
-      sheetName: this.arg1
+      sheetName: this.arg1,
+      script: this.arg2
     };
   },
   input: {
@@ -251,7 +252,6 @@ Chain.build("scripts", {
       });
     },
     noScriptSpecified: function() {
-      this.script = this.arg2;
       this.next(this.script === undefined);
     },
     loadJavascript: function() {
