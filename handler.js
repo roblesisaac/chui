@@ -117,7 +117,7 @@ Chain.build("api", {
   },
   order: [
     "getModel",
-    "relayData"
+    "routeMethod"
   ]
 });
 Chain.build("getModel", {
