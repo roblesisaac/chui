@@ -102,12 +102,9 @@ Chain.build("api", {
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;
-      this.model.findById(sheet._id, function (err, sheetFound) {
-        self.next(sheetFound);
+      this.model.findByIdAndUpdate(sheet._id, {db:{name:"string", link: "string"}}, { new: true }).then(function(data){
+        self.next(JSON.stringify(data));
       });
-      // this.model.findByIdAndUpdate(id, JSON.parse(event.body), { new: true }).then(function(data){
-      //   send(null, JSON.stringify(data));
-      // });
     }
   },
   order: ["getModel", "relayData", "updateFirstSheet"]
