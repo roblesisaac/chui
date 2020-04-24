@@ -91,7 +91,8 @@ Chain.build("schema", {
 Chain.build("api", {
   data: function() {
     return {
-      method: this.event.httpMethod.toLowerCase()
+      method: this.event.httpMethod.toLowerCase(),
+      id: this.arg2
     };
   },
   steps: {
@@ -107,6 +108,9 @@ Chain.build("api", {
     routeMethod: function() {
       this.next(this.method);
     },
+    sayId: function() {
+      this.next(this.id);  
+    },
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;
@@ -120,7 +124,7 @@ Chain.build("api", {
     {
       if: "routeMethod",
       get: "relayData",
-      put: "sayMethod",
+      put: "sayId",
       post: "sayMethod",
       delete: "sayMethod"
     }
