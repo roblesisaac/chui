@@ -78,12 +78,14 @@ var Chain = {
         }
         try {
           if(this.input.error) {
+            this.input.last = this.input.error;
             fn.bind(this.input)(this.input.error, this.input.next, this.input.vm);
           } else {
             fn.bind(this.input)(this.input.last, this.input.next, this.input.vm);  
           }
         }
         catch(err) {
+          this.input.last = err;
           this.input.error = err;
           this.input.next.bind(this.input)(err);
         }
