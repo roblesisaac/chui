@@ -109,12 +109,12 @@ Chain.build("api", {
       this.next(this.method);
     },
     sayId: function() {
-      this.next(this.id);  
+      this.next(this.body);  
     },
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;
-      this.model.findByIdAndUpdate(sheet._id, {sort: 0,db:{public:false, schema:{name:"string", link: "string", parts: [{sku: "string", info: "string", price: "string"}]}}}, { new: true }).then(function(data){
+      this.model.findByIdAndUpdate(this.id, {sort: 0,db:{public:false, schema:{name:"string", link: "string", parts: [{sku: "string", info: "string", price: "string"}]}}}, { new: true }).then(function(data){
         self.next(data);
       });
     }
