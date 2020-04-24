@@ -221,8 +221,10 @@ Chain.build("serve", {
   ]
 });
 Chain.build("scripts", {
-  data: {
-    sheetName: this.arg1
+  data: function() {
+    return {
+      sheetName: this.arg1
+    };
   },
   input: {
     css: "text/css",
