@@ -100,7 +100,11 @@ Chain.build("api", {
       });
     },
     updateFirstSheet: function() {
-      this.next(this.data[0]);  
+      var sheet = this.data[0],
+          self = this;;
+      this.model.findById(sheet._id, function (err, sheet) {
+        self.next(sheet);
+      });
     }
   },
   order: ["getModel", "relayData", "updateFirstSheet"]
