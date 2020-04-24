@@ -89,6 +89,11 @@ Chain.build("schema", {
 
 
 Chain.build("api", {
+  data: function() {
+    return {
+      method: this.event.httpMethod.toLowerCase
+    };
+  },
   steps: {
     relayData: function() {
       var self = this;
@@ -99,6 +104,9 @@ Chain.build("api", {
         self.next(data);
       });
     },
+    routeMethod: function() {
+      this.next(this.method);
+    },
     updateFirstSheet: function() {
       var sheet = this.data[0],
           self = this;
@@ -107,7 +115,16 @@ Chain.build("api", {
       });
     }
   },
-  order: ["getModel", "relayData", "updateFirstSheet"]
+  order: [
+    "getModel",
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "sayMethod",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
+  ]
 });
 Chain.build("getModel", {
   data: function() {
