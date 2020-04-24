@@ -349,7 +349,7 @@ var Chain = {
   steps: {
     error: function() {
       console.log(this.error);
-      this.next();
+      this.next(this.error);
     }
   }
 };
