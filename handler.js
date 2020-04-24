@@ -273,7 +273,8 @@ Chain.build("scripts", {
       this.next(res);
     }
   },
-  order: [
+  order: ["lookupSheet"],
+  orders: [
     "lookupSheet",
     {
       if: "noSheetFound",
