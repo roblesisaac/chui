@@ -112,8 +112,7 @@ Chain.build("api", {
       this.next(this.body);  
     },
     updateItem: function() {
-      var sheet = this.data[0],
-          self = this;
+      var self = this;
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
         self.next(data);
       });
