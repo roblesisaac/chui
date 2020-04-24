@@ -59,7 +59,7 @@ var Chain = {
   },
   currentStep: function(chain) {
     chain.stepNumber === undefined ? chain.stepNumber = 0 : chain.stepNumber++;
-    if(chain.order.split) chain.order = chain.order.split(); // make sure its array
+    if(!Array.isArray(chain.order)) chain.order = chain.order.split();
     var step = {
       chainName: chain.name,
       number: chain.stepNumber,
@@ -169,7 +169,7 @@ var Chain = {
     let step = Chain.currentStep(chain);
     
     if(chain.data) {
-      Object.assign(step.input, chain.data.bind(step.input)());
+      Object.assign(chain.input, chain.data.bind(step.input)());
     }
     
     if(!step.name) { // finished all steps
@@ -196,6 +196,7 @@ var Chain = {
       Chain.run(step.name, {
         input: step.input,
         output: function(res) {
+          Object.assign(chain.input, {last: res});
           Chain.iterate(chain);
         }
       });
