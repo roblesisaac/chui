@@ -357,10 +357,12 @@ Chain.build("serve", {
           true: "renderVariables"
         }
       ],
-      false: {
-        if: "noErrors",
-        true: "stringifyBody"
-      }
+      false: [
+        {
+          if: "noErrors",
+          true: "stringifyBody"
+        }
+      ]
     },
     "initCallback"
   ]
