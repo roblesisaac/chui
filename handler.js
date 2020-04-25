@@ -305,10 +305,9 @@ Chain.build("login", {
 Chain.build("serve", {
   steps: {
     formatObject: function(res) {
-      var t = typeof this.input.error;
       this.format = {
         statusCode: 200,
-        body: t
+        body: res
       };
       this.next(res);
     },
@@ -336,7 +335,7 @@ Chain.build("serve", {
       this.next(res);
     },
     noErrors: function() {
-      this.next(typeof this.error === "undefined");
+      this.next(!this.error);
     },
     stringifyBody: function() {
       this.format.body = JSON.stringify(this.format.body);
