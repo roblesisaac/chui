@@ -348,12 +348,7 @@ var Chain = {
       Chain.iterate(chain);
     }
   },
-  steps: {
-    error: function() {
-      console.log(this.error);
-      this.next(this.error);
-    }
-  }
+  steps: {}
 };
 
 module.exports = Chain;
