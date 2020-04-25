@@ -351,7 +351,8 @@ Chain.build("serve", {
         "replaceBody",
         {
           if: "thereAreVariables",
-          true: "renderVariables"
+          true: "renderVariables",
+          false: "stringifyBody"
         }
       ]
     },
