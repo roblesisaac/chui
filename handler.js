@@ -335,7 +335,7 @@ Chain.build("serve", {
       this.next(res);
     },
     noErrors: function() {
-      this.next(this.error === "undefined");
+      this.next(this.error === null);
     },
     stringifyBody: function() {
       this.format.body = JSON.stringify(this.format.body);
@@ -357,12 +357,10 @@ Chain.build("serve", {
           true: "renderVariables"
         }
       ],
-      false: [
-        {
-          if: "noErrors",
-          true: "stringifyBody"
-        }
-      ]
+      false: {
+        if: "noErrors",
+        true: "stringifyBody"
+      }
     },
     "initCallback"
   ]
