@@ -351,10 +351,10 @@ Chain.build("serve", {
         "replaceBody",
         {
           if: "thereAreVariables",
-          true: "renderVariables",
-          false: "stringifyBody"
+          true: "renderVariables"
         }
-      ]
+      ],
+      false: "stringifyBody"
     },
     "initCallback"
   ]
