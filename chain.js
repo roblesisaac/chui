@@ -85,9 +85,9 @@ var Chain = {
           }
         }
         catch(err) {
-          this.input.last = err;
-          this.input.error = err;
-          this.input.next.bind(this.input)(err);
+          this.input.last = err.stack;
+          this.input.error = err.stack;
+          this.input.next.bind(this.input)(err.stack);
         }
       },
       incorporateResultSteps: function(result) {
