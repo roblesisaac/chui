@@ -119,7 +119,7 @@ Chain.build("api", {
     }
   },
   order: [
-    "getModel",
+    "getDbSchema",
     {
       if: "routeMethod",
       get: "relayData",
@@ -129,7 +129,7 @@ Chain.build("api", {
     }
   ]
 });
-Chain.build("getModel", {
+Chain.build("getDbSchema", {
   data: function() {
     return {
       sheetName: this.arg1
@@ -158,12 +158,12 @@ Chain.build("getModel", {
       false: [
         "lookupSheet",
         "relaySheetSchemaObj",
-        "buildModelFromObject"
+        "buildSchema"
       ]
     }
   ]  
 });
-Chain.build("buildModelFromObject", {
+Chain.build("buildSchema", {
   data: function() {
     return {
       schema: this.schema || { skus: "number" }
@@ -334,6 +334,9 @@ Chain.build("serve", {
       }
       this.next(res);
     },
+    noErrors: function() {
+      this.next(this.error === undefined);
+    },
     stringifyBody: function() {
       this.format.body = JSON.stringify(this.format.body);
       this.next();
@@ -354,7 +357,10 @@ Chain.build("serve", {
           true: "renderVariables"
         }
       ],
-      false: "stringifyBody"
+      false: {
+        if: "noErrors",
+        true: "stringifyBody"
+      }
     },
     "initCallback"
   ]
