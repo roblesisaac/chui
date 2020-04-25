@@ -305,7 +305,7 @@ Chain.build("login", {
 Chain.build("serve", {
   steps: {
     formatObject: function(res) {
-      var t = typeof this.error;
+      var t = typeof this.input.error;
       this.format = {
         statusCode: 200,
         body: t
