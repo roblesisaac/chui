@@ -335,10 +335,10 @@ Chain.build("serve", {
       this.next(res);
     },
     noErrors: function() {
-      this.next(this.error === undefined);
+      this.next(typeof this.error === "undefined");
     },
     stringifyBody: function() {
-      if(this.error === undefined) this.format.body = JSON.stringify(this.format.body);
+      this.format.body = JSON.stringify(this.format.body);
       this.next();
     },
     initCallback: function() {
@@ -357,7 +357,10 @@ Chain.build("serve", {
           true: "renderVariables"
         }
       ],
-      false: "stringifyBody"
+      false: {
+        if: "noErrors",
+        true: "stringifyBody"
+      }
     },
     "initCallback"
   ]
