@@ -307,7 +307,7 @@ Chain.build("serve", {
     formatObject: function(res) {
       this.format = {
         statusCode: 200,
-        body: res
+        body: this.error
       };
       this.next(res);
     },
