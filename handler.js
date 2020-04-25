@@ -335,7 +335,7 @@ Chain.build("serve", {
       this.next(res);
     },
     noErrors: function() {
-      this.next(this.error === undefined);
+      this.next(this.error === "undefined");
     },
     stringifyBody: function() {
       this.format.body = JSON.stringify(this.format.body);
