@@ -347,8 +347,7 @@ Chain.build("serve", {
       this.next();
     },
     initCallback: function() {
-      var data = this.error || this.format;
-      this.callback(null, data);
+      this.callback(null, this.format);
     }
   },
   order: [
@@ -362,8 +361,7 @@ Chain.build("serve", {
           if: "thereAreVariables",
           true: "renderVariables"
         }
-      ],
-      false: "stringifyBody"
+      ]
     },
     "initCallback"
   ]
