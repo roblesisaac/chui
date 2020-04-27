@@ -30,8 +30,24 @@ addMethodToArray("findOne", function(filter){
   }
   return match;
 });
-
-Object.loop = function(obj, fn, parent) {
+addMethodToArray("loop", function(o, vm){
+  if(o.fn === undefined) return console.log("Please define fn.");
+  if(this === undefined) return console.log("Please define array");
+  
+  o.i === undefined ? o.i = 0 : o.i++;
+  if(!this[o.i]) {
+    if(o.done) o.done(vm);
+    return;
+  }
+  var self = this;
+  o.fn(o.i, this[o.i], function(vm) {
+    if(vm) vm.progress = ((o.i+1) / this.length) * 100; 
+    setTimeout(function(){
+      self.loop(o, vm);
+    }, 0);
+  });  
+});
+if(!Object.loop) Object.loop = function(obj, fn, parent) {
   parent = parent || obj;
   
   for(let key in obj) {
@@ -245,7 +261,7 @@ var Chain = {
       var data = step.name.data || step.input.last;
       
       if(step.isIncremental()) {
-        Chain.plyLoop(data, {
+        data.loop({
           fn: Chain.runChainForItem.bind(step),
           done: function() { Chain.iterate(chain) }
         });
@@ -287,22 +303,6 @@ var Chain = {
     return {
       loop: order
     };
-  },
-  plyLoop: function(arr, o, vm) {
-    if(o.fn === undefined) return console.log("Please define fn.");
-    if(arr === undefined) return console.log("Please define array");
-    
-    o.i === undefined ? o.i = 0 : o.i++;
-    if(!arr[o.i]) {
-      if(o.done) o.done(vm);
-      return;
-    }
-    o.fn(o.i, arr[o.i], function(vm) {
-      if(vm) vm.progress = ((o.i+1) / arr.length) * 100; 
-      setTimeout(function(){
-        Chain.plyLoop(arr, o, vm);
-      }, 0);
-    });
   },
   run: function(options, overRide) {
     var chain;
