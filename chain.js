@@ -1,3 +1,5 @@
+if(typeof global === "undefined") global = window;
+window.l4 = window.l4 || {};
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -10,14 +12,14 @@ function itemMatches(item, filter) {
   for(var key in filter) matches.push(filter[key] === item[key]);
   return matches.indexOf(false) === -1; 
 }
-addMethodToArray('find', function(filter){
+addMethodToArray("find", function(filter){
   var match = [];
   for (i = 0; i<this.length; i++) {
     if(itemMatches(this[i], filter)) match.push(this[i]);
   }
   return match;  
 });
-addMethodToArray('findOne', function(filter){
+addMethodToArray("findOne", function(filter){
   var match = null;
   for (i = 0; i<this.length; i++) {
     if(itemMatches(this[i], filter)) {
@@ -30,32 +32,28 @@ addMethodToArray('findOne', function(filter){
 });
 
 var Chain = {
-  addStepGlobally: function(stepName, fn) {
-    Chain.steps[stepName] = Chain.steps[stepName] || fn;
-    global["_"+stepName] = global["_"+stepName] || fn;
-  },
   addStepsGlobally: function(stepsObject) {
     if(!stepsObject) return;
-    if(stepsObject.name) {
-      Chain.addStepGlobally(stepsObject.name, stepsObject.fn);
-    }
     for(var stepName in stepsObject) {
-      Chain.addStepGlobally(stepName, stepsObject[stepName]);
+      Chain.steps[stepName] = Chain.steps[stepName] || stepsObject[stepName];
+      global["_"+stepName] = global["_"+stepName] || stepsObject[stepName];
     }    
   },
   build: function(chainName, chainObj) {
     if(Array.isArray(chainObj)) chainObj = {order: chainObj};
     Chain.addStepsGlobally(chainObj.steps);
     Chain["_"+chainName] = chainObj;
-    global["_"+chainName] = global["_"+chainName] || function(overRides) {
-      Chain.run({
-        input: chainObj.input || {},
-        output: chainObj.output,
-        order: chainObj.order,
-        name: chainName,
-        data: chainObj.data
-      }, overRides);
-    };
+    if(!global["_"+chainName]) {
+      global["_"+chainName] = function(overRides) {
+        Chain.run({
+          input: chainObj.input || {},
+          output: chainObj.output,
+          order: chainObj.order,
+          name: chainName,
+          data: chainObj.data
+        }, overRides);
+      };
+    }
   },
   currentStep: function(chain) {
     chain.stepNumber === undefined ? chain.stepNumber = 0 : chain.stepNumber++;
@@ -160,7 +158,7 @@ var Chain = {
     
     return step;
   },
-  runEachItem: function(i, item, nxt) {
+  runChainForItem: function(i, item, nxt) {
     Chain.run({
       input: {
         step: this,
@@ -194,8 +192,8 @@ var Chain = {
     }
     
     if(step.isConditional()) {
-      step.resolveCondition(function(conditionResult) {
-        step.incorporateResultSteps(conditionResult)
+      step.resolveCondition(function(answer) {
+        step.incorporateResultSteps(answer)
         .then(Chain.iterate);
       });
       return;
@@ -222,13 +220,13 @@ var Chain = {
       
       if(step.isIncremental()) {
         Chain.plyLoop(data, {
-          fn: Chain.runEachItem.bind(step),
+          fn: Chain.runChainForItem.bind(step),
           done: function() { Chain.iterate(chain) }
         });
       } else {
         if(Array.isArray(data)) {
           
-          for(let i in data) Chain.runEachItem.bind(step)(i, data[i]);
+          for(let i in data) Chain.runChainForItem.bind(step)(i, data[i]);
           
           Chain.iterate(chain);
           
@@ -267,7 +265,7 @@ var Chain = {
   objLoop: function(obj, fn, parent) {
     parent = parent || obj;
     
-    for(var key in obj) {
+    for(let key in obj) {
       let val = obj[key];
       
       if(Array.isArray(val)) {
@@ -348,7 +346,22 @@ var Chain = {
       Chain.iterate(chain);
     }
   },
+  run2: function() {
+    Chian.if("hasOverides", function(answer){
+      Chain.route(answer, {
+        true: function() {
+          Chain.step("addOverides", function(){
+            
+          });
+        },
+        false: function() {
+          
+        }
+      })  
+    });
+  },
   steps: {}
 };
 
+if(typeof module === "undefined") module = {};
 module.exports = Chain;
