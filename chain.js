@@ -31,6 +31,32 @@ addMethodToArray("findOne", function(filter){
   return match;
 });
 
+Object.loop = function(obj, fn, parent) {
+  parent = parent || obj;
+  
+  for(let key in obj) {
+    let val = obj[key];
+    
+    if(Array.isArray(val)) {
+      for(var i in val) {
+        var item = val[i];
+        if(typeof item !== "object") {
+          fn(val, i, item, parent);
+        } else {
+          Object.loop(item, fn, parent); 
+        }
+      }
+    } else if(typeof val === "object") {
+      Object.loop(val, fn, parent);
+    } else {
+      fn(obj, key, val, parent); 
+    }
+  }
+  
+  return obj;
+
+};
+
 var Chain = {
   addStepsGlobally: function(stepsObject) {
     if(!stepsObject) return;
@@ -232,7 +258,7 @@ var Chain = {
           
         } else if(typeof data === "object") {
           
-          Chain.objLoop(data, function(obj, key, value) {
+          Object.loop(data, function(obj, key, value) {
             var input = {
                 step: step,
                 obj: obj,
@@ -261,31 +287,6 @@ var Chain = {
     return {
       loop: order
     };
-  },
-  objLoop: function(obj, fn, parent) {
-    parent = parent || obj;
-    
-    for(let key in obj) {
-      let val = obj[key];
-      
-      if(Array.isArray(val)) {
-        for(var i in val) {
-          var item = val[i];
-          if(typeof item !== "object") {
-            fn(val, i, item, parent);
-          } else {
-            Chain.objLoop(item, fn, parent); 
-          }
-        }
-      } else if(typeof val === "object") {
-        Chain.objLoop(val, fn, parent);
-      } else {
-        fn(obj, key, val, parent); 
-      }
-    }
-    
-    return obj;
-
   },
   plyLoop: function(arr, o, vm) {
     if(o.fn === undefined) return console.log("Please define fn.");
