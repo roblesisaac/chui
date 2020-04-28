@@ -481,7 +481,6 @@ Chain.build("port", {
       Chain.run(this.chain, {
         input: pass,
         output: function(res) {
-          Object.assign(self, this);
           self.next(res); 
         }
       });
