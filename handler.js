@@ -295,7 +295,7 @@ Chain.build("serve", {
     formatObject: function(res) {
       this.format = {
         statusCode: 200,
-        body: this.error || res
+        body: res
       };
       this.next(res);
     },
@@ -347,8 +347,7 @@ Chain.build("serve", {
       ],
       false: {
         if: "noErrors",
-        true: "stringifyBody",
-        false: "stringifyBody"
+        true: "stringifyBody"
       }
     },
     "initCallback"
@@ -482,7 +481,6 @@ Chain.build("port", {
       Chain.run(this.chain, {
         input: pass,
         output: function(res) {
-          Object.assign(self, this);
           self.next(res); 
         }
       });
