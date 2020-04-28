@@ -1,4 +1,5 @@
 if(typeof global === "undefined") global = window;
+//test
 global.l4 = global.l4 || {};
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
