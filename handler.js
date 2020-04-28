@@ -347,7 +347,8 @@ Chain.build("serve", {
       ],
       false: {
         if: "noErrors",
-        true: "stringifyBody"
+        true: "stringifyBody",
+        false: "stringifyBody"
       }
     },
     "initCallback"
