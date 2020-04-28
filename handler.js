@@ -1,19 +1,7 @@
-// const AWS = require('aws-sdk');
-// // http or https
-// const http = require('http');
-// const agent = new http.Agent({
-//   keepAlive: true
-// });
-
-// AWS.config.update({
-//   httpOptions: {
-//     agent
-//   }
-// });
 const Chain = require('./chain');
 const loop = Chain.loop;
 const models = { 
-  sheets: require('./models/sheets'), 
+  sheets: require('./models/sheets'),
   sites: require('./models/sites'), 
   users: require('./models/users')
 };
@@ -136,10 +124,10 @@ Chain.build("getDbSchema", {
     };
   },
   steps: {
-    sheetIsFoundational: function() {
+    sheetIsNative: function() {
       this.next(models[this.sheetName] !== undefined);
     },
-    relayFoundationalModel: function() {
+    relayNativeModel: function() {
       this.model = models[this.sheetName];
       this.next(this.model);
     },
@@ -153,8 +141,8 @@ Chain.build("getDbSchema", {
   },
   order: [
     {
-      if: "sheetIsFoundational",
-      true: "relayFoundationalModel",
+      if: "sheetIsNative",
+      true: "relayNativeModel",
       false: [
         "lookupSheet",
         "relaySheetSchemaObj",
@@ -493,6 +481,7 @@ Chain.build("port", {
       Chain.run(this.chain, {
         input: pass,
         output: function(res) {
+          Object.assign(self, this);
           self.next(res); 
         }
       });
