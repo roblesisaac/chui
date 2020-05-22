@@ -1,4 +1,3 @@
-if(typeof global === "undefined") global = window;
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -878,7 +877,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serve"
+    "initCallback"
   ]
 });
 
@@ -898,8 +897,7 @@ module.exports.port = function(event, context, callback) {
     body: JSON.parse(event.body || "{}"),
     domain: event.headers.Host,
     host: "https://"+event.headers.Host+"/dev/exhaustbarn"
-  }).start();
-  // .catch(function(error){
-  //   callback(null, JSON.stringify(error));
-  // });
+  }).start().catch(function(error){
+    callback(null, JSON.stringify(error));
+  });
 };
