@@ -330,7 +330,8 @@ const serve = new Chain({
       this.callback(null, {
         statusCode: 200,
         body: JSON.stringify("test3")
-      })
+      });
+      this.next();
     }
   },
   instructions: [
