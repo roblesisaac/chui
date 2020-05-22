@@ -856,7 +856,7 @@ var port = new Chain({
   },
   instructions: [
     connectToDb,
-    "lookupSiteInDb",
+    "lookupSiteInDbs",
     // {
     //   if: "noSiteExists",
     //   true: "askToCreateSite",
