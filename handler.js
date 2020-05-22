@@ -526,7 +526,8 @@ module.exports.port = function(event, context, callback) {
   }).start().catch(function(error){
     callback(null, {
       statusCode: 200,
-      body: JSON.stringify(error.stack)
+      body: JSON.stringify(error.stack),
+      contentType: "text/html"
     });
   });
 };
