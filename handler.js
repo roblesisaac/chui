@@ -486,7 +486,7 @@ const chain = {
       }
     },
     instructions: [
-      chain.connectToDb,
+      this.connectToDb,
       "lookupSiteInDb",
       {
         if: "noSiteExists",
@@ -496,7 +496,7 @@ const chain = {
           {
             if: "urlHasAChain",
             true: "runChain",
-            false: chain.loadLandingPage
+            false: this.loadLandingPage
           }
         ]
       },
@@ -504,7 +504,7 @@ const chain = {
         if: "isVerbose",
         true: "addDetails"
       },
-      chain.serve
+      this.serve
     ]
   })
 };
