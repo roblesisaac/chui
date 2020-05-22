@@ -489,7 +489,7 @@ const port = new Chain({
     }
   },
   instructions: [
-    //"connectToDb",
+    // "connectToDb",
     // "lookupSiteInDb",
     // {
     //   if: "noSiteExists",
@@ -511,22 +511,24 @@ const port = new Chain({
   ]
 });
 
-const test = new Chain({
-  steps: {
-    servey: function() {
-      this.callback(null, {
-        statusCode: 200,
-        body: JSON.stringify("test1")
-      });
-      this.next();
-    }   
-  },
-  instructions: ["servey"]
-});
-
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  test.import({callback: callback}).start();
-  // port.import({ callback: callback }).start();
+  port.import({
+    event: event,
+    callback: callback,
+    chain: params.chain,
+    context: context,
+    headers: event.headers || {},
+    siteName: params.site,
+    arg1: params.arg1,
+    arg2: params.arg2,
+    query: event.queryStringParameters || {},
+    body: JSON.parse(event.body || "{}"),
+    domain: event.headers.Host,
+    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+  }).start();
+  // .catch(function(error){
+  //   callback(null, JSON.stringify(error));
+  // });
 };
