@@ -19,7 +19,8 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-const schema = new Chain({
+const chain = {
+  schema: new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -72,8 +73,8 @@ const schema = new Chain({
     ],
     "relayObj"
   ]
-});
-const api = new Chain({
+}),
+  api: new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -113,8 +114,8 @@ const api = new Chain({
       delete: "sayMethod"
     }
   ]
-});
-const getDbSchema = new Chain({
+}),
+  getDbSchema: new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -147,8 +148,8 @@ const getDbSchema = new Chain({
       ]
     }
   ]  
-});
-const buildSchema = new Chain({
+}),
+  buildSchema: new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -204,8 +205,8 @@ const buildSchema = new Chain({
     ],
     "relayObj"
   ]
-});
-const connectToDb = new Chain({
+}),
+  connectToDb: new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -232,8 +233,8 @@ const connectToDb = new Chain({
       false: "connect"
     }
   ]
-});
-const login = new Chain({
+}),
+  login: new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -284,8 +285,8 @@ const login = new Chain({
       ]
     }
   ]
-});
-const serve = new Chain({
+}),
+  serve: new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -344,8 +345,8 @@ const serve = new Chain({
     "stringifyBody",
     "initCallback"
   ]
-});
-const scripts = new Chain({
+}),
+  scripts: new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -412,8 +413,8 @@ const scripts = new Chain({
         }
     }
   ]
-});
-const loadLandingPage = new Chain({
+}),
+  loadLandingPage: new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -430,8 +431,8 @@ const loadLandingPage = new Chain({
     }
   },
   instructions: [ "showIndex" ]
-});
-const port = new Chain({
+}),
+  port: new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
@@ -485,7 +486,7 @@ const port = new Chain({
     }
   },
   instructions: [
-    connectToDb,
+    this.connectToDb,
     "lookupSiteInDb",
     {
       if: "noSiteExists",
@@ -495,7 +496,7 @@ const port = new Chain({
         {
           if: "urlHasAChain",
           true: "runChain",
-          false: loadLandingPage
+          false: this.loadLandingPage
         }
       ]
     },
@@ -503,14 +504,15 @@ const port = new Chain({
       if: "isVerbose",
       true: "addDetails"
     },
-    serve
+    this.serve
   ]
-});
+})
+};
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({
+  chain.port.import({
     event: event,
     callback: callback,
     chain: params.chain,
