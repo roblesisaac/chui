@@ -286,69 +286,69 @@ const login = new Chain({
     }
   ]
 });
-const serve = new Chain({
-  steps: {
-    formatObject: function(res) {
-      this.format = {
-        statusCode: 200,
-        body: JSON.stringify("res");
-      };
-      this.next(res);
-    },
-    itNeedsHeaders: function(res) {
-      this.next(res.contentType !== undefined);
-    },
-    addHeaders: function(res) {
-      this.format.headers = {
-        'Content-Type': res.contentType 
-      };
-      this.next(res);
-    },
-    replaceBody: function(res) {
-      this.format.body = res.body || "No text in body?";
-      this.next(res);
-    },
-    thereAreVariables: function(res) {
-      this.next(res.data !== undefined);
-    },
-    renderVariables: function(res) {
-      var self = this;
-      for(var key in res.data) {
-        self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
-      }
-      this.next(res);
-    },
-    noErrors: function() {
-      this.next(!this.error);
-    },
-    stringifyBody: function() {
-      this.format.body = JSON.stringify(this.format.body);
-      this.next();
-    },
-    initCallback: function() {
-      this.callback(null, this.format);
-    }
-  },
-  instructions: [
-    "formatObject",
-    // {
-    //   if: "itNeedsHeaders",
-    //   true: [
-    //     "addHeaders",
-    //     "replaceBody",
-    //     {
-    //       if: "thereAreVariables",
-    //       true: "renderVariables"
-    //     }
-    //   ],
-    //   false: {
-    //     if: "noErrors",
-    //     true: "stringifyBody"
-    //   }
-    // },
-    "initCallback"
-  ]
-});
+// const serve = new Chain({
+//   steps: {
+//     formatObject: function(res) {
+//       this.format = {
+//         statusCode: 200,
+//         body: JSON.stringify("res");
+//       };
+//       this.next(res);
+//     },
+//     itNeedsHeaders: function(res) {
+//       this.next(res.contentType !== undefined);
+//     },
+//     addHeaders: function(res) {
+//       this.format.headers = {
+//         'Content-Type': res.contentType 
+//       };
+//       this.next(res);
+//     },
+//     replaceBody: function(res) {
+//       this.format.body = res.body || "No text in body?";
+//       this.next(res);
+//     },
+//     thereAreVariables: function(res) {
+//       this.next(res.data !== undefined);
+//     },
+//     renderVariables: function(res) {
+//       var self = this;
+//       for(var key in res.data) {
+//         self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
+//       }
+//       this.next(res);
+//     },
+//     noErrors: function() {
+//       this.next(!this.error);
+//     },
+//     stringifyBody: function() {
+//       this.format.body = JSON.stringify(this.format.body);
+//       this.next();
+//     },
+//     initCallback: function() {
+//       this.callback(null, this.format);
+//     }
+//   },
+//   instructions: [
+//     "formatObject",
+//     // {
+//     //   if: "itNeedsHeaders",
+//     //   true: [
+//     //     "addHeaders",
+//     //     "replaceBody",
+//     //     {
+//     //       if: "thereAreVariables",
+//     //       true: "renderVariables"
+//     //     }
+//     //   ],
+//     //   false: {
+//     //     if: "noErrors",
+//     //     true: "stringifyBody"
+//     //   }
+//     // },
+//     "initCallback"
+//   ]
+// });
 const scripts = new Chain({
   input: function() {
     return {
@@ -435,101 +435,101 @@ const loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-// const port = new Chain({
-//   steps: {
-//     lookupSiteInDb: function(res, next, vm) {
-//       var self = this;
-//       models.sites.findOne({
-//         name: self.siteName
-//       }).then(function(site){
-//         self.site = site;
-//         self.siteId = site.id;
-//         self.next(site);
-//       });
-//     },
-//     noSiteExists: function(site) {
-//       this.next(site === null);
-//     },
-//     askToCreateSite: function() {
-//       this.next({
-//         body: "<h1>" + this.siteName + " not found. Would you like to create one?</h1>", 
-//         contentType: "text/html"
-//       });
-//     },
-//     getSheetsForSite: function(site) {
-//       var self = this;
-//       models.sheets.find({
-//         siteId: self.site._id
-//       }).then(function(sheets) {
-//         self.sheets = sheets;
-//         self.next(sheets);
-//       });
-//     },
-//     urlHasAChain: function() {
-//       this.next(this.chain !== undefined);
-//     },
-//     runChain: function() {
-//       var self = this,
-//           pass = {};
-//       Object.assign(pass, self, Chain["_"+this.chain].input);
-//       Chain.run(this.chain, {
-//         input: pass,
-//         output: function(res) {
-//           self.next(res); 
-//         }
-//       });
-//     },
-//     isVerbose: function() {
-//       this.next(this.query.verbose);
-//     },
-//     addDetails: function(last) {
-//       var index = {};
-//       Object.assign(index, this);
-//       this.next(index);
-//     }
-//   },
-//   instructions: [
-//     //"connectToDb",
-//     // "lookupSiteInDb",
-//     // {
-//     //   if: "noSiteExists",
-//     //   true: "askToCreateSite",
-//     //   false: [
-//     //     "getSheetsForSite",
-//     //     {
-//     //       if: "urlHasAChain",
-//     //       true: "runChain",
-//     //       false: "loadLandingPage"
-//     //     }
-//     //   ]
-//     // },
-//     // {
-//     //   if: "isVerbose",
-//     //   true: "addDetails"
-//     // },
-//     "serve"
-//   ]
-// });
+const port = new Chain({
+  steps: {
+    lookupSiteInDb: function(res, next, vm) {
+      var self = this;
+      models.sites.findOne({
+        name: self.siteName
+      }).then(function(site){
+        self.site = site;
+        self.siteId = site.id;
+        self.next(site);
+      });
+    },
+    noSiteExists: function(site) {
+      this.next(site === null);
+    },
+    askToCreateSite: function() {
+      this.next({
+        body: "<h1>" + this.siteName + " not found. Would you like to create one?</h1>", 
+        contentType: "text/html"
+      });
+    },
+    getSheetsForSite: function(site) {
+      var self = this;
+      models.sheets.find({
+        siteId: self.site._id
+      }).then(function(sheets) {
+        self.sheets = sheets;
+        self.next(sheets);
+      });
+    },
+    urlHasAChain: function() {
+      this.next(this.chain !== undefined);
+    },
+    runChain: function() {
+      var self = this,
+          pass = {};
+      Object.assign(pass, self, Chain["_"+this.chain].input);
+      Chain.run(this.chain, {
+        input: pass,
+        output: function(res) {
+          self.next(res); 
+        }
+      });
+    },
+    isVerbose: function() {
+      this.next(this.query.verbose);
+    },
+    addDetails: function(last) {
+      var index = {};
+      Object.assign(index, this);
+      this.next(index);
+    }
+  },
+  instructions: [
+    //"connectToDb",
+    // "lookupSiteInDb",
+    // {
+    //   if: "noSiteExists",
+    //   true: "askToCreateSite",
+    //   false: [
+    //     "getSheetsForSite",
+    //     {
+    //       if: "urlHasAChain",
+    //       true: "runChain",
+    //       false: "loadLandingPage"
+    //     }
+    //   ]
+    // },
+    // {
+    //   if: "isVerbose",
+    //   true: "addDetails"
+    // },
+    "serve"
+  ]
+});
 
-// const test = new Chain({
-//   steps: {
-//     servey: function() {
-//       this.callback(null, {
-//         statusCode: 200,
-//         body: JSON.stringify("server")
-//       });
-//       this.next();
-//     }   
-//   },
-//   instructions: ["servey"]
-// });
+const test = new Chain({
+  steps: {
+    servey: function() {
+      this.callback(null, {
+        statusCode: 200,
+        body: JSON.stringify("server")
+      });
+      this.next();
+    }   
+  },
+  instructions: ["servey"]
+});
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
   callback(null, {
     statusCode: 200,
-    body: JSON.stringify("hilserve")
+    body: JSON.stringify("hilone")
   });
   // port.import({ callback: callback }).start();
 };
