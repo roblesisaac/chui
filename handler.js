@@ -517,14 +517,14 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serve"
+    "initCallback"
   ]
 });
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  serve.import({
+  port.import({
     event: event,
     callback: callback,
     chain: params.chain,
