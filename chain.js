@@ -221,18 +221,18 @@ Instance.prototype.step = function(stepName) {
       });
     },
     set: function(key, val) {
-      self.memory._set[key] = val;
+      self.memory._hardSet[key] = val;
     },
     _getAnswer: function(next) {
       var condition = stepName.if;
       if(typeof condition == "boolean") {
         return next(condition);
       }
-      var data = Object.assign({}, self.memory, this, {next: next});
+      var data = Object.assign({}, self.memory.clean(), this, {next: next});
       this._method(self.library.steps[condition], data);
     },
     input: function() {
-      return self.input.call(self.memory);
+      return self.input.call(self.memory.clean());
     },
     _is: function(condition) {
       return {
@@ -256,7 +256,7 @@ Instance.prototype.step = function(stepName) {
     _memory: self.memory,
     _method: function(step, data) {
       self.memory.import(this.input());
-      var data = data || Object.assign({}, self.memory, this),
+      var data = data || Object.assign({}, self.memory.clean(), this),
           step = step || self.library.steps[stepName],
           res = self.memory.last,
           next = this.next.bind(data),
@@ -301,19 +301,15 @@ Instructions.prototype.insert = function(stepsArray) {
 }
 
 function Memory(data, exclusions) {
-  this._exclusions = (exclusions || []).concat("_exclusions", "_expecting", "_keys", "_set");
+  this._exclusions = exclusions || [];
   this._expecting = [];
-  this._set = {};
+  this._hardSet = {};
+  this._storage = {};
   if(!Array.isArray(data)) data = [data];
   for(i in data) this.init(data[i]);
 }
 Memory.prototype.clean = function() {
-  var cleaned = {},
-      exclusions = this._exclusions;
-  for(var key in this) {
-    if(exclusions.indexOf(key) < 0 && !this.__proto__[key]) cleaned[key] = this[key];
-  }
-  return cleaned;
+  return this._storage;
 };
 Memory.prototype.init = function(data) {
   data = this.format(data);
@@ -322,7 +318,7 @@ Memory.prototype.init = function(data) {
     if(value === undefined) {
       this._expecting.push(key);
     } else {
-      this[key] = value;
+      this._storage[key] = value;
       var expectIndex = this._expecting.indexOf(key);
       if(expectIndex > -1) this._expecting.splice(expectIndex, 1);
     }
@@ -333,6 +329,8 @@ Memory.prototype.format = function(data) {
          ? data()
          : !data
          ? {}
+         : Array.isArray(data) || typeof data !== "object"
+         ? { input: data }
          : data;
 };
 Memory.prototype._keys = function(obj) {
@@ -356,10 +354,10 @@ Memory.prototype.import = function(data) {
   var nativeKeys = this._keys(this);
   for(var key in data) {
     if(nativeKeys.isExpecting(key) || (nativeKeys.excludes(key) && nativeKeys.notInExclusions(key))) {
-      this[key] = data[key];
+      this._storage[key] = data[key];
     }
   }
-  Object.assign(this, this._set);
+  Object.assign(this._storage, this._hardSet);
 }
 
 if(typeof module === "undefined") module = {};
