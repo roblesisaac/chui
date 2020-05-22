@@ -687,6 +687,10 @@ const serve = new Chain({
     },
     initCallback: function() {
       this.callback(null, this.format);
+      // this.callback(null, {
+      //   statusCode: 200,
+      //   body: JSON.stringify("test7")
+      // });
     }
   },
   instructions: [
@@ -873,6 +877,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
+    "formatObject",
     "initCallback"
   ]
 });
