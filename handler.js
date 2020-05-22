@@ -466,14 +466,12 @@ global.port = new Chain({
     },
     runChain: function() {
       var self = this,
-          c
-          pass = Object.assign({}, self, global[this.chain].input);
-      chain.start()
-      Chain.run(this.chain, {
-        input: pass,
-        output: function(res) {
-          self.next(res); 
-        }
+          chain = global[this.chain];
+      chain.import(this).start().then(function(memory){
+        self._memory.import(memory);
+        self.next();
+      }).catch(function(err){
+        self.error(err);
       });
     },
     isVerbose: function() {
