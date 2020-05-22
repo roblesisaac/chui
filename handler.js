@@ -868,7 +868,7 @@ var port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serve"
+    serve
   ]
 });
 
