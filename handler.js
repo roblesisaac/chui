@@ -290,7 +290,7 @@ const serve = new Chain({
     formatObject: function(res) {
       this.format = {
         statusCode: 200,
-        body: JSON.stringify("res")
+        body: res
       };
       this.next(res);
     },
@@ -330,21 +330,18 @@ const serve = new Chain({
   },
   instructions: [
     "formatObject",
-    // {
-    //   if: "itNeedsHeaders",
-    //   true: [
-    //     "addHeaders",
-    //     "replaceBody",
-    //     {
-    //       if: "thereAreVariables",
-    //       true: "renderVariables"
-    //     }
-    //   ],
-    //   false: {
-    //     if: "noErrors",
-    //     true: "stringifyBody"
-    //   }
-    // },
+    {
+      if: "itNeedsHeaders",
+      true: [
+        "addHeaders",
+        "replaceBody",
+        {
+          if: "thereAreVariables",
+          true: "renderVariables"
+        }
+      ]
+    },
+    "stringifyBody",
     "initCallback"
   ]
 });
@@ -485,9 +482,6 @@ const port = new Chain({
       var index = {};
       Object.assign(index, this);
       this.next(index);
-    },
-    serves: function() {
-      this.next();
     }
   },
   instructions: [
