@@ -857,18 +857,18 @@ var port = new Chain({
   instructions: [
     connectToDb,
     "lookupSiteInDb",
-    {
-      if: "noSiteExists",
-      true: "askToCreateSite",
-      false: [
-        "getSheetsForSite",
-        {
-          if: "urlHasAChain",
-          true: "runChain",
-          false: loadLandingPage
-        }
-      ]
-    },
+    // {
+    //   if: "noSiteExists",
+    //   true: "askToCreateSite",
+    //   false: [
+    //     "getSheetsForSite",
+    //     {
+    //       if: "urlHasAChain",
+    //       true: "runChain",
+    //       false: loadLandingPage
+    //     }
+    //   ]
+    // },
     {
       if: "isVerbose",
       true: "addDetails"
@@ -894,6 +894,9 @@ module.exports.port = function(event, context, callback) {
     domain: event.headers.Host,
     host: "https://"+event.headers.Host+"/dev/exhaustbarn"
   }).start().catch(function(error){
-    callback(null, JSON.stringify(error));
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(error)
+    });
   });
 };
