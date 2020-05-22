@@ -286,69 +286,69 @@ const login = new Chain({
     }
   ]
 });
-// const serve = new Chain({
-//   steps: {
-//     formatObject: function(res) {
-//       this.format = {
-//         statusCode: 200,
-//         body: JSON.stringify("res");
-//       };
-//       this.next(res);
-//     },
-//     itNeedsHeaders: function(res) {
-//       this.next(res.contentType !== undefined);
-//     },
-//     addHeaders: function(res) {
-//       this.format.headers = {
-//         'Content-Type': res.contentType 
-//       };
-//       this.next(res);
-//     },
-//     replaceBody: function(res) {
-//       this.format.body = res.body || "No text in body?";
-//       this.next(res);
-//     },
-//     thereAreVariables: function(res) {
-//       this.next(res.data !== undefined);
-//     },
-//     renderVariables: function(res) {
-//       var self = this;
-//       for(var key in res.data) {
-//         self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
-//       }
-//       this.next(res);
-//     },
-//     noErrors: function() {
-//       this.next(!this.error);
-//     },
-//     stringifyBody: function() {
-//       this.format.body = JSON.stringify(this.format.body);
-//       this.next();
-//     },
-//     initCallback: function() {
-//       this.callback(null, this.format);
-//     }
-//   },
-//   instructions: [
-//     "formatObject",
-//     // {
-//     //   if: "itNeedsHeaders",
-//     //   true: [
-//     //     "addHeaders",
-//     //     "replaceBody",
-//     //     {
-//     //       if: "thereAreVariables",
-//     //       true: "renderVariables"
-//     //     }
-//     //   ],
-//     //   false: {
-//     //     if: "noErrors",
-//     //     true: "stringifyBody"
-//     //   }
-//     // },
-//     "initCallback"
-//   ]
-// });
+const serve = new Chain({
+  steps: {
+    formatObject: function(res) {
+      this.format = {
+        statusCode: 200,
+        body: JSON.stringify("res");
+      };
+      this.next(res);
+    },
+    itNeedsHeaders: function(res) {
+      this.next(res.contentType !== undefined);
+    },
+    addHeaders: function(res) {
+      this.format.headers = {
+        'Content-Type': res.contentType 
+      };
+      this.next(res);
+    },
+    replaceBody: function(res) {
+      this.format.body = res.body || "No text in body?";
+      this.next(res);
+    },
+    thereAreVariables: function(res) {
+      this.next(res.data !== undefined);
+    },
+    renderVariables: function(res) {
+      var self = this;
+      for(var key in res.data) {
+        self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
+      }
+      this.next(res);
+    },
+    noErrors: function() {
+      this.next(!this.error);
+    },
+    stringifyBody: function() {
+      this.format.body = JSON.stringify(this.format.body);
+      this.next();
+    },
+    initCallback: function() {
+      this.callback(null, this.format);
+    }
+  },
+  instructions: [
+    "formatObject",
+    // {
+    //   if: "itNeedsHeaders",
+    //   true: [
+    //     "addHeaders",
+    //     "replaceBody",
+    //     {
+    //       if: "thereAreVariables",
+    //       true: "renderVariables"
+    //     }
+    //   ],
+    //   false: {
+    //     if: "noErrors",
+    //     true: "stringifyBody"
+    //   }
+    // },
+    "initCallback"
+  ]
+});
 const scripts = new Chain({
   input: function() {
     return {
@@ -529,7 +529,7 @@ module.exports.port = function(event, context, callback) {
   var params = event.pathParameters || {};
   callback(null, {
     statusCode: 200,
-    body: JSON.stringify("hil")
+    body: JSON.stringify("hilserve")
   });
   // port.import({ callback: callback }).start();
 };
