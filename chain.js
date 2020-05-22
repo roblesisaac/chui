@@ -520,20 +520,21 @@ const port = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({
-    event: event,
-    headers: event.headers || {},
-    context: context,
-    callback: callback,
-    siteName: params.site,
-    chain: params.chain,
-    arg1: params.arg1,
-    arg2: params.arg2,
-    query: event.queryStringParameters || {},
-    body: JSON.parse(event.body || "{}"),
-    domain: event.headers.Host,
-    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
-  }).start().catch(function(error){
-    callback(null, JSON.stringify(error));
-  });
+  callback(null, JSON.stringify("hi"))
+  // port.import({
+  //   event: event,
+  //   headers: event.headers || {},
+  //   context: context,
+  //   callback: callback,
+  //   siteName: params.site,
+  //   chain: params.chain,
+  //   arg1: params.arg1,
+  //   arg2: params.arg2,
+  //   query: event.queryStringParameters || {},
+  //   body: JSON.parse(event.body || "{}"),
+  //   domain: event.headers.Host,
+  //   host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+  // }).start().catch(function(error){
+  //   callback(null, JSON.stringify(error));
+  // });
 };
