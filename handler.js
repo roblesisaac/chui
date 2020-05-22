@@ -434,7 +434,7 @@ const loadLandingPage = new Chain({
 const port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
-      var self = this;
+      var self = thiss;
       models.sites.findOne({
         name: self.siteName
       }).then(function(site){
