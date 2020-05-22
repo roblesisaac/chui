@@ -1,3 +1,4 @@
+window.l4 = window.l4 || {};
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -136,7 +137,7 @@ Chain.prototype.automate = function(number, instance) {
   if(step._is("aCondition")) {
     step._getAnswer(function(answer){
       var switcher = step._name[answer];
-      instructions.insert(switcher);
+      if(switcher) instructions.insert(switcher);
       instance.automate();
     });
     return instance;
