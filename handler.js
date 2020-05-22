@@ -649,7 +649,7 @@ const login = new Chain({
 const serve = new Chain({
   steps: {
     formatObject: function(res) {
-      this.format = {
+      this.formats = {
         statusCode: 200,
         body: JSON.stringify("res")
       };
