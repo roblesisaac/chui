@@ -686,11 +686,11 @@ const serve = new Chain({
       this.next();
     },
     initCallback: function() {
-      this.callback(null, this.format);
-      // this.callback(null, {
-      //   statusCode: 200,
-      //   body: JSON.stringify("test7")
-      // });
+      // this.callback(null, this.format);
+      this.callback(null, {
+        statusCode: 200,
+        body: JSON.stringify("test7")
+      });
     }
   },
   instructions: [
