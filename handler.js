@@ -654,7 +654,7 @@ const serve = new Chain({
       //   body: JSON.stringify("res")
       // };
       // this.next(res);
-      this.next();
+      this.next(res);
     },
     itNeedsHeaders: function(res) {
       this.next(res.contentType !== undefined);
