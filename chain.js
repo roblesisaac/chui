@@ -1,4 +1,3 @@
-window.l4 = window.l4 || {};
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -95,12 +94,12 @@ function Chain(format) {
 }
 Chain.prototype.build = function(format) {
   this.input = !format.input
-               ? function() { return {}}
-               : typeof format.input == "function"
-               ? format.input
-               : Array.isArray(format.input) || typeof format.input !== "object"
-               ? function() {return {input: format.input}}
-               : function() {return Object.assign({}, format.input)};
+              ? function() { return {}}
+              : typeof format.input == "function"
+              ? format.input
+              : Array.isArray(format.input) || typeof format.input !== "object"
+              ? function() {return {input: format.input}}
+              : function() {return Object.assign({}, format.input)};
   this.instructions = !format.instructions
                       ? []
                       : Array.isArray(format.instructions)
@@ -114,8 +113,8 @@ Chain.prototype.build = function(format) {
 Chain.prototype.library = {steps:{}};
 Chain.prototype.automate = function(number, instance) {
   instance = this._parent // only instances have a _parent
-             ? this
-             : new Instance(this);
+            ? this
+            : new Instance(this);
   
   var instructions = instance.instructions,
       step = instance.step(instructions.nextStepName(number));
