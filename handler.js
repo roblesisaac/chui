@@ -852,14 +852,11 @@ const port = new Chain({
       this.next(index);
     },
     serves: function() {
-      this.callback(null, {
-        statusCode: 200,
-        body: JSON.stringify("test3")
-      });
+      this.next();
     }
   },
   instructions: [
-    "connectToDb",
+    // "connectToDb",
     // "lookupSiteInDb",
     // {
     //   if: "noSiteExists",
@@ -878,6 +875,7 @@ const port = new Chain({
     //   true: "addDetails"
     // },
     // "formatObject",
+    "serves",
     "initCallback"
   ]
 });
