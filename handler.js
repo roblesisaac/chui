@@ -207,6 +207,9 @@ const buildSchema = new Chain({
   ]
 });
 const connectToDb = new Chain({
+  input: {
+    tokens: process.env.DB
+  },
   steps: {
     alreadyConnected: function() {
       this.next(isConnected !== undefined);
@@ -222,9 +225,6 @@ const connectToDb = new Chain({
         self.next();
       });
     }
-  },
-  input: {
-    tokens: process.env.DB
   },
   instructions: [
     {
@@ -291,7 +291,7 @@ const serve = new Chain({
     formatObject: function(res) {
       this.format = {
         statusCode: 200,
-        body: "res"
+        body: JSON.stringify("res");
       };
       this.next(res);
     },
@@ -489,7 +489,7 @@ const port = new Chain({
     }
   },
   instructions: [
-    "connectToDb",
+    //"connectToDb",
     // "lookupSiteInDb",
     // {
     //   if: "noSiteExists",
