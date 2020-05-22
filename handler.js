@@ -329,9 +329,8 @@ const serve = new Chain({
       // this.callback(null, this.format);
       this.callback(null, {
         statusCode: 200,
-        body: JSON.stringify("test3")
+        body: JSON.stringify("test4")
       });
-      this.next();
     }
   },
   instructions: [
@@ -518,14 +517,14 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serves"
+    "serve"
   ]
 });
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({
+  serve.import({
     event: event,
     callback: callback,
     chain: params.chain,
