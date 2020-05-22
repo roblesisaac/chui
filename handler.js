@@ -859,7 +859,7 @@ const port = new Chain({
     }
   },
   instructions: [
-    // "connectToDb",
+    "connectToDb",
     // "lookupSiteInDb",
     // {
     //   if: "noSiteExists",
