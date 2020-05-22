@@ -349,92 +349,92 @@ const login = new Chain({
 //     "initCallback"
 //   ]
 // });
-// const scripts = new Chain({
-//   input: function() {
-//     return {
-//       sheetName: this.arg1,
-//       scriptName: this.arg2,
-//       css: "text/css",
-//       html: "text/html",
-//       javascript: "application/javascript",
-//       defaultTypes: ["text/css", "text/html", "application/javascript"]
-//     };
-//   },
-//   steps: {
-//     lookupSheet: function() {
-//       var self = this;
-//       this.sheet = this.sheets.findOne({
-//         name: self.sheetName,
-//         siteId: self.siteId
-//       });
-//       this.next(this.sheet);
-//     },
-//     noSheetFound: function() {
-//       this.next(this.sheet === null);  
-//     },
-//     sayNoSheetFound: function() {
-//       this.next({
-//         body: "<h1>No " + this.sheetName + " found...</h1>",
-//         contentType: "html"
-//       });
-//     },
-//     noScriptSpecified: function() {
-//       this.next(this.scriptName === undefined);
-//     },
-//     loadJavascript: function() {
-//       this.next({
-//         body: this.sheet.js,
-//         contentType: "application/javascript"
-//       });
-//     },
-//     loadSpecificScriptText: function(findOne) {
-//       var self = this,
-//           template = this.sheet.templates.findOne({
-//             name: self.scriptName
-//           });
-//       this.template = template || {};
-//       this.next({
-//         body:  template.text
-//       });
-//     },
-//     appendContentType: function(res) {
-//       var contentType = this[this.template.contentType] || this.template.contentType;
-//       if(this.defaultTypes.indexOf(contentType) === -1) contentType = "text/html";
-//       res.contentType = contentType;
-//       this.next(res);
-//     }
-//   },
-//   instructions: [
-//     "lookupSheet",
-//     {
-//       if: "noSheetFound",
-//       true: "sayNoSheetFound",
-//       false: {
-//           if: "noScriptSpecified",
-//           true: "loadJavascript",
-//           false: ["loadSpecificScriptText", "appendContentType"]
-//         }
-//     }
-//   ]
-// });
-// const loadLandingPage = new Chain({
-//   steps: {
-//     showIndex: function() {
-//       this.next({
-//         data: {
-//           host: this.host,
-//           siteName: this.site.url,
-//           token: token,
-//           cookie: this.headers.Cookie || "No Cookie",
-//           username: this.username || "public"
-//         },
-//         body: tmplts.index,
-//         contentType: "html"
-//       });
-//     }
-//   },
-//   instructions: [ "showIndex" ]
-// });
+const scripts = new Chain({
+  input: function() {
+    return {
+      sheetName: this.arg1,
+      scriptName: this.arg2,
+      css: "text/css",
+      html: "text/html",
+      javascript: "application/javascript",
+      defaultTypes: ["text/css", "text/html", "application/javascript"]
+    };
+  },
+  steps: {
+    lookupSheet: function() {
+      var self = this;
+      this.sheet = this.sheets.findOne({
+        name: self.sheetName,
+        siteId: self.siteId
+      });
+      this.next(this.sheet);
+    },
+    noSheetFound: function() {
+      this.next(this.sheet === null);  
+    },
+    sayNoSheetFound: function() {
+      this.next({
+        body: "<h1>No " + this.sheetName + " found...</h1>",
+        contentType: "html"
+      });
+    },
+    noScriptSpecified: function() {
+      this.next(this.scriptName === undefined);
+    },
+    loadJavascript: function() {
+      this.next({
+        body: this.sheet.js,
+        contentType: "application/javascript"
+      });
+    },
+    loadSpecificScriptText: function(findOne) {
+      var self = this,
+          template = this.sheet.templates.findOne({
+            name: self.scriptName
+          });
+      this.template = template || {};
+      this.next({
+        body:  template.text
+      });
+    },
+    appendContentType: function(res) {
+      var contentType = this[this.template.contentType] || this.template.contentType;
+      if(this.defaultTypes.indexOf(contentType) === -1) contentType = "text/html";
+      res.contentType = contentType;
+      this.next(res);
+    }
+  },
+  instructions: [
+    "lookupSheet",
+    {
+      if: "noSheetFound",
+      true: "sayNoSheetFound",
+      false: {
+          if: "noScriptSpecified",
+          true: "loadJavascript",
+          false: ["loadSpecificScriptText", "appendContentType"]
+        }
+    }
+  ]
+});
+const loadLandingPage = new Chain({
+  steps: {
+    showIndex: function() {
+      this.next({
+        data: {
+          host: this.host,
+          siteName: this.site.url,
+          token: token,
+          cookie: this.headers.Cookie || "No Cookie",
+          username: this.username || "public"
+        },
+        body: tmplts.index,
+        contentType: "html"
+      });
+    }
+  },
+  instructions: [ "showIndex" ]
+});
 // const port = new Chain({
 //   steps: {
 //     lookupSiteInDb: function(res, next, vm) {
@@ -529,7 +529,7 @@ module.exports.port = function(event, context, callback) {
   var params = event.pathParameters || {};
   callback(null, {
     statusCode: 200,
-    body: JSON.stringify("hi")
+    body: JSON.stringify("hil")
   });
   // port.import({ callback: callback }).start();
 };
