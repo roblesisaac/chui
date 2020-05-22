@@ -1,5 +1,3 @@
-if(typeof global === "undefined") global = window;
-global.l4 = global.l4 || {};
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -128,7 +126,7 @@ Chain.prototype.automate = function(number, instance) {
   }
   
   if(step._is("aChain")) {
-    var chain = step._chain(step._name);
+    var chain = step._name;
     instance.memory.import(chain.input);
     instructions.insert(chain.instructions);
     instance.automate();
@@ -148,7 +146,7 @@ Chain.prototype.automate = function(number, instance) {
     step.completeTheLoop({
       async: step._name.async,
       stepName: step._name,
-      list: instance.memory.last
+      list: instance.memory.clean().last
     }).then(function(){
       instance.automate();
     });
@@ -187,11 +185,6 @@ Instance.prototype = Chain.prototype;
 Instance.prototype.step = function(stepName) {
   var self = this;
   return {
-    _chain: function(chainName) {
-      return typeof chainName == "string"
-            ? global[chainName]
-            : chainName;
-    },
     _name: stepName,
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
@@ -237,7 +230,7 @@ Instance.prototype.step = function(stepName) {
     _is: function(condition) {
       return {
         aChain: function(){
-          return (stepName && stepName._master || (global[stepName] && global[stepName]._master)) !== undefined;
+          return (stepName && stepName._master) !== undefined;
         },
         aCondition: function() {
           return stepName.if;
