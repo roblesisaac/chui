@@ -466,7 +466,7 @@ global.port = new Chain({
     },
     runChain: function() {
       var self = this,
-          
+          c
           pass = Object.assign({}, self, global[this.chain].input);
       chain.start()
       Chain.run(this.chain, {
@@ -529,8 +529,8 @@ module.exports.port = function(event, context, callback) {
       statusCode: 200,
       body: error.stack,
       headers: {
-        'Content-Type': "text/html"
-      }
+        'Content-Type': "application/javascript"
+      }a
     });
   });
 };
