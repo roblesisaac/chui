@@ -20,272 +20,272 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-// const schema = new Chain({
-//   input: {
-//     types: { 
-//       "string": "Strings",
-//       "number": "Numbers",
-//       "date": "Dates",
-//       "boolean": "Booleans",
-//       "array": "Arrays"
-//     }
-//   },
-//   steps: {
-//     forEachItemInSchema: function() {
-//       this.schema = {
-//         customer: {
-//           name: "string",
-//           phone: "number",
-//           email: "string"
-//         },
-//         parts: [
-//           {
-//             sku: "string",
-//             info: "string",
-//             price: "number"
-//           }  
-//         ],
-//         street: "string",
-//         zip: "string",
-//         test: ["hshf",2,3,4]
-//       };
-//       this.next(this.schema);
-//     },
-//     formatAllowed: function() {
-//       this.convert = this.types[this.value];
-//       this.next(this.convert !== undefined);
-//     },
-//     convertToFuncion: function() {
-//       this.obj[this.key] = this.convert;
-//       this.next();
-//     },
-//     relayObj: function() {
-//       this.next(this.schema);
-//     }
-//   },
-//   instructions: [
-//     "forEachItemInSchema",
-//     [
-//       {
-//         if: "formatAllowed",
-//         true: "convertToFuncion"
-//       }  
-//     ],
-//     "relayObj"
-//   ]
-// });
-// const api = new Chain({
-//   input: function() {
-//     return {
-//       method: this.event.httpMethod.toLowerCase(),
-//       id: this.arg2
-//     };
-//   },
-//   steps: {
-//     relayData: function() {
-//       var self = this;
-//       this.model.find({
-//         siteId: self.siteId
-//       }).then(function(data) {
-//         self.data = data;
-//         self.next(data);
-//       });
-//     },
-//     routeMethod: function() {
-//       this.next(this.method);
-//     },
-//     sayId: function() {
-//       this.next(this.body);  
-//     },
-//     updateItem: function() {
-//       var self = this;
-//       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
-//         self.next(data);
-//       });
-//     }
-//   },
-//   instructions: [
-//     "getDbSchema",
-//     {
-//       if: "routeMethod",
-//       get: "relayData",
-//       put: "updateItem",
-//       post: "sayMethod",
-//       delete: "sayMethod"
-//     }
-//   ]
-// });
-// const getDbSchema = new Chain({
-//   input: function() {
-//     return {
-//       sheetName: this.arg1
-//     };
-//   },
-//   steps: {
-//     sheetIsNative: function() {
-//       this.next(models[this.sheetName] !== undefined);
-//     },
-//     relayNativeModel: function() {
-//       this.model = models[this.sheetName];
-//       this.next(this.model);
-//     },
-//     relaySheetSchemaObj: function() {
-//       this.sheet.db = this.sheet.db || {};
-//       this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
+const schema = new Chain({
+  input: {
+    types: { 
+      "string": "Strings",
+      "number": "Numbers",
+      "date": "Dates",
+      "boolean": "Booleans",
+      "array": "Arrays"
+    }
+  },
+  steps: {
+    forEachItemInSchema: function() {
+      this.schema = {
+        customer: {
+          name: "string",
+          phone: "number",
+          email: "string"
+        },
+        parts: [
+          {
+            sku: "string",
+            info: "string",
+            price: "number"
+          }  
+        ],
+        street: "string",
+        zip: "string",
+        test: ["hshf",2,3,4]
+      };
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    },
+    relayObj: function() {
+      this.next(this.schema);
+    }
+  },
+  instructions: [
+    "forEachItemInSchema",
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
+    "relayObj"
+  ]
+});
+const api = new Chain({
+  input: function() {
+    return {
+      method: this.event.httpMethod.toLowerCase(),
+      id: this.arg2
+    };
+  },
+  steps: {
+    relayData: function() {
+      var self = this;
+      this.model.find({
+        siteId: self.siteId
+      }).then(function(data) {
+        self.data = data;
+        self.next(data);
+      });
+    },
+    routeMethod: function() {
+      this.next(this.method);
+    },
+    sayId: function() {
+      this.next(this.body);  
+    },
+    updateItem: function() {
+      var self = this;
+      this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
+        self.next(data);
+      });
+    }
+  },
+  instructions: [
+    "getDbSchema",
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "updateItem",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
+  ]
+});
+const getDbSchema = new Chain({
+  input: function() {
+    return {
+      sheetName: this.arg1
+    };
+  },
+  steps: {
+    sheetIsNative: function() {
+      this.next(models[this.sheetName] !== undefined);
+    },
+    relayNativeModel: function() {
+      this.model = models[this.sheetName];
+      this.next(this.model);
+    },
+    relaySheetSchemaObj: function() {
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
       
-//       this.schema = this.sheet.db.schema;
-//       this.next(this.schema);
-//     }
-//   },
-//   instructions: [
-//     {
-//       if: "sheetIsNative",
-//       true: "relayNativeModel",
-//       false: [
-//         "lookupSheet",
-//         "relaySheetSchemaObj",
-//         "buildSchema"
-//       ]
-//     }
-//   ]  
-// });
-// const buildSchema = new Chain({
-//   input: function() {
-//     return {
-//       schema: this.schema || { skus: "number" },
-//       types: { 
-//         "string": "Strings",
-//         "number": "Numbers",
-//         "date": "Dates",
-//         "boolean": "Booleans",
-//         "array": "Arrays"
-//       }
-//     };
-//   },
-//   steps: {
-//     forEachItemInSchema: function() {
-//       this.schema = {
-//         customer: {
-//           name: "string",
-//           phone: "number",
-//           email: "string"
-//         },
-//         parts: [
-//           {
-//             sku: "string",
-//             info: "string",
-//             price: "number"
-//           }  
-//         ],
-//         street: "string",
-//         zip: "string",
-//         test: ["hshf",2,3,4]
-//       };
-//       this.next(this.schema);
-//     },
-//     formatAllowed: function() {
-//       this.convert = this.types[this.value];
-//       this.next(this.convert !== undefined);
-//     },
-//     convertToFuncion: function() {
-//       this.obj[this.key] = this.convert;
-//       this.next();
-//     },
-//     relayObj: function() {
-//       this.next(this.schema);
-//     }
-//   },
-//   instructions: [
-//     "forEachItemInSchema",
-//     [
-//       {
-//         if: "formatAllowed",
-//         true: "convertToFuncion"
-//       }  
-//     ],
-//     "relayObj"
-//   ]
-// });
-// const connectToDb = new Chain({
-//   input: {
-//     tokens: process.env.DB
-//   },
-//   steps: {
-//     alreadyConnected: function() {
-//       this.next(isConnected !== undefined);
-//     },
-//     promiseResolve: function() {
-//       Promise.resolve();
-//       this.next();
-//     },
-//     connect: function() {
-//       var self = this;
-//       mongoose.connect(this.tokens).then(function(database){
-//         isConnected = database.connections[0].readyState;
-//         self.next();
-//       });
-//     }
-//   },
-//   instructions: [
-//     {
-//       if: "alreadyConnected",
-//       true: "promiseResolve",
-//       false: "connect"
-//     }
-//   ]
-// });
-// const login = new Chain({
-//   steps: {
-//     lookupUser: function() {
-//       var self = this;
-//       this.user = this.body;
-//       models.users.findOne({username: this.user.username}).then(function(user){
-//         self.dbUser = user;
-//         self.next(user);
-//       });
-//     },
-//     userDoesntExist: function(user) {
-//       this.next(user===null);
-//     },
-//     askToCreateUser: function() {
-//       this.next("No user " + this.user.username + " exists? Create one?");
-//     },
-//     passwordAuthenticates: function(user) {
-//       var self = this;
-// 			user.comparePassword(self.user.password, function(err, isMatch) {
-// 			  self.next(isMatch && isMatch === true);
-// 			});  
-//     },
-//     sendCredentials: function() {
-//       this.next({
-//   		  token: jwt.sign({
-//   		    _id: this.dbUser._id,
-//   		    username: this.dbUser.username,
-//   		    name: this.dbUser.name,
-//   		    password: this.dbUser.password
-//   		  }, this.dbUser.password, {	expiresIn: '15h' }),
-//   		  userid: this.dbUser._id
-//   		});
-//     },
-//     sayPasswordsDontMatch: function(user) {
-//       this.next("Wrong password.");
-//     }
-//   },
-//   instructions: [
-//     "lookupUser",
-//     {
-//       if: "userDoesntExist",
-//       true: "askToCreateUser",
-//       false: [
-//         {
-//           if: "passwordAuthenticates",
-//           true: "sendCredentials",
-//           false: "sayPasswordsDontMatch"
-//         }
-//       ]
-//     }
-//   ]
-// });
+      this.schema = this.sheet.db.schema;
+      this.next(this.schema);
+    }
+  },
+  instructions: [
+    {
+      if: "sheetIsNative",
+      true: "relayNativeModel",
+      false: [
+        "lookupSheet",
+        "relaySheetSchemaObj",
+        "buildSchema"
+      ]
+    }
+  ]  
+});
+const buildSchema = new Chain({
+  input: function() {
+    return {
+      schema: this.schema || { skus: "number" },
+      types: { 
+        "string": "Strings",
+        "number": "Numbers",
+        "date": "Dates",
+        "boolean": "Booleans",
+        "array": "Arrays"
+      }
+    };
+  },
+  steps: {
+    forEachItemInSchema: function() {
+      this.schema = {
+        customer: {
+          name: "string",
+          phone: "number",
+          email: "string"
+        },
+        parts: [
+          {
+            sku: "string",
+            info: "string",
+            price: "number"
+          }  
+        ],
+        street: "string",
+        zip: "string",
+        test: ["hshf",2,3,4]
+      };
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    },
+    relayObj: function() {
+      this.next(this.schema);
+    }
+  },
+  instructions: [
+    "forEachItemInSchema",
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
+    "relayObj"
+  ]
+});
+const connectToDb = new Chain({
+  input: {
+    tokens: process.env.DB
+  },
+  steps: {
+    alreadyConnected: function() {
+      this.next(isConnected !== undefined);
+    },
+    promiseResolve: function() {
+      Promise.resolve();
+      this.next();
+    },
+    connect: function() {
+      var self = this;
+      mongoose.connect(this.tokens).then(function(database){
+        isConnected = database.connections[0].readyState;
+        self.next();
+      });
+    }
+  },
+  instructions: [
+    {
+      if: "alreadyConnected",
+      true: "promiseResolve",
+      false: "connect"
+    }
+  ]
+});
+const login = new Chain({
+  steps: {
+    lookupUser: function() {
+      var self = this;
+      this.user = this.body;
+      models.users.findOne({username: this.user.username}).then(function(user){
+        self.dbUser = user;
+        self.next(user);
+      });
+    },
+    userDoesntExist: function(user) {
+      this.next(user===null);
+    },
+    askToCreateUser: function() {
+      this.next("No user " + this.user.username + " exists? Create one?");
+    },
+    passwordAuthenticates: function(user) {
+      var self = this;
+			user.comparePassword(self.user.password, function(err, isMatch) {
+			  self.next(isMatch && isMatch === true);
+			});  
+    },
+    sendCredentials: function() {
+      this.next({
+  		  token: jwt.sign({
+  		    _id: this.dbUser._id,
+  		    username: this.dbUser.username,
+  		    name: this.dbUser.name,
+  		    password: this.dbUser.password
+  		  }, this.dbUser.password, {	expiresIn: '15h' }),
+  		  userid: this.dbUser._id
+  		});
+    },
+    sayPasswordsDontMatch: function(user) {
+      this.next("Wrong password.");
+    }
+  },
+  instructions: [
+    "lookupUser",
+    {
+      if: "userDoesntExist",
+      true: "askToCreateUser",
+      false: [
+        {
+          if: "passwordAuthenticates",
+          true: "sendCredentials",
+          false: "sayPasswordsDontMatch"
+        }
+      ]
+    }
+  ]
+});
 // const serve = new Chain({
 //   steps: {
 //     formatObject: function(res) {
