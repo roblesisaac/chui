@@ -20,7 +20,7 @@ const jwt = require('jsonwebtoken');
 let token;
 const mod = this;
 
-this.schema = new Chain({
+mod.schema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -74,7 +74,7 @@ this.schema = new Chain({
     "relayObj"
   ]
 });
-this.api = new Chain({
+mod.api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -115,7 +115,7 @@ this.api = new Chain({
     }
   ]
 });
-this.getDbSchema = new Chain({
+mod.getDbSchema = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -149,7 +149,7 @@ this.getDbSchema = new Chain({
     }
   ]  
 });
-this.buildSchema = new Chain({
+mod.buildSchema = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -206,7 +206,7 @@ this.buildSchema = new Chain({
     "relayObj"
   ]
 });
-this.connectToDb = new Chain({
+mod.connectToDb = new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -234,7 +234,7 @@ this.connectToDb = new Chain({
     }
   ]
 });
-this.login = new Chain({
+mod.login = new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -286,7 +286,7 @@ this.login = new Chain({
     }
   ]
 });
-this.serve = new Chain({
+mod.serve = new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -346,7 +346,7 @@ this.serve = new Chain({
     "initCallback"
   ]
 });
-this.scripts = new Chain({
+mod.scripts = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -414,7 +414,7 @@ this.scripts = new Chain({
     }
   ]
 });
-this.loadLandingPage = new Chain({
+mod.loadLandingPage = new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -432,7 +432,7 @@ this.loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-this.port = new Chain({
+mod.port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
@@ -486,7 +486,7 @@ this.port = new Chain({
     }
   },
   instructions: [
-    mod.connectToDb,
+    connectToDb,
     "lookupSiteInDb",
     {
       if: "noSiteExists",
@@ -496,7 +496,7 @@ this.port = new Chain({
         {
           if: "urlHasAChain",
           true: "runChain",
-          false: mod.loadLandingPage
+          false: loadLandingPage
         }
       ]
     },
@@ -504,7 +504,7 @@ this.port = new Chain({
       if: "isVerbose",
       true: "addDetails"
     },
-    mod.serve
+    serve
   ]
 });
 
