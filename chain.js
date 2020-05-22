@@ -250,7 +250,7 @@ Instance.prototype.step = function(stepName) {
     next: function(returned, keyname) {
       if(keyname) this.set(keyname, returned);
       self.memory.import(this);
-      self.memory.last = returned;
+      self.memory._storage.last = returned;
       self.automate(null, self);
     },
     _memory: self.memory,
@@ -258,7 +258,7 @@ Instance.prototype.step = function(stepName) {
       self.memory.import(this.input());
       var data = data || Object.assign({}, self.memory.clean(), this),
           step = step || self.library.steps[stepName],
-          res = self.memory.last,
+          res = data.last,
           next = this.next.bind(data),
           vm = self.memory.vue;
       if(typeof stepName == "function") step = stepName;
