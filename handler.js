@@ -877,7 +877,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "formatObject",
+    // "formatObject",
     "initCallback"
   ]
 });
