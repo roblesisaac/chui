@@ -326,11 +326,15 @@ const serve = new Chain({
       this.next();
     },
     initCallback: function() {
-      this.callback(null, this.format);
+      // this.callback(null, this.format);
+      this.callback(null, {
+        statusCode: 200,
+        body: JSON.stringify("test3")
+      })
     }
   },
   instructions: [
-    "formatObject",
+    // "formatObject",
     // {
     //   if: "itNeedsHeaders",
     //   true: [
@@ -486,12 +490,6 @@ const port = new Chain({
       var index = {};
       Object.assign(index, this);
       this.next(index);
-    },
-    test: function() {
-      this.callback(null, {
-        statusCode: 200,
-        body: JSON.stringify("test2")
-      })
     }
   },
   instructions: [
@@ -513,8 +511,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    // "serve",
-    "test"
+    "serve"
   ]
 });
 
