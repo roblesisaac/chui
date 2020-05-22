@@ -491,7 +491,8 @@ const port = new Chain({
       this.callback(null, {
         statusCode: 200,
         body: JSON.stringify("server");
-      })
+      });
+      this.next();
     }
   },
   instructions: [
