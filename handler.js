@@ -511,7 +511,7 @@ this.port = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({
+  mod.port.import({
     event: event,
     callback: callback,
     chain: params.chain,
