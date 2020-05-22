@@ -852,22 +852,22 @@ var port = new Chain({
   instructions: [
     connectToDb,
     "lookupSiteInDb",
-    {
-      if: "noSiteExists",
-      true: "askToCreateSite",
-      false: [
-        "getSheetsForSite",
-        {
-          if: "urlHasAChain",
-          true: "runChain",
-          false: loadLandingPage
-        }
-      ]
-    },
-    {
-      if: "isVerbose",
-      true: "addDetails"
-    },
+    // {
+    //   if: "noSiteExists",
+    //   true: "askToCreateSite",
+    //   false: [
+    //     "getSheetsForSite",
+    //     {
+    //       if: "urlHasAChain",
+    //       true: "runChain",
+    //       false: loadLandingPage
+    //     }
+    //   ]
+    // },
+    // {
+    //   if: "isVerbose",
+    //   true: "addDetails"
+    // },
     serve
   ]
 });
