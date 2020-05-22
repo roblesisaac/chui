@@ -1,5 +1,4 @@
 const Chain = require('./chain');
-
 const models = {
   sheets: require('./models/sheets'),
   sites: require('./models/sites'), 
@@ -20,7 +19,7 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-var schema = new Chain({
+const schema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -74,7 +73,7 @@ var schema = new Chain({
     "relayObj"
   ]
 });
-var api = new Chain({
+const api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -115,7 +114,7 @@ var api = new Chain({
     }
   ]
 });
-var getDbSchema = new Chain({
+const getDbSchema = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -149,7 +148,7 @@ var getDbSchema = new Chain({
     }
   ]  
 });
-var buildSchema = new Chain({
+const buildSchema = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -206,7 +205,7 @@ var buildSchema = new Chain({
     "relayObj"
   ]
 });
-var connectToDb = new Chain({
+const connectToDb = new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -234,7 +233,7 @@ var connectToDb = new Chain({
     }
   ]
 });
-var login = new Chain({
+const login = new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -286,7 +285,7 @@ var login = new Chain({
     }
   ]
 });
-var serve = new Chain({
+const serve = new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -349,7 +348,7 @@ var serve = new Chain({
     "initCallback"
   ]
 });
-var scripts = new Chain({
+const scripts = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -417,7 +416,7 @@ var scripts = new Chain({
     }
   ]
 });
-var loadLandingPage = new Chain({
+const loadLandingPage = new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -435,7 +434,7 @@ var loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-var port = new Chain({
+const port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
