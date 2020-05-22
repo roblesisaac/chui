@@ -1,5 +1,5 @@
 const Chain = require('./chain');
-const models = { 
+const models = {
   sheets: require('./models/sheets'),
   sites: require('./models/sites'), 
   users: require('./models/users')
@@ -19,7 +19,7 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-const schema = new Chain({
+var schema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -73,7 +73,7 @@ const schema = new Chain({
     "relayObj"
   ]
 });
-const api = new Chain({
+var api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -114,7 +114,7 @@ const api = new Chain({
     }
   ]
 });
-const getDbSchema = new Chain({
+var getDbSchema = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -148,7 +148,7 @@ const getDbSchema = new Chain({
     }
   ]  
 });
-const buildSchema = new Chain({
+var buildSchema = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -205,7 +205,7 @@ const buildSchema = new Chain({
     "relayObj"
   ]
 });
-const connectToDb = new Chain({
+var connectToDb = new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -233,7 +233,7 @@ const connectToDb = new Chain({
     }
   ]
 });
-const login = new Chain({
+var login = new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -285,7 +285,7 @@ const login = new Chain({
     }
   ]
 });
-const serve = new Chain({
+var serve = new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -348,7 +348,7 @@ const serve = new Chain({
     "initCallback"
   ]
 });
-const scripts = new Chain({
+var scripts = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -416,7 +416,7 @@ const scripts = new Chain({
     }
   ]
 });
-const loadLandingPage = new Chain({
+var loadLandingPage = new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -434,7 +434,7 @@ const loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-const port = new Chain({
+var port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
