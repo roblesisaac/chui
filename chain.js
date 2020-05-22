@@ -213,6 +213,10 @@ Instance.prototype.step = function(stepName) {
         }
       });
     },
+    error: function(e) {
+      self.error = e;
+      self.resolve();      
+    },
     set: function(key, val) {
       self.memory._hardSet[key] = val;
     },
@@ -256,10 +260,10 @@ Instance.prototype.step = function(stepName) {
           vm = self.memory.vue;
       if(typeof stepName == "function") step = stepName;
       try {
+        if(!step) return this.error("No step " + stepName);
         step.call(data, res, next, vm);
       } catch(err) {
-        self.error = err;
-        self.resolve();
+        this.error(err);
       }
     }
   } 
