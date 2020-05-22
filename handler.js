@@ -1,5 +1,3 @@
-const Chain = require('./chain');
-
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -85,99 +83,96 @@ function loop(arr) {
   return { async: arr };
 }
 
-// function Chain(format) {
-//   if(Array.isArray(format)) {
-//     this.build({ instructions: format });
-//   } else if(typeof format == "object") {
-//     this.build(format);
-//   } else {
-//     this.build({ instructions: [format] });
-//   }
-// }
-// Chain.prototype.build = function(format) {
-//   this.input = !format.input
-//               ? function() { return {}}
-//               : typeof format.input == "function"
-//               ? format.input
-//               : Array.isArray(format.input) || typeof format.input !== "object"
-//               ? function() {return {input: format.input}}
-//               : function() {return Object.assign({}, format.input)};
-//   this.instructions = !format.instructions
-//                       ? []
-//                       : Array.isArray(format.instructions)
-//                       ? format.instructions
-//                       : [format.instructions];
-//   this._master = format;
-//   this.steps = format.steps || {};
-//   this.learn = format.learn;
-//   if(format.steps) Object.assign(this.library.steps, format.steps);  
-// };
-// Chain.prototype.library = {steps:{}};
-// Chain.prototype.automate = function(number, instance) {
-//   instance = this._parent // only instances have a _parent
-//             ? this
-//             : new Instance(this);
+// const Chain = require('./chain');
+function Chain(format) {
+  if(Array.isArray(format)) {
+    this.build({ instructions: format });
+  } else if(typeof format == "object") {
+    this.build(format);
+  } else {
+    this.build({ instructions: [format] });
+  }
+}
+Chain.prototype.build = function(format) {
+  this.input = !format.input
+              ? function() { return {}}
+              : typeof format.input == "function"
+              ? format.input
+              : Array.isArray(format.input) || typeof format.input !== "object"
+              ? function() {return {input: format.input}}
+              : function() {return Object.assign({}, format.input)};
+  this.instructions = !format.instructions
+                      ? []
+                      : Array.isArray(format.instructions)
+                      ? format.instructions
+                      : [format.instructions];
+  this._master = format;
+  this.steps = format.steps || {};
+  this.learn = format.learn;
+  if(format.steps) Object.assign(this.library.steps, format.steps);  
+};
+Chain.prototype.library = {steps:{}};
+Chain.prototype.automate = function(number, instance) {
+  instance = this._parent // only instances have a _parent
+            ? this
+            : new Instance(this);
   
-//   var instructions = instance.instructions,
-//       step = instance.step(instructions.nextStepName(number));
+  var instructions = instance.instructions,
+      step = instance.step(instructions.nextStepName(number));
       
-//   if(instructions.completed()) {
-//     if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
-//     instance.resolve();
-//     return instance;
-//   }
+  if(instructions.completed()) {
+    if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
+    instance.resolve();
+    return instance;
+  }
   
-//   if(step._is("aChain")) {
-//     var chain = step._name;
-//     instance.memory.import(chain.input);
-//     instructions.insert(chain.instructions);
-//     instance.automate();
-//     return instance;
-//   }
+  if(step._is("aChain")) {
+    var chain = step._name;
+    instance.memory.import(chain.input);
+    instructions.insert(chain.instructions);
+    instance.automate();
+    return instance;
+  }
   
-//   if(step._is("aCondition")) {
-//     step._getAnswer(function(answer){
-//       var switcher = step._name[answer];
-//       if(switcher) {
-//         instructions.insert(switcher);
-//       } else {
-//         console.log(switcher, "NOTFOUND")
-//       }
-//       instance.automate();
-//     });
-//     return instance;
-//   }
+  if(step._is("aCondition")) {
+    step._getAnswer(function(answer){
+      var switcher = step._name[answer];
+      if(switcher) instructions.insert(switcher);
+      instance.automate();
+    });
+    return instance;
+  }
   
-//   if(step._is("aLoop")) {
-//     step.completeTheLoop({
-//       async: step._name.async,
-//       stepName: step._name,
-//       list: instance.memory.clean().last
-//     }).then(function(){
-//       instance.automate();
-//     });
-//     return instance;
-//   }
+  if(step._is("aLoop")) {
+    step.completeTheLoop({
+      async: step._name.async,
+      stepName: step._name,
+      list: instance.memory.clean().last
+    }).then(function(){
+      instance.automate();
+    });
+    return instance;
+  }
   
-//   step._method();
-//   return instance;
-// };
-// Chain.prototype.start = function(number) {
-//   var self = this;
-//   return new Promise(function(resolve, reject) {
-//     self.automate(number).output(function(instance){
-//       if(instance.error) {
-//         reject(instance.error);
-//       } else {
-//         resolve(instance.memory.clean());
-//       }
-//     });
-//   });
-// };
-// Chain.prototype.import = function(overides) {
-//   var instance = new Instance(this, overides);
-//   return instance;
-// };
+  step._method();
+  return instance;
+};
+Chain.prototype.start = function(number) {
+  var self = this;
+  return new Promise(function(resolve, reject) {
+    self.automate(number).output(function(instance){
+      if(instance.error) {
+        reject(instance.error);
+      } else {
+        resolve(instance.memory.clean());
+      }
+    });
+  });
+};
+Chain.prototype.import = function(overides) {
+  var instance = new Instance(this, overides);
+  return instance;
+};
     
 function Instance(master, overides) {
   this._parent = master;
