@@ -520,7 +520,10 @@ let token;
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  callback(null, JSON.stringify("hi"));
+  callback(null, {
+    statsCode: 200,
+    body: JSON.stringify("hi")
+  });
   // port.import({
   //   event: event,
   //   headers: event.headers || {},
