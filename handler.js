@@ -329,7 +329,7 @@ const serve = new Chain({
       // this.callback(null, this.format);
       this.callback(null, {
         statusCode: 200,
-        body: JSON.stringify("test4")
+        body: JSON.stringify("test5")
       });
     }
   },
