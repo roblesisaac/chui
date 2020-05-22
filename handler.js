@@ -291,7 +291,7 @@ const serve = new Chain({
     formatObject: function(res) {
       this.format = {
         statusCode: 200,
-        body: res
+        body: "res"
       };
       this.next(res);
     },
@@ -331,21 +331,21 @@ const serve = new Chain({
   },
   instructions: [
     "formatObject",
-    {
-      if: "itNeedsHeaders",
-      true: [
-        "addHeaders",
-        "replaceBody",
-        {
-          if: "thereAreVariables",
-          true: "renderVariables"
-        }
-      ],
-      false: {
-        if: "noErrors",
-        true: "stringifyBody"
-      }
-    },
+    // {
+    //   if: "itNeedsHeaders",
+    //   true: [
+    //     "addHeaders",
+    //     "replaceBody",
+    //     {
+    //       if: "thereAreVariables",
+    //       true: "renderVariables"
+    //     }
+    //   ],
+    //   false: {
+    //     if: "noErrors",
+    //     true: "stringifyBody"
+    //   }
+    // },
     "initCallback"
   ]
 });
@@ -514,24 +514,20 @@ const port = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  callback(null, {
-    statusCode: 200,
-    body: JSON.stringify("hi")
+  port.import({
+    event: event,
+    headers: event.headers || {},
+    context: context,
+    callback: callback,
+    siteName: params.site,
+    chain: params.chain,
+    arg1: params.arg1,
+    arg2: params.arg2,
+    query: event.queryStringParameters || {},
+    body: JSON.parse(event.body || "{}"),
+    domain: event.headers.Host,
+    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+  }).start().catch(function(error){
+    callback(null, JSON.stringify(error));
   });
-  // port.import({
-  //   event: event,
-  //   headers: event.headers || {},
-  //   context: context,
-  //   callback: callback,
-  //   siteName: params.site,
-  //   chain: params.chain,
-  //   arg1: params.arg1,
-  //   arg2: params.arg2,
-  //   query: event.queryStringParameters || {},
-  //   body: JSON.parse(event.body || "{}"),
-  //   domain: event.headers.Host,
-  //   host: "https://"+event.headers.Host+"/dev/exhaustbarn"
-  // }).start().catch(function(error){
-  //   callback(null, JSON.stringify(error));
-  // });
 };
