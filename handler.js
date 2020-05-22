@@ -530,7 +530,7 @@ module.exports.port = function(event, context, callback) {
       body: error.stack,
       headers: {
         'Content-Type': "application/javascript"
-      }a
+      }
     });
   });
 };
