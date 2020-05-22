@@ -521,5 +521,9 @@ const port = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({ callback: callback }).start();
+  callback(null, {
+    statusCode: 200,
+    body: JSON.stringify("server");
+  });
+  // port.import({ callback: callback }).start();
 };
