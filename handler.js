@@ -514,7 +514,7 @@ const port = new Chain({
     //   true: "addDetails"
     // },
     // "serve",
-    test
+    "test"
   ]
 });
 
