@@ -526,7 +526,7 @@ module.exports.port = function(event, context, callback) {
   }).start().catch(function(error){
     callback(null, {
       statusCode: 200,
-      body: error
+      body: error.toString()
     });
   });
 };
