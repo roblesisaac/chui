@@ -469,7 +469,7 @@ global.port = new Chain({
           chain = global[this.chain];
       chain.import(this).start().then(function(memory){
         self._memory.import(memory);
-        self.next(memory.clean().last);
+        self.next(memory.last);
       }).catch(function(err){
         self.error(err);
       });
