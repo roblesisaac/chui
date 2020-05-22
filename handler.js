@@ -509,23 +509,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "formatObject",
-    // {
-    //   if: "itNeedsHeaders",
-    //   true: [
-    //     "addHeaders",
-    //     "replaceBody",
-    //     {
-    //       if: "thereAreVariables",
-    //       true: "renderVariables"
-    //     }
-    //   ],
-    //   false: {
-    //     if: "noErrors",
-    //     true: "stringifyBody"
-    //   }
-    // },
-    "initCallback"
+    "serve"
   ]
 });
 
