@@ -527,9 +527,13 @@ const test = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
+  // callback(null, {
+  //   statusCode: 200,
+  //   body: JSON.stringify("server")
+  // });
   callback(null, {
     statusCode: 200,
-    body: JSON.stringify("server")
+    body: JSON.stringify("hi")
   });
   // port.import({ callback: callback }).start();
 };
