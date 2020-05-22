@@ -486,6 +486,12 @@ const port = new Chain({
       var index = {};
       Object.assign(index, this);
       this.next(index);
+    },
+    servey: function() {
+      this.callback(null, {
+        statusCode: 200,
+        body: JSON.stringify("server");
+      })
     }
   },
   instructions: [
@@ -507,12 +513,12 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serve"
+    "servey"
   ]
 });
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.start();
+  port.import({ callback: callback }).start();
 };
