@@ -690,7 +690,7 @@ const serve = new Chain({
     }
   },
   instructions: [
-    // "formatObject",
+    "formatObject",
     // {
     //   if: "itNeedsHeaders",
     //   true: [
