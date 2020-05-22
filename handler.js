@@ -486,6 +486,12 @@ const port = new Chain({
       var index = {};
       Object.assign(index, this);
       this.next(index);
+    },
+    test: function() {
+      this.callback(null, {
+        statusCode: 200,
+        body: JSON.stringify("test2")
+      })
     }
   },
   instructions: [
@@ -507,7 +513,8 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    "serve"
+    // "serve",
+    test
   ]
 });
 
