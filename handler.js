@@ -18,8 +18,9 @@ if(!tmplts.index) {
 }
 const jwt = require('jsonwebtoken');
 let token;
+const mod = this;
 
-global.schema = new Chain({
+this.schema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -73,7 +74,7 @@ global.schema = new Chain({
     "relayObj"
   ]
 });
-global.api = new Chain({
+this.api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -114,7 +115,7 @@ global.api = new Chain({
     }
   ]
 });
-global.getDbSchema = new Chain({
+this.getDbSchema = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -148,7 +149,7 @@ global.getDbSchema = new Chain({
     }
   ]  
 });
-global.buildSchema = new Chain({
+this.buildSchema = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -205,7 +206,7 @@ global.buildSchema = new Chain({
     "relayObj"
   ]
 });
-global.connectToDb = new Chain({
+this.connectToDb = new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -233,7 +234,7 @@ global.connectToDb = new Chain({
     }
   ]
 });
-global.login = new Chain({
+this.login = new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -285,7 +286,7 @@ global.login = new Chain({
     }
   ]
 });
-global.serve = new Chain({
+this.serve = new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -345,7 +346,7 @@ global.serve = new Chain({
     "initCallback"
   ]
 });
-global.scripts = new Chain({
+this.scripts = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -413,7 +414,7 @@ global.scripts = new Chain({
     }
   ]
 });
-global.loadLandingPage = new Chain({
+this.loadLandingPage = new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -431,7 +432,7 @@ global.loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-global.port = new Chain({
+this.port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
@@ -485,7 +486,7 @@ global.port = new Chain({
     }
   },
   instructions: [
-    connectToDb,
+    mod.connectToDb,
     "lookupSiteInDb",
     {
       if: "noSiteExists",
@@ -495,7 +496,7 @@ global.port = new Chain({
         {
           if: "urlHasAChain",
           true: "runChain",
-          false: loadLandingPage
+          false: mod.loadLandingPage
         }
       ]
     },
@@ -503,7 +504,7 @@ global.port = new Chain({
       if: "isVerbose",
       true: "addDetails"
     },
-    serve
+    mod.serve
   ]
 });
 
