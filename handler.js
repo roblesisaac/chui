@@ -648,12 +648,13 @@ const login = new Chain({
 });
 const serve = new Chain({
   steps: {
-    formatObject: function(res) {
-      this.format = {
-        statusCode: 200,
-        body: JSON.stringify("res")
-      };
-      this.next(res);
+    formatObject: function() {
+      // this.format = {
+      //   statusCode: 200,
+      //   body: JSON.stringify("res")
+      // };
+      // this.next(res);
+      this.next();
     },
     itNeedsHeaders: function(res) {
       this.next(res.contentType !== undefined);
@@ -874,8 +875,7 @@ const port = new Chain({
     //   if: "isVerbose",
     //   true: "addDetails"
     // },
-    // "formatObject",
-    "serves",
+    "formatObject",
     "initCallback"
   ]
 });
