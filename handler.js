@@ -469,7 +469,7 @@ global.port = new Chain({
           chain = global[this.chain];
       chain.import(this).start().then(function(memory){
         self._memory.import(memory);
-        self.next();
+        self.next(memory.clean().last);
       }).catch(function(err){
         self.error(err);
       });
@@ -478,8 +478,7 @@ global.port = new Chain({
       this.next(this.query.verbose);
     },
     addDetails: function(last) {
-      var index = {};
-      Object.assign(index, this);
+      var index = Object.assign({}, this);
       this.next(index);
     }
   },
