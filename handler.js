@@ -18,9 +18,8 @@ if(!tmplts.index) {
 }
 const jwt = require('jsonwebtoken');
 let token;
-const mod = this;
 
-mod.schema = new Chain({
+global.schema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -74,7 +73,7 @@ mod.schema = new Chain({
     "relayObj"
   ]
 });
-mod.api = new Chain({
+global.api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
@@ -115,7 +114,7 @@ mod.api = new Chain({
     }
   ]
 });
-mod.getDbSchema = new Chain({
+global.getDbSchema = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -149,7 +148,7 @@ mod.getDbSchema = new Chain({
     }
   ]  
 });
-mod.buildSchema = new Chain({
+global.buildSchema = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -206,7 +205,7 @@ mod.buildSchema = new Chain({
     "relayObj"
   ]
 });
-mod.connectToDb = new Chain({
+global.connectToDb = new Chain({
   input: {
     tokens: process.env.DB
   },
@@ -234,7 +233,7 @@ mod.connectToDb = new Chain({
     }
   ]
 });
-mod.login = new Chain({
+global.login = new Chain({
   steps: {
     lookupUser: function() {
       var self = this;
@@ -286,7 +285,7 @@ mod.login = new Chain({
     }
   ]
 });
-mod.serve = new Chain({
+global.serve = new Chain({
   steps: {
     formatObject: function(res) {
       this.format = {
@@ -346,7 +345,7 @@ mod.serve = new Chain({
     "initCallback"
   ]
 });
-mod.scripts = new Chain({
+global.scripts = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -414,7 +413,7 @@ mod.scripts = new Chain({
     }
   ]
 });
-mod.loadLandingPage = new Chain({
+global.loadLandingPage = new Chain({
   steps: {
     showIndex: function() {
       this.next({
@@ -432,7 +431,7 @@ mod.loadLandingPage = new Chain({
   },
   instructions: [ "showIndex" ]
 });
-mod.port = new Chain({
+global.port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
       var self = this;
@@ -511,7 +510,7 @@ mod.port = new Chain({
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  mod.port.import({
+  port.import({
     event: event,
     callback: callback,
     chain: params.chain,
