@@ -434,7 +434,7 @@ const loadLandingPage = new Chain({
 const port = new Chain({
   steps: {
     lookupSiteInDb: function(res, next, vm) {
-      var self = thiss;
+      var self = this;
       models.sites.findOne({
         name: self.siteName
       }).then(function(site){
@@ -444,7 +444,7 @@ const port = new Chain({
       });
     },
     noSiteExists: function(site) {
-      this.next(site === null);
+      this.next(site == null);
     },
     askToCreateSite: function() {
       this.next({
@@ -526,7 +526,7 @@ module.exports.port = function(event, context, callback) {
   }).start().catch(function(error){
     callback(null, {
       statusCode: 200,
-      body: JSON.stringify(error)
+      body: error
     });
   });
 };
