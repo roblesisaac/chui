@@ -74,7 +74,7 @@ global.schema = new Chain({
   ]
 });
 global.api = new Chain({
-  inputs: function() {
+  input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
       id: this.arg2
@@ -107,15 +107,14 @@ global.api = new Chain({
     }
   },
   instructions: [
-    "debug"
-    // "getDbSchema",
-    // {
-    //   if: "routeMethod",
-    //   get: "relayData",
-    //   put: "updateItem",
-    //   post: "sayMethod",
-    //   delete: "sayMethod"
-    // }
+    "getDbSchema",
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "updateItem",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
   ]
 });
 global.getDbSchema = new Chain({
