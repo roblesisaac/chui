@@ -104,18 +104,19 @@ global.api = new Chain({
       });
     },
     debug: function() {
-      this.next("EVENT:"+this.event);
+      this.next("Method:"+this.method);
     }
   },
   instructions: [
-    "getDbSchema",
-    {
-      if: "routeMethod",
-      get: "relayData",
-      put: "updateItem",
-      post: "sayMethod",
-      delete: "sayMethod"
-    }
+    "debug"
+    // "getDbSchema",
+    // {
+    //   if: "routeMethod",
+    //   get: "relayData",
+    //   put: "updateItem",
+    //   post: "sayMethod",
+    //   delete: "sayMethod"
+    // }
   ]
 });
 global.getDbSchema = new Chain({
