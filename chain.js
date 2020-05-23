@@ -111,7 +111,7 @@ Chain.prototype.build = function(format) {
   if(format.steps) Object.assign(this.library.steps, format.steps);  
 };
 Chain.prototype.library = {steps:{}};
-Chain.prototype.automate = function(number, instance) {
+Chain.prototype.automate = function(number) {
   instance = this._parent // only instances have a _parent
             ? this
             : new Instance(this);
@@ -178,7 +178,7 @@ function Instance(master, overides) {
   this.input = master.input;
   this.instructions = new Instructions(master.instructions);
   var exclusions = Object.keys(this.step());
-  this.memory = new Memory([master.input, overides], exclusions);
+  this.memory = new Memory([master.input.bind(overides), overides], exclusions);
   this.resolved = false;
 }
 Instance.prototype = Chain.prototype;
