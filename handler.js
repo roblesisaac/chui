@@ -82,13 +82,14 @@ global.api = new Chain({
   },
   steps: {
     relayData: function() {
-      var self = this;
-      this.model.find({
-        siteId: self.siteId
-      }).then(function(data) {
-        self.data = data;
-        self.next(data);
-      });
+      this.next("relay");
+      // var self = this;
+      // this.model.find({
+      //   siteId: self.siteId
+      // }).then(function(data) {
+      //   self.data = data;
+      //   self.next(data);
+      // });
     },
     routeMethod: function() {
       this.next(this.method);
