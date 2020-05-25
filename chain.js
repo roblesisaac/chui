@@ -188,8 +188,8 @@ Instance.prototype.step = function(stepName) {
     _name: stepName,
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
-        var steps = schema.async ? schema.stepName.async : schema.stepName,
-            chain = new Chain(steps),
+        var instructions = schema.async ? schema.stepName.async : schema.stepName,
+            chain = new Chain(instructions).import(self.memory),
             list = schema.list,
             iteration = function(i, item, list) {
               chain.input = function() {
@@ -199,17 +199,23 @@ Instance.prototype.step = function(stepName) {
             finished = function() {
               chain.error ? reject(chain.error) : resolve();
             };
-        if(stepName.async) {
-          list.loop(function(i, item, next) {
-            iteration(i, item, list);
-            chain.start().then(next);
-          }).then(finished);
-        } else {
-          for(let i in list) {
-            iteration(i, list[i], list);
-            chain.start();              
+        if(Array.isArray(list)) {
+          if(stepName.async) {
+            list.loop(function(i, item, next) {
+              iteration(i, item, list);
+              chain.start().then(next);
+            }).then(finished);
+          } else {
+            for(let i in list) {
+              iteration(i, list[i], list);
+              chain.start();              
+            }
+            finished();
           }
-          finished();
+        } else if(typeof list == "object") {
+          Object.loop(this.list, function(obj, key, val){
+            chain.import({obj:obj, key: key, value: val}).start();
+          });
         }
       });
     },
