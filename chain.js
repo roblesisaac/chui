@@ -117,7 +117,7 @@ Chain.prototype.automate = function(number) {
             : new Instance(this);
   
   var instructions = instance.instructions,
-      step = instance.step(instructions.nextStepName(number));
+      step = instance.step(instructions.nextStepName(number)); // get next step in line or specific number
       
   if(instructions.completed()) {
     if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
@@ -126,9 +126,9 @@ Chain.prototype.automate = function(number) {
   }
   
   if(step._is("aChain")) {
-    var chain = step._name;
-    instance.memory.import(chain.input);
-    instructions.insert(chain.instructions);
+    var nestedChain = step._name;
+    instance.memory.import(nestedChain.input);
+    instructions.insert(nestedChain.instructions);
     instance.automate();
     return instance;
   }
@@ -169,7 +169,13 @@ Chain.prototype.start = function(number) {
   });
 };
 Chain.prototype.import = function(overides) {
-  var instance = new Instance(this, overides);
+  var instance;
+  if(!this._parent) {
+    instance = new Instance(this, overides);
+  } else {
+    this.memory.import(overides, true);
+    instance = this;
+  }
   return instance;
 };
     
@@ -213,7 +219,7 @@ Instance.prototype.step = function(stepName) {
             finished();
           }
         } else if(typeof list == "object") {
-          Object.loop(this.list, function(obj, key, val){
+          Object.loop(this.list, function(obj, key, val) {
             chain.import({obj:obj, key: key, value: val}).start();
           });
         }
@@ -352,7 +358,7 @@ Memory.prototype._keys = function(obj) {
     }
   }
 };
-Memory.prototype.import = function(data) {
+Memory.prototype.import = function(data, overide) {
   data = this.format(data);
   var nativeKeys = this._keys(this);
   for(var key in data) {
@@ -360,6 +366,7 @@ Memory.prototype.import = function(data) {
       this._storage[key] = data[key];
     }
   }
+  if(overide) Object.assign(this._hardSet, data);
   Object.assign(this._storage, this._hardSet);
 }
 
