@@ -200,7 +200,7 @@ Instance.prototype.step = function(stepName) {
             iteration = function(i, item, list) {
               chain.input = function() {
                 return Object.assign({}, { i: i, item: item, list: list });
-              }             
+              }     
             },
             finished = function() {
               chain.error ? reject(chain.error) : resolve();
@@ -209,18 +209,18 @@ Instance.prototype.step = function(stepName) {
           if(stepName.async) {
             list.loop(function(i, item, next) {
               iteration(i, item, list);
-              chain.start().then(next);
+              chain.import(self.memory).start().then(next);
             }).then(finished);
           } else {
             for(let i in list) {
               iteration(i, list[i], list);
-              chain.start();              
+              chain.import(self.memory).start();              
             }
             finished();
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            chain.import({obj:obj, key: key, value: val}).start();
+            chain.import(self.memory).import({obj:obj, key: key, value: val}).start();
           });
           finished();
         }
