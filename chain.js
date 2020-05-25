@@ -219,7 +219,8 @@ Instance.prototype.step = function(stepName) {
             finished();
           }
         } else if(typeof list == "object") {
-          Object.loop(this.list, function(obj, key, val) {
+          Object.loop(list, function(obj, key, val) {
+            console.log(obj)
             chain.import({obj:obj, key: key, value: val}).start();
           });
         }
