@@ -118,7 +118,7 @@ Chain.prototype.automate = function(number) {
   
   var instructions = instance.instructions,
       step = instance.step(instructions.nextStepName(number)); // get next step in line or specific number
-      
+  
   if(instructions.completed()) {
     if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
     instance.resolve();
@@ -195,11 +195,11 @@ Instance.prototype.step = function(stepName) {
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
         var instructions = schema.async ? schema.stepName.async : schema.stepName,
-            chain = new Chain(instructions).import(self.memory),
+            chain = new Chain(instructions),
             list = schema.list,
             iteration = function(i, item, list) {
               chain.input = function() {
-                return Object.assign({}, { i: i, item: item, list: list }, self.memory);
+                return Object.assign({}, { i: i, item: item, list: list });
               }             
             },
             finished = function() {
@@ -220,9 +220,9 @@ Instance.prototype.step = function(stepName) {
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            console.log(obj)
             chain.import({obj:obj, key: key, value: val}).start();
           });
+          finished();
         }
       });
     },
