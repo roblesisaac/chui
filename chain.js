@@ -56,13 +56,10 @@ if(!Object.loop) Object.loop = function(obj, fn, parent) {
     let val = obj[key];
     
     if(Array.isArray(val)) {
-      for(var i in val) {
-        var item = val[i];
-        if(typeof item !== "object") {
-          fn(val, i, item, parent);
-        } else {
-          Object.loop(item, fn, parent); 
-        }
+      for(var i=0; item=val[i]; i++) {
+        typeof item !== "object"
+          ? fn(val, i, item, parent)
+          : Object.loop(item, fn, parent);
       }
     } else if(typeof val === "object") {
       Object.loop(val, fn, parent);
@@ -72,7 +69,6 @@ if(!Object.loop) Object.loop = function(obj, fn, parent) {
   }
   
   return obj;
-
 };
 var obj = function(o) {
   for (var key in o) this[key] = o[key];
@@ -93,6 +89,8 @@ function Chain(format) {
   }
 }
 Chain.prototype.build = function(format) {
+  this._master = format;
+  this.learn = format.learn;
   this.input = !format.input
               ? function() { return {}}
               : typeof format.input == "function"
@@ -105,20 +103,17 @@ Chain.prototype.build = function(format) {
                       : Array.isArray(format.instructions)
                       ? format.instructions
                       : [format.instructions];
-  this._master = format;
-  this.steps = format.steps || {};
-  this.learn = format.learn;
   if(format.steps) Object.assign(this.library.steps, format.steps);  
 };
 Chain.prototype.library = {steps:{}};
 Chain.prototype.automate = function(number) {
-  instance = this._parent // only instances have a _parent
-            ? this
-            : new Instance(this);
+  instance = !this._parent // only instances have a _parent
+            ? new Instance(this)
+            : this;
   
   var instructions = instance.instructions,
       step = instance.step(instructions.nextStepName(number)); // get next step in line or specific number
-  
+
   if(instructions.completed()) {
     if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
     instance.resolve();
@@ -143,11 +138,13 @@ Chain.prototype.automate = function(number) {
   }
   
   if(step._is("aLoop")) {
+    console.log({ name: "before", instructioins: instructions.array, instance: instance.instructions.array })
     step.completeTheLoop({
       async: step._name.async,
       stepName: step._name,
       list: instance.memory.clean().last
-    }).then(function(){
+    }).then(function(instance){
+      console.log({ name: "after", instructioins: instructions.array, instance: instance.instructions.array })
       instance.automate();
     });
     return instance;
@@ -169,13 +166,10 @@ Chain.prototype.start = function(number) {
   });
 };
 Chain.prototype.import = function(overides) {
-  var instance;
-  if(!this._parent) {
-    instance = new Instance(this, overides);
-  } else {
-    this.memory.import(overides, true);
-    instance = this;
-  }
+  var instance = !this._parent
+                 ? new Instance(this)
+                 : this;
+  instance.memory.import(overides, true);
   return instance;
 };
     
@@ -195,32 +189,30 @@ Instance.prototype.step = function(stepName) {
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
         var instructions = schema.async ? schema.stepName.async : schema.stepName,
-            chain = new Chain(instructions),
+            loopChain = new Chain(instructions),
             list = schema.list,
-            iteration = function(i, item, list) {
-              chain.input = function() {
-                return Object.assign({}, { i: i, item: item, list: list });
-              }     
-            },
-            finished = function() {
-              chain.error ? reject(chain.error) : resolve();
-            };
+            finished = function() { loopChain.error ? reject("loopChain.error") : resolve(self); };
         if(Array.isArray(list)) {
           if(stepName.async) {
             list.loop(function(i, item, next) {
-              iteration(i, item, list);
-              chain.import(self.memory).start().then(next);
+              loopChain
+                .import(self.memory)
+                .import({i: i, item: item, list: list})
+                .start()
+                .then(next);
             }).then(finished);
           } else {
-            for(let i in list) {
-              iteration(i, list[i], list);
-              chain.import(self.memory).start();              
+            for(var i in list) {
+              loopChain
+                .import(self.memory)
+                .import({i: i, item: list[i], list: list})
+                .start();
             }
             finished();
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            chain.import(self.memory).import({obj:obj, key: key, value: val}).start();
+            loopChain.import(self.memory).import({obj:obj, key: key, value: val}).start();
           });
           finished();
         }
@@ -284,7 +276,7 @@ Instance.prototype.step = function(stepName) {
 Instance.prototype.resolve = function() {
   this.resolved = true;
   if(this.promise) this.promise(this);
-}
+};
 Instance.prototype.output = function(fn) {
   if(!fn) return;
   
@@ -308,7 +300,7 @@ Instructions.prototype.nextStepName = function(number) {
 };
 Instructions.prototype.insert = function(stepsArray) {
   this.array.splice.apply(this.array, [this.progress+1, 0].concat(stepsArray));
-}
+};
 
 function Memory(data, exclusions) {
   this._exclusions = exclusions || [];
@@ -363,13 +355,13 @@ Memory.prototype.import = function(data, overide) {
   data = this.format(data);
   var nativeKeys = this._keys(this);
   for(var key in data) {
-    if(nativeKeys.isExpecting(key) || (nativeKeys.excludes(key) && nativeKeys.notInExclusions(key))) {
+    if(overide || nativeKeys.isExpecting(key) || (nativeKeys.excludes(key) && nativeKeys.notInExclusions(key))) {
       this._storage[key] = data[key];
     }
   }
   if(overide) Object.assign(this._hardSet, data);
   Object.assign(this._storage, this._hardSet);
-}
+};
 
 if(typeof module === "undefined") module = {};
 module.exports = Chain;
