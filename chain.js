@@ -110,9 +110,8 @@ Chain.prototype.library = {steps:{}};
 Chain.prototype.automate = function(number) {
   var instance = !this._parent // only instances have a _parent
             ? new Instance(this)
-            : this;
-  
-  var instructions = instance.instructions,
+            : this,
+      instructions = instance.instructions,
       step = instance.step(instructions.nextStepName(number)); // get next step in line or specific number
 
   if(instructions.completed()) {
