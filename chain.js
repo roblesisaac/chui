@@ -33,6 +33,7 @@ addMethodToArray("loop", function(fn, o) {
   if(this === undefined) return console.log("Please define array");
   o = o || {
     then: function(fn) {
+      console.log(fn)
       if(!this.resolve) this.resolve = fn;
     }
   };
@@ -107,7 +108,7 @@ Chain.prototype.build = function(format) {
 };
 Chain.prototype.library = {steps:{}};
 Chain.prototype.automate = function(number) {
-  instance = !this._parent // only instances have a _parent
+  var instance = !this._parent // only instances have a _parent
             ? new Instance(this)
             : this;
   
@@ -116,7 +117,7 @@ Chain.prototype.automate = function(number) {
 
   if(instructions.completed()) {
     if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
-    instance.resolve();
+    instance.resolve.call(instance);
     return instance;
   }
   
@@ -138,13 +139,16 @@ Chain.prototype.automate = function(number) {
   }
   
   if(step._is("aLoop")) {
-    console.log({ name: "before", instructioins: instructions.array, instance: instance.instructions.array })
+    // greet.start().then(function(me){
+    //   console.log(me);
+    //   console.log("::: DONE :::");
+    //   instance.automate();
+    // });
     step.completeTheLoop({
       async: step._name.async,
       stepName: step._name,
       list: instance.memory.clean().last
     }).then(function(instance){
-      console.log({ name: "after", instructioins: instructions.array, instance: instance.instructions.array })
       instance.automate();
     });
     return instance;
@@ -160,7 +164,7 @@ Chain.prototype.start = function(number) {
       if(instance.error) {
         reject(instance.error);
       } else {
-        resolve(instance.memory.clean());
+        resolve(instance.memory.clean()); 
       }
     });
   });
@@ -181,7 +185,9 @@ function Instance(master, overides) {
   this.memory = new Memory([master.input.bind(overides), overides], exclusions);
   this.resolved = false;
 }
-Instance.prototype = Chain.prototype;
+Instance.prototype = Object.create(Chain.prototype);
+Object.defineProperty(Instance.prototype, 'constructor', { 
+    value: Instance, enumerable: false, writable: true });
 Instance.prototype.step = function(stepName) {
   var self = this;
   return {
@@ -253,7 +259,7 @@ Instance.prototype.step = function(stepName) {
       if(keyname) this.set(keyname, returned);
       self.memory.import(this);
       self.memory._storage.last = returned;
-      self.automate(null, self);
+      self.automate(null);
     },
     _memory: self.memory,
     _method: function(step, data) {
@@ -271,7 +277,7 @@ Instance.prototype.step = function(stepName) {
         this.error(err);
       }
     }
-  } 
+  };
 };
 Instance.prototype.resolve = function() {
   this.resolved = true;
