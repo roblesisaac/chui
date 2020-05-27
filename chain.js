@@ -139,11 +139,6 @@ Chain.prototype.automate = function(number) {
   }
   
   if(step._is("aLoop")) {
-    // greet.start().then(function(me){
-    //   console.log(me);
-    //   console.log("::: DONE :::");
-    //   instance.automate();
-    // });
     step.completeTheLoop({
       async: step._name.async,
       stepName: step._name,
