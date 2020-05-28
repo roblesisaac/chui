@@ -194,18 +194,18 @@ global.buildSchema = new Chain({
       this.next(this.convert !== undefined);
     },
     convertToFuncion: function() {
-      this.obj[this.key] = this.convert;
+      // this.obj[this.key] = this.convert;
       this.next();
     }
   },
   instructions: [
     "forEachItemInSchema",
-    // [
-    //   {
-    //     if: "formatAllowed",
-    //     true: "convertToFuncion"
-    //   }  
-    // ],
+    [
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
+    ],
     "relayObj"
   ]
 });
