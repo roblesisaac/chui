@@ -487,7 +487,7 @@ global.port = new Chain({
       this.next(this.query.verbose);
     },
     addDetails: function(last) {
-      var index = Object.assign({}, {special:"test"});
+      var index = Object.assign(this._memory._storage, {special:"test"});
       this.next(index);
     }
   },
