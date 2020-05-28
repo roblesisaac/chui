@@ -434,7 +434,7 @@ global.loadLandingPage = new Chain({
           username: this.username || "public"
         },
         body: tmplts.index,
-        contentType: "text/html"
+        contentType: "html"
       });
     }
   },
