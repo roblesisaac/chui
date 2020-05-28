@@ -156,7 +156,7 @@ global.getDbSchema = new Chain({
 global.buildSchema = new Chain({
   input: function() {
     return {
-      schema: { skus: "number" },
+      schema: this.schema || { skus: "number" },
       types: {
         "string": "Strings",
         "number": "Numbers",
@@ -196,7 +196,7 @@ global.buildSchema = new Chain({
       this.next();
     },
     relayObjs: function() {
-      this.next(this.schemas);
+      this.next(this.schema);
     }
   },
   instructions: [
