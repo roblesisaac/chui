@@ -200,13 +200,13 @@ global.buildSchema = new Chain({
     }
   },
   instructions: [
-    "forEachItemInSchema",
-    [
-      {
-        if: "formatAllowed",
-        true: "convertToFuncion"
-      }  
-    ],
+    // "forEachItemInSchema",
+    // [
+    //   {
+    //     if: "formatAllowed",
+    //     true: "convertToFuncion"
+    //   }  
+    // ],
     "relayObj"
   ]
 });
