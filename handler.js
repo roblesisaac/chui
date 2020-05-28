@@ -157,7 +157,7 @@ global.buildSchema = new Chain({
   input: function() {
     return {
       kewword: this.arg1,
-      schema: this.schemas || { skus: "number" },
+      schema: this.schema || { skus: "number" },
       types: {
         "string": "Strings",
         "number": "Numbers",
@@ -195,20 +195,17 @@ global.buildSchema = new Chain({
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
-    },
-    relayObjs: function() {
-      this.next(this.schema);
     }
   },
   instructions: [
-    // "forEachItemInSchema",
+    "forEachItemInSchema",
     // [
     //   {
     //     if: "formatAllowed",
     //     true: "convertToFuncion"
     //   }  
     // ],
-    "relayObjs"
+    "relayObj"
   ]
 });
 global.connectToDb = new Chain({
