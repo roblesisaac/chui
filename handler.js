@@ -323,7 +323,7 @@ global.serve = new Chain({
       this.next(!this.error);
     },
     stringifyBody: function() {
-      // this.format.body = JSON.stringify(this.format.body);
+      this.format.body = JSON.stringify(this.format.body);
       this.next();
     },
     initCallback: function() {
