@@ -142,8 +142,13 @@ Chain.prototype.automate = function(number) {
       async: step._name.async,
       stepName: step._name,
       list: instance.memory.clean().last
-    }).then(function(instance){
-      instance.automate();
+    }).then(function(loopChain){
+      if(loopChain.error) {
+        instance.error = loopChain.error;
+        instance.resolve();
+      } else {
+        instance.automate();
+      }
     });
     return instance;
   }
@@ -188,31 +193,31 @@ Instance.prototype.step = function(stepName) {
     _name: stepName,
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
-        var instructions = schema.async ? schema.stepName.async : schema.stepName,
-            loopChain = new Chain(instructions),
+        var nestedInstructions = schema.async ? schema.stepName.async : schema.stepName,
+            loopChain = new Chain(nestedInstructions).import(self.memory),
             list = schema.list,
-            finished = function() { loopChain.error ? reject("loopChain.error") : resolve(self); };
-        if(Array.isArray(list)) {
+            finished = function() { 
+              resolve(loopChain);
+            };
+        if(Array.isArray(list) || typeof list !== "object") {
           if(stepName.async) {
-            list.loop(function(i, item, next) {
+            list.loop(function(i, item, nxt) {
               loopChain
-                .import(self.memory)
                 .import({i: i, item: item, list: list})
                 .start()
-                .then(next);
+                .then(nxt).catch(function(e){});
             }).then(finished);
           } else {
             for(var i in list) {
               loopChain
-                .import(self.memory)
                 .import({i: i, item: list[i], list: list})
-                .start();
+                .start().catch(function(e){});
             }
             finished();
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            loopChain.import(self.memory).import({obj:obj, key: key, value: val}).start();
+            loopChain.import(self.memory).import({obj:obj, key: key, value: val}).start().catch(function(e){});
           });
           finished();
         }
