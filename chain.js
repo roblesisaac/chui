@@ -53,8 +53,8 @@ addMethodToArray("loop", function(fn, o) {
 if(!Object.loop) Object.loop = function(obj, fn, parent) {
   parent = parent || obj;
   
-  for(let key in obj) {
-    let val = obj[key];
+  for(var key in obj) {
+    var val = obj[key];
     
     if(Array.isArray(val)) {
       for(var i=0; item=val[i]; i++) {
@@ -115,8 +115,8 @@ Chain.prototype.automate = function(number) {
       step = instance.step(instructions.nextStepName(number)); // get next step in line or specific number
 
   if(instructions.completed()) {
-    if(instance._parent.learn) Object.assign(instance._parent, instance.memory.clean());
-    instance.resolve.call(instance);
+    if(instance._parent.learn) Object.assign(instance._parent, instance.memory._storage);
+    instance.resolve();
     return instance;
   }
   
@@ -141,7 +141,7 @@ Chain.prototype.automate = function(number) {
     step.completeTheLoop({
       async: step._name.async,
       stepName: step._name,
-      list: instance.memory.clean().last
+      list: instance.memory._storage.last
     }).then(function(loopChain){
       if(loopChain.error) {
         instance.error = loopChain.error;
@@ -163,7 +163,7 @@ Chain.prototype.start = function(number) {
       if(instance.error) {
         reject(instance.error);
       } else {
-        resolve(instance.memory.clean()); 
+        resolve(instance.memory._storage); 
       }
     });
   });
@@ -181,12 +181,11 @@ function Instance(master, overides) {
   this.input = master.input;
   this.instructions = new Instructions(master.instructions);
   var exclusions = Object.keys(this.step());
-  this.memory = new Memory([master.input.bind(overides), overides], exclusions);
+  this.memory = new Memory([master.input.call(overides), overides], exclusions);
   this.resolved = false;
 }
 Instance.prototype = Object.create(Chain.prototype);
-Object.defineProperty(Instance.prototype, 'constructor', { 
-    value: Instance, enumerable: false, writable: true });
+Object.defineProperty(Instance.prototype, 'constructor', { value: Instance, enumerable: false, writable: true });
 Instance.prototype.step = function(stepName) {
   var self = this;
   return {
@@ -194,33 +193,45 @@ Instance.prototype.step = function(stepName) {
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
         var nestedInstructions = schema.async ? schema.stepName.async : schema.stepName,
-            loopChain = new Chain(nestedInstructions).import(self.memory.clean()),
+            loopChain = new Chain(nestedInstructions),
             list = schema.list,
+            err,
             finished = function() { 
-              resolve(loopChain);
+              console.log("ERR::",err);
+              // resolve(err);
             };
         if(Array.isArray(list) || typeof list !== "object") {
           if(stepName.async) {
             list.loop(function(i, item, nxt) {
-              loopChain
+              loopChain.import(self.memory._storage)
                 .import({i: i, item: item, list: list})
                 .start()
-                .then(nxt).catch(function(e){});
+                .then(nxt).catch(function(e){
+                  console.log(e);
+                  if(!err) err = e;
+                });
             }).then(finished);
           } else {
             for(var i in list) {
-              loopChain
+              loopChain.import(self.memory._storage)
                 .import({i: i, item: list[i], list: list})
-                .start().catch(function(e){});
+                .start().catch(function(e) {
+                  console.log(e);
+                  if(!err) err = e;
+                });
             }
             finished();
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            loopChain
+            loopChain.import(self.memory._storage)
               .import({obj:obj, key: key, value: val})
-              .start().catch(function(e){});
+              .start().catch(function(e) {
+                  if(!err) err = e;
+                  console.log("amm",err)
+              });
           });
+          console.log("FIN::", err);
           finished();
         }
       });
@@ -237,11 +248,11 @@ Instance.prototype.step = function(stepName) {
       if(typeof condition == "boolean") {
         return next(condition);
       }
-      var data = Object.assign({}, self.memory.clean(), this, {next: next});
+      var data = Object.assign({}, self.memory._storage, this, {next: next});
       this._method(self.library.steps[condition], data);
     },
     input: function() {
-      return self.input.call(self.memory.clean());
+      return self.input.call(self.memory._storage);
     },
     _is: function(condition) {
       return {
@@ -265,7 +276,7 @@ Instance.prototype.step = function(stepName) {
     _memory: self.memory,
     _method: function(step, data) {
       self.memory.import(this.input());
-      var data = data || Object.assign({}, self.memory.clean(), this),
+      var data = data || Object.assign({}, self.memory._storage, this),
           step = step || self.library.steps[stepName],
           res = data.last,
           next = this.next.bind(data),
@@ -317,9 +328,6 @@ function Memory(data, exclusions) {
   if(!Array.isArray(data)) data = [data];
   for(i in data) this.init(data[i]);
 }
-Memory.prototype.clean = function() {
-  return this._storage;
-};
 Memory.prototype.init = function(data) {
   data = this.format(data);
   for(key in data) {
