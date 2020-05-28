@@ -199,8 +199,7 @@ global.buildSchema = new Chain({
     releaseObj: function() {
       this.next({
         kewordis: this.kewword,
-        sch: this.schema,
-        mem: this._memory._storage
+        sch: this.schema
       });
     }
   },
