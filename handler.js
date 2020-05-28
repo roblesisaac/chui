@@ -156,7 +156,8 @@ global.getDbSchema = new Chain({
 global.buildSchema = new Chain({
   input: function() {
     return {
-      schema: this.schema || { skus: "number" },
+      kewword: this.arg1,
+      schema: this.schemas || { skus: "number" },
       types: {
         "string": "Strings",
         "number": "Numbers",
