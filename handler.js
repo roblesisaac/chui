@@ -348,9 +348,9 @@ global.serve = new Chain({
           if: "thereAreVariables",
           true: "renderVariables"
         }
-      ]
+      ],
+      false: "stringifyBody"
     },
-    "stringifyBody",
     "initCallback"
   ]
 });
