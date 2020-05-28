@@ -434,7 +434,7 @@ global.loadLandingPage = new Chain({
           username: this.username || "public"
         },
         body: tmplts.index,
-        contentType: "html"
+        contentType: "text/html"
       });
     }
   },
@@ -488,7 +488,7 @@ global.port = new Chain({
     },
     addDetails: function(last) {
       var index = Object.assign(this._memory._storage, {special:"test"});
-      this.next(this._memory._storage);
+      this.next(Object.keys(this._memory._storage));
     }
   },
   instructions: [
