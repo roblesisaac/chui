@@ -194,9 +194,6 @@ global.buildSchema = new Chain({
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
-    },
-    relayObj: function() {
-      this.next("this.schema");
     }
   },
   instructions: [
