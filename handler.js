@@ -198,7 +198,7 @@ global.buildSchema = new Chain({
     }
   },
   instructions: [
-    "forEachItemInSchema",
+    // "forEachItemInSchema",
     // [
     //   {
     //     if: "formatAllowed",
