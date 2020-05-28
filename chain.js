@@ -194,7 +194,7 @@ Instance.prototype.step = function(stepName) {
     completeTheLoop: function(schema) {
       return new Promise(function(resolve, reject) {
         var nestedInstructions = schema.async ? schema.stepName.async : schema.stepName,
-            loopChain = new Chain(nestedInstructions).import(self.memory),
+            loopChain = new Chain(nestedInstructions).import(self.memory.clean()),
             list = schema.list,
             finished = function() { 
               resolve(loopChain);
@@ -217,7 +217,9 @@ Instance.prototype.step = function(stepName) {
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            loopChain.import(self.memory).import({obj:obj, key: key, value: val}).start().catch(function(e){});
+            loopChain
+              .import({obj:obj, key: key, value: val})
+              .start().catch(function(e){});
           });
           finished();
         }
