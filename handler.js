@@ -196,7 +196,7 @@ global.buildSchema = new Chain({
       this.next();
     },
     relayObjs: function() {
-      this.next(this.types);
+      this.next(this.schema);
     }
   },
   instructions: [
