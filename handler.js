@@ -195,6 +195,13 @@ global.buildSchema = new Chain({
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
+    },
+    releaseObj: function() {
+      this.next({
+        kewordis: this.kewword,
+        sch: this.schema,
+        mem: this._memory._storage
+      });
     }
   },
   instructions: [
@@ -205,7 +212,7 @@ global.buildSchema = new Chain({
     //     true: "convertToFuncion"
     //   }  
     // ],
-    "relayObj"
+    "releaseObj"
   ]
 });
 global.connectToDb = new Chain({
