@@ -19,7 +19,7 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-global.schema = new Chain({
+global.getSchema = new Chain({
   input: {
     types: { 
       "string": "Strings",
@@ -157,6 +157,7 @@ global.buildSchema = new Chain({
   input: function() {
     return {
       kewword: this.arg1,
+      kearg2: this.arg2,
       schema: this.schema || { skus: "number" },
       types: {
         "string": "Strings",
