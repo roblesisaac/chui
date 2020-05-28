@@ -196,7 +196,7 @@ global.buildSchema = new Chain({
       this.next();
     },
     relayObj: function() {
-      this.next(this.schema);
+      this.next("this.schema");
     }
   },
   instructions: [
@@ -472,7 +472,7 @@ global.port = new Chain({
     runChain: function() {
       var self = this,
           chain = global[this.chain];
-      chain.import(this).start().then(function(memory){
+      chain.import(this._memory._storage).start().then(function(memory){
         self._memory.import(memory);
         self.next(memory.last);
       }).catch(function(err){
