@@ -198,6 +198,9 @@ global.buildSchema = new Chain({
       this.obj[this.key] = this.convert;
       this.next();
     },
+    saysay: function() {
+      this.next();
+    },
     relayObjs: function() {
       this.next({
         sch: this.schema,
@@ -208,10 +211,11 @@ global.buildSchema = new Chain({
   instructions: [
     "forEachItemInSchema",
     [
-      {
-        if: "formatAllowed",
-        true: "convertToFuncion"
-      }  
+      "saysay"
+      // {
+      //   if: "formatAllowed",
+      //   true: "convertToFuncion"
+      // }  
     ],
     "relayObjs"
   ]
