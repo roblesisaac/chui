@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 const db = mongoose.connection;
 mongoose.Promise = global.Promise;
 let isConnected;
-const sessionModels = {};
 const fs = require('fs');
 const tmplts = {};
 if(!tmplts.index) {
@@ -96,6 +95,14 @@ global.getModelFromSheetName = new Chain({
                       ? false
                       : this.sheet.db.schema;
       this.next(this.schema);
+    },
+    createModel: function() {
+      var options = {
+        strict: true,
+        collection: this.sheet.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id)
+      };
+      this.model = mongoose.model(options.collection, new mongoose.Schema(this.schema, options));
+      this.next(this.model);
     }
   },
   instructions: [
@@ -105,22 +112,17 @@ global.getModelFromSheetName = new Chain({
       false: [
         "lookupSheet",
         "relaySchemaObj",
-        "buildSchema"
+        "model", // model object
+        "createModel"
       ]
     }
   ]  
 });
-global.buildSchema = new Chain({
+global.model = new Chain({
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
-      types: {
-        "string": "Strings",
-        "number": "Numbers",
-        "date": "Dates",
-        "boolean": "Booleans",
-        "array": "Arrays"
-      }
+      types: { "string": String, "number": Number, "date": Date, "boolean": Boolean, "array": Array }
     };
   },
   steps: {
@@ -135,19 +137,15 @@ global.buildSchema = new Chain({
       this.obj[this.key] = this.convert;
       this.next();
     },
-    relaySchema: function() {
+    formatSchema: function() {
       this.next(this.schema);
     }
   },
   instructions: [
-    "forEachItemInSchema",
-    [
-      {
-        if: "formatAllowed",
-        true: "convertToFuncion"
-      }  
+    "forEachItemInSchema", [
+      { if: "formatAllowed", true: "convertToFuncion" }  
     ],
-    "relaySchema"
+    "formatSchema"
   ]
 });
 global.connectToDb = new Chain({
