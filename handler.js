@@ -165,7 +165,8 @@ global.buildSchema = new Chain({
         "date": "Dates",
         "boolean": "Booleans",
         "array": "Arrays"
-      }
+      },
+      pushes: []
     };
   },
   steps: {
@@ -194,8 +195,14 @@ global.buildSchema = new Chain({
       this.next(this.convert !== undefined);
     },
     convertToFuncion: function() {
-      // this.obj[this.key] = this.convert;
+      this.obj[this.key] = this.convert;
       this.next();
+    },
+    relayObjs: function() {
+      this.next({
+        sch: this.schema,
+        types: this.types
+      });
     }
   },
   instructions: [
@@ -206,7 +213,7 @@ global.buildSchema = new Chain({
         true: "convertToFuncion"
       }  
     ],
-    "relayObj"
+    "relayObjs"
   ]
 });
 global.connectToDb = new Chain({
