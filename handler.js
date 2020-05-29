@@ -102,17 +102,21 @@ global.api = new Chain({
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
         self.next(data);
       });
+    },
+    debug: function() {
+      this.next("METHOD::", ths.method);
     }
   },
   instructions: [
     getDbSchema,
-    {
-      if: "routeMethod",
-      get: "relayData",
-      put: "updateItem",
-      post: "sayMethod",
-      delete: "sayMethod"
-    }
+    "debug"
+    // {
+    //   if: "routeMethod",
+    //   get: "relayData",
+    //   put: "updateItem",
+    //   post: "sayMethod",
+    //   delete: "sayMethod"
+    // }
   ]
 });
 global.getDbSchema = new Chain({
