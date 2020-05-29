@@ -121,6 +121,7 @@ global.getModelFromSheetName = new Chain({
 global.model = new Chain({ // creates obj ready to convert into model
   input: function() {
     return {
+      schema: this.schema || { skue: "stringey" },
       types: { "string": String, "number": Number, "date": Date, "boolean": Boolean, "array": Array }
     };
   },
