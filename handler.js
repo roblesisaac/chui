@@ -92,7 +92,7 @@ global.api = new Chain({
       // });
     },
     routeMethod: function() {
-      this.next(this.method);
+      this.next("get");
     },
     sayId: function() {
       this.next(this.body);  
@@ -146,7 +146,7 @@ global.getDbSchema = new Chain({
       false: [
         "lookupSheet",
         "relaySheetSchemaObj",
-        "buildSchema"
+        buildSchema
       ]
     }
   ]  
