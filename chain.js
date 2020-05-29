@@ -127,6 +127,7 @@ Chain.prototype.automate = function(number) {
   }
   
   if(step._is("aChain")) {
+    console.log(step._name)
     var nestedChain = step._name;
     instance.memory.import(nestedChain.input);
     instructions.insert(nestedChain.instructions);
@@ -252,15 +253,17 @@ Instance.prototype.step = function(stepName) {
       return instance.input.call(instance.memory._storage);
     },
     _is: function(condition) {
+      var self = this;
       return {
         aChain: function(){
-          var currentStep = stepName;
+          var nestedChain = stepName;
           if(typeof stepName == "string") {
             typeof global == "undefined"
-              ? currentStep = window[stepName]
-              : currentStep = global[stepName];
+              ? nestedChain = window[stepName]
+              : nestedChain = global[stepName];
           }
-          return (currentStep && currentStep._master) !== undefined;
+          if(nestedChain && nestedChain._master !== undefined) self._name = nestedChain;
+          return self._name._master !== undefined;
         },
         aCondition: function() {
           return stepName.if;
