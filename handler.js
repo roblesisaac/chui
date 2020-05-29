@@ -90,14 +90,13 @@ global.getModelFromSheetName = new Chain({
       this.model = models[this.sheetName];
       this.next(this.model);
     },
-    collectionDoesntExist: function() {
+    collectionExists: function() {
       var self = this;
-      mongoose.connection.db.listCollections({ name: this.collectionName })
-      .next(function(err, collInfo) {
+      mongoose.connection.db.collection(name, function (err, collection) {
         if(err) return self.error(err);
-        self.model = collInfo;
-        self.next(!self.model);
-      });
+        self.collection = collection;
+        self.next(!collection == false);
+     });
     },
     relayModel: function() {
       this.next(this.model);  
@@ -122,9 +121,9 @@ global.getModelFromSheetName = new Chain({
           this.next();
         },
         {
-          if: "collectionDoesntExist",
-          true: [ "model", "createModel" ],
-          false: "relayModel"
+          if: "collectionExists",
+          true: "relayModel",
+          false: [ "model", "createModel" ]
         }
       ]
     }
