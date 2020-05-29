@@ -108,15 +108,13 @@ global.api = new Chain({
     }
   },
   instructions: [
-    "debug"
-    // getDbSchema,
-    // {
-    //   if: "routeMethod",
-    //   get: "relayData",
-    //   put: "updateItem",
-    //   post: "sayMethod",
-    //   delete: "sayMethod"
-    // }
+    {
+      if: "routeMethod",
+      get: "relayData",
+      put: "updateItem",
+      post: "sayMethod",
+      delete: "sayMethod"
+    }
   ]
 });
 global.getDbSchema = new Chain({
