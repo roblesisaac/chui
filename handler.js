@@ -92,7 +92,7 @@ global.api = new Chain({
       // });
     },
     routeMethod: function() {
-      this.next("get");
+      this.next(this.method);
     },
     sayId: function() {
       this.next(this.body);  
