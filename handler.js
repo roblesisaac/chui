@@ -143,6 +143,10 @@ global.getDbSchema = new Chain({
     }
   },
   instructions: [
+    function() {
+      this.leaver = "left";
+      this.next();
+    },
     {
       if: "sheetIsNative",
       true: "relayNativeModel",
