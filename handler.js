@@ -118,40 +118,6 @@ global.api = new Chain({
     }
   ]
 });
-global.getDbSchema = new Chain({
-  input: function() {
-    return {
-      sheetName: this.arg1
-    };
-  },
-  steps: {
-    sheetIsNative: function() {
-      this.next(models[this.sheetName] !== undefined);
-    },
-    relayNativeModel: function() {
-      this.model = models[this.sheetName];
-      this.next(this.model);
-    },
-    relaySheetSchemaObj: function() {
-      this.sheet.db = this.sheet.db || {};
-      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
-      
-      this.schema = this.sheet.db.schema;
-      this.next(this.schema);
-    }
-  },
-  instructions: [
-    {
-      if: "sheetIsNative",
-      true: "relayNativeModel",
-      false: [
-        "lookupSheet",
-        "relaySheetSchemaObj",
-        buildSchema
-      ]
-    }
-  ]  
-});
 global.buildSchema = new Chain({
   input: function() {
     return {
@@ -208,6 +174,40 @@ global.buildSchema = new Chain({
     ],
     "relayObj"
   ]
+});
+global.getDbSchema = new Chain({
+  input: function() {
+    return {
+      sheetName: this.arg1
+    };
+  },
+  steps: {
+    sheetIsNative: function() {
+      this.next(models[this.sheetName] !== undefined);
+    },
+    relayNativeModel: function() {
+      this.model = models[this.sheetName];
+      this.next(this.model);
+    },
+    relaySheetSchemaObj: function() {
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
+      
+      this.schema = this.sheet.db.schema;
+      this.next(this.schema);
+    }
+  },
+  instructions: [
+    {
+      if: "sheetIsNative",
+      true: "relayNativeModel",
+      false: [
+        "lookupSheet",
+        "relaySheetSchemaObj",
+        buildSchema
+      ]
+    }
+  ]  
 });
 global.connectToDb = new Chain({
   input: {
