@@ -87,7 +87,7 @@ global.api = new Chain({
       this.model.find({
         siteId: self.siteId
       }, function(err, data){
-        if(1===1) return self.error({stack:"err"});
+        if(err) return self.error(err);
         self.next(data);      
       });
     },
@@ -547,7 +547,7 @@ module.exports.port = function(event, context, callback) {
   module.exports.port = function(event, context, callback) {
     callback(null, {
       statusCode: 200,
-      body: e.stack,
+      body: e.stack || e,
       headers: {
         'Content-Type': "application/javascript"
       }
