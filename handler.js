@@ -91,9 +91,9 @@ global.getModelFromSheetName = new Chain({
       this.next(this.model);
     },
     relaySchemaObj: function() {
-      this.schema = !this.sheet.db
-                      ? false
-                      : this.sheet.db.schema;
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
+      this.schema = this.sheet.db.schema;
       this.next(this.schema);
     },
     createModel: function() {
