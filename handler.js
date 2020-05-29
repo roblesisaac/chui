@@ -96,7 +96,7 @@ global.getModelFromSheetName = new Chain({
       .next(function(err, collInfo) {
         if(err) return self.error(err);
         self.model = collInfo;
-        this.next(!self.model);
+        self.next(!self.model);
       });
     },
     relayModel: function() {
