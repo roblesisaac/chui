@@ -82,7 +82,16 @@ global.api = new Chain({
     };
   },
   steps: {
-    relayData: function() {
+    hasId: function() {
+      this.next(this.id !== undefined);
+    },
+    findById: function() {
+      this.model.findById(this.id, function(err, item) {
+        if(err) return self.error(err);
+        self.next(item);
+      });
+    },
+    getItems: function() {
       var self = this;
       this.model.find({
         siteId: self.siteId
@@ -111,10 +120,16 @@ global.api = new Chain({
     "getDbSchema",
     {
       if: "routeMethod",
-      get: "relayData",
+      get: [
+        {
+          if: "hasId",
+          true: "findById",
+          false: "getItems"
+        }
+      ],
       put: "updateItem",
-      post: "sayMethod",
-      delete: "sayMethod"
+      post: "postItem",
+      delete: "deleteItem"
     }
   ]
 });
@@ -159,8 +174,6 @@ global.getDbSchema = new Chain({
 global.buildSchema = new Chain({
   input: function() {
     return {
-      kewword: this.arg1,
-      kearg2: this.arg2,
       schema: this.schema || { skus: "number" },
       types: {
         "string": "Strings",
