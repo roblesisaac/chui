@@ -145,12 +145,7 @@ Chain.prototype.automate = function(number) {
       stepName: step._name,
       list: instance.memory._storage.last
     }).then(function(loopChain){
-      if(loopChain.error) {
-        instance.error = loopChain.error;
-        instance.resolve();
-      } else {
-        instance.automate();
-      }
+      instance.automate();
     });
     return instance;
   }
@@ -198,9 +193,8 @@ Instance.prototype.step = function(stepName) {
             loopChain = new Chain(nestedInstructions),
             list = schema.list,
             err,
-            finished = function() { 
-              console.log("ERR::",err);
-              // resolve(err);
+            finished = function() {
+              resolve(err);
             };
         if(Array.isArray(list) || typeof list !== "object") {
           if(stepName.async) {
@@ -233,8 +227,6 @@ Instance.prototype.step = function(stepName) {
                   console.log("amm",err)
               });
           });
-          console.log("FIN::", err);
-          console.log(loopChain);
           finished();
         }
       });
