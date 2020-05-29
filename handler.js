@@ -141,15 +141,16 @@ global.getDbSchema = new Chain({
     }
   },
   instructions: [
-    {
-      if: "sheetIsNative",
-      true: "relayNativeModel",
-      false: [
-        "lookupSheet",
-        "relaySheetSchemaObj",
-        "buildSchema"
-      ]
-    }
+    "buildSchema"
+    // {
+    //   if: "sheetIsNative",
+    //   true: "relayNativeModel",
+    //   false: [
+    //     "lookupSheet",
+    //     "relaySheetSchemaObj",
+    //     "buildSchema"
+    //   ]
+    // }
   ]  
 });
 global.buildSchema = new Chain({
@@ -164,8 +165,7 @@ global.buildSchema = new Chain({
         "date": "Dates",
         "boolean": "Booleans",
         "array": "Arrays"
-      },
-      pushes: []
+      }
     };
   },
   steps: {
