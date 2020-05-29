@@ -90,12 +90,24 @@ global.getModelFromSheetName = new Chain({
       this.model = models[this.sheetName];
       this.next(this.model);
     },
+    collectionDoesntExist: function() {
+      var self = this;
+      mongoose.connection.db.listCollections({ name: this.collectionName })
+      .next(function(err, collInfo) {
+        if(err) return self.error(err);
+        self.model = collInfo;
+        this.next(!self.model);
+      });
+    },
+    relayModel: function() {
+      this.next(this.model);  
+    },
     createModel: function() {
       var options = {
         strict: true,
-        collection: this.sheet.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id)
+        collection: this.collectionName
       };
-      // this.model = mongoose.model(options.collection, new mongoose.Schema(this.schema, options));
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
       this.next(options.collection);
     }
   },
@@ -104,8 +116,16 @@ global.getModelFromSheetName = new Chain({
       if: "sheetIsNative",
       true: "relayNativeModel",
       false: [
-        "model", // model object
-        "createModel"
+        "lookupSheet",
+        function() {
+          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
+          this.next();
+        },
+        {
+          if: "collectionDoesntExist",
+          true: [ "model", "createModel" ],
+          false: "relayModel"
+        }
       ]
     }
   ]  
