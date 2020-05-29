@@ -144,8 +144,10 @@ Chain.prototype.automate = function(number) {
       async: step._name.async,
       stepName: step._name,
       list: instance.memory._storage.last
-    }).then(function(loopChain){
-      instance.automate();
+    }).then(function(){
+      instance.error
+        ? instance.resolve()
+        : instance.automate();
     });
     return instance;
   }
@@ -203,8 +205,7 @@ Instance.prototype.step = function(stepName) {
                 .import({i: i, item: item, list: list})
                 .start()
                 .then(nxt).catch(function(e){
-                  console.log(e);
-                  if(!err) err = e;
+                  if(!instance.error) instance.error = e;
                 });
             }).then(finished);
           } else {
@@ -212,8 +213,7 @@ Instance.prototype.step = function(stepName) {
               loopChain.import(instance.memory._storage)
                 .import({i: i, item: list[i], list: list})
                 .start().catch(function(e) {
-                  console.log(e);
-                  if(!err) err = e;
+                  if(!instance.error) instance.error = e;
                 });
             }
             finished();
@@ -223,8 +223,7 @@ Instance.prototype.step = function(stepName) {
             loopChain.import(instance.memory._storage)
               .import({obj:obj, key: key, value: val})
               .start().catch(function(e) {
-                  if(!err) err = e;
-                  console.log("amm",err)
+                  if(!instance.error) instance.error = e;
               });
           });
           finished();
