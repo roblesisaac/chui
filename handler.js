@@ -87,11 +87,8 @@ global.api = new Chain({
       this.model.find({
         siteId: self.siteId
       }, function(err, data){
-        self.data = data;
-        self.next({
-          err: err,
-          data: data
-        });      
+        if(1===1) return self.error(err);
+        self.next(data);      
       });
     },
     routeMethod: function() {
