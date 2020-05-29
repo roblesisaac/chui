@@ -90,12 +90,6 @@ global.getModelFromSheetName = new Chain({
       this.model = models[this.sheetName];
       this.next(this.model);
     },
-    relaySchemaObj: function() {
-      this.sheet.db = this.sheet.db || {};
-      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
-      this.schema = this.sheet.db.schema;
-      this.next(this.schema);
-    },
     createModel: function() {
       var options = {
         strict: true,
@@ -110,8 +104,6 @@ global.getModelFromSheetName = new Chain({
       if: "sheetIsNative",
       true: "relayNativeModel",
       false: [
-        "lookupSheet",
-        "relaySchemaObj",
         "model", // model object
         "createModel"
       ]
@@ -121,12 +113,15 @@ global.getModelFromSheetName = new Chain({
 global.model = new Chain({ // creates obj ready to convert into model
   input: function() {
     return {
-      schema: this.schema || { skue: "stringey" },
+      sheetName: this.arg1,
       types: { "string": "String", "number": "Number", "date": "Date", "boolean": "Boolean", "array": "Array" }
     };
   },
   steps: {
     forEachItemInSchema: function() {
+      this.sheet.db = this.sheet.db || {};
+      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
+      this.schema = this.sheet.db.schema;
       this.next(this.schema);
     },
     formatAllowed: function() {
@@ -134,7 +129,7 @@ global.model = new Chain({ // creates obj ready to convert into model
       this.next(this.convert !== undefined);
     },
     convertToFuncion: function() {
-      this.obj[this.key] = "this.convert";
+      this.obj[this.key] = this.convert;
       this.next();
     },
     formatSchema: function() {
@@ -142,6 +137,7 @@ global.model = new Chain({ // creates obj ready to convert into model
     }
   },
   instructions: [
+    "lookupSheet",
     "forEachItemInSchema", [
       { if: "formatAllowed", true: "convertToFuncion" }  
     ],
