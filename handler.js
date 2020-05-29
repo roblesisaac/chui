@@ -20,60 +20,6 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-global.getSchema = new Chain({
-  input: {
-    types: { 
-      "string": "Strings",
-      "number": "Numbers",
-      "date": "Dates",
-      "boolean": "Booleans",
-      "array": "Arrays"
-    }
-  },
-  steps: {
-    forEachItemInSchema: function() {
-      this.schema = {
-        customer: {
-          name: "string",
-          phone: "number",
-          email: "string"
-        },
-        parts: [
-          {
-            sku: "string",
-            info: "string",
-            price: "number"
-          }  
-        ],
-        street: "string",
-        zip: "string",
-        test: ["hshf",2,3,4]
-      };
-      this.next(this.schema);
-    },
-    formatAllowed: function() {
-      this.convert = this.types[this.value];
-      this.next(this.convert !== undefined);
-    },
-    convertToFuncion: function() {
-      this.obj[this.key] = this.convert;
-      this.next();
-    },
-    relayObj: function() {
-      this.next(this.schema);
-    }
-  },
-  instructions: [
-    "forEachItemInSchema",
-    [
-      {
-        if: "formatAllowed",
-        true: "convertToFuncion"
-      }  
-    ],
-    "relayObj"
-  ]
-});
 global.api = new Chain({
   input: function() {
     return {
@@ -112,13 +58,10 @@ global.api = new Chain({
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
         self.next(data);
       });
-    },
-    debug: function() {
-      this.next(this.method);
     }
   },
   instructions: [
-    "getDbSchema",
+    "getModelFromSheetName",
     {
       if: "routeMethod",
       get: [
@@ -134,7 +77,7 @@ global.api = new Chain({
     }
   ]
 });
-global.getDbSchema = new Chain({
+global.getModelFromSheetName = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -148,25 +91,20 @@ global.getDbSchema = new Chain({
       this.model = models[this.sheetName];
       this.next(this.model);
     },
-    relaySheetSchemaObj: function() {
-      this.sheet.db = this.sheet.db || {};
-      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
-      
-      this.schema = this.sheet.db.schema;
+    relaySchemaObj: function() {
+      this.schema = !this.sheet.db
+                      ? false
+                      : this.sheet.db.schema;
       this.next(this.schema);
     }
   },
   instructions: [
-    function() {
-      this.leaver = "left";
-      this.next();
-    },
     {
       if: "sheetIsNative",
       true: "relayNativeModel",
       false: [
         "lookupSheet",
-        "relaySheetSchemaObj",
+        "relaySchemaObj",
         "buildSchema"
       ]
     }
@@ -187,23 +125,6 @@ global.buildSchema = new Chain({
   },
   steps: {
     forEachItemInSchema: function() {
-      this.schema = {
-        customer: {
-          name: "string",
-          phone: "number",
-          email: "string"
-        },
-        parts: [
-          {
-            sku: "string",
-            info: "string",
-            price: "number"
-          }  
-        ],
-        street: "string",
-        zip: "string",
-        test: ["hshf",2,3,4]
-      };
       this.next(this.schema);
     },
     formatAllowed: function() {
@@ -213,6 +134,9 @@ global.buildSchema = new Chain({
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
+    },
+    relaySchema: function() {
+      this.next(this.schema);
     }
   },
   instructions: [
@@ -223,7 +147,7 @@ global.buildSchema = new Chain({
         true: "convertToFuncion"
       }  
     ],
-    "relayObj"
+    "relaySchema"
   ]
 });
 global.connectToDb = new Chain({
