@@ -164,17 +164,15 @@ Chain.prototype.start = function(number) {
   var self = this;
   return new Promise(function(resolve, reject) {
     self.automate(number).output(function(instance){
-      if(instance.error) {
-        reject(instance.error);
-      } else {
-        resolve(instance.memory._storage); 
-      }
+      if(instance.error) return reject(instance.error);
+        
+      resolve(instance.memory._storage);
     });
   });
 };
 Chain.prototype.import = function(overides) {
   var instance = !this._parent
-                 ? new Instance(this)
+                 ? new Instance(this, overides)
                  : this;
   instance.memory.import(overides, true);
   return instance;
@@ -362,7 +360,7 @@ Memory.prototype._keys = function(obj) {
     isExpecting: function(key) {
       return self._expecting.indexOf(key) > -1;
     }
-  }
+  };
 };
 Memory.prototype.import = function(data, overide) {
   data = this.format(data);
