@@ -254,8 +254,10 @@ Instance.prototype.step = function(stepName) {
     _is: function(condition) {
       return {
         aChain: function(){
-          if(typeof global == "undefined") global = window;
-          return ((global[stepname] && global[stepname]._master) || (stepName && stepName._master)) !== undefined;
+          var globe = typeof global == "undefined"
+                        ? window
+                        : global;
+          return ((globe[stepName] && globe[stepName]._master) || (stepName && stepName._master)) !== undefined;
         },
         aCondition: function() {
           return stepName.if;
