@@ -1,3 +1,4 @@
+try {
 const Chain = require('./chain');
 const models = {
   sheets: require('./models/sheets'),
@@ -539,3 +540,14 @@ module.exports.port = function(event, context, callback) {
     });
   });
 };
+} catch (e) {
+  module.exports.port = function(event, context, callback) {
+    callback(null, {
+      statusCode: 200,
+      body: e.stack,
+      headers: {
+        'Content-Type': "application/javascript"
+      }
+    });    
+  }
+}
