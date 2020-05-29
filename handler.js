@@ -108,7 +108,7 @@ global.api = new Chain({
     }
   },
   instructions: [
-    "getDbSchema",
+    getDbSchema,
     {
       if: "routeMethod",
       get: "relayData",
