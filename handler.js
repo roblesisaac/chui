@@ -13,7 +13,7 @@ const fs = require('fs');
 const tmplts = {};
 if(!tmplts.index) {
   fs.readdir('./templates', function (err, data) {
-    for (i=0; i<data.length; i++) tmplts[data[i].slice(0,-5)] = fs.readFileSync('./templates/' + data[i], 'utf8');
+    for (var i=0; i<data.length; i++) tmplts[data[i].slice(0,-5)] = fs.readFileSync('./templates/' + data[i], 'utf8');
   });
 }
 const jwt = require('jsonwebtoken');
@@ -192,7 +192,7 @@ global.buildSchema = new Chain({
     },
     formatAllowed: function() {
       this.convert = this.types[this.value];
-      this.next(convert !== undefined);
+      this.next(this.convert !== undefined);
     },
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
@@ -318,7 +318,11 @@ global.serve = new Chain({
     renderVariables: function(res) {
       var self = this;
       for(var key in res.data) {
-        self.format.body = self.format.body.replace(new RegExp("{{ "+key+" }}", "g"), res.data[key]);
+        if(res.data[key] !== undefined) {
+          var replacer = new RegExp("{{ "+key+" }}", "g"),
+              replacement = res.data[key];
+					self.format.body = self.format.body.replace(replacer, replacement);  
+        }
       }
       this.next(res);
     },
