@@ -92,10 +92,10 @@ global.getModelFromSheetName = new Chain({
     },
     collectionExists: function() {
       var self = this;
-      mongoose.connection.db.collection(name, function (err, collection) {
+      mongoose.connection.db.collection(this.collectionName, function (err, collection) {
         if(err) return self.error(err);
         self.collection = collection;
-        self.next(!collection == false);
+        self.next(!collection === false);
      });
     },
     relayModel: function() {
