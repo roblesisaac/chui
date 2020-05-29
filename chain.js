@@ -7,19 +7,19 @@ function addMethodToArray(name, fn) {
 }
 function itemMatches(item, filter) {
   var matches = [];
-  for(var key in filter) matches.push(filter[key] === item[key]);
+  for(var key in filter) if(filter[key] !== undefined) matches.push(filter[key] === item[key]);
   return matches.indexOf(false) === -1; 
 }
 addMethodToArray("find", function(filter){
   var match = [];
-  for (i = 0; i<this.length; i++) {
+  for (var i = 0; i<this.length; i++) {
     if(itemMatches(this[i], filter)) match.push(this[i]);
   }
   return match;  
 });
 addMethodToArray("findOne", function(filter){
   var match = null;
-  for (i = 0; i<this.length; i++) {
+  for (var i = 0; i<this.length; i++) {
     if(itemMatches(this[i], filter)) {
       match = this[i];
       match.i = i;
@@ -33,7 +33,6 @@ addMethodToArray("loop", function(fn, o) {
   if(this === undefined) return console.log("Please define array");
   o = o || {
     then: function(fn) {
-      console.log(fn)
       if(!this.resolve) this.resolve = fn;
     }
   };
@@ -54,26 +53,32 @@ if(!Object.loop) Object.loop = function(obj, fn, parent) {
   parent = parent || obj;
   
   for(var key in obj) {
-    var val = obj[key];
-    
-    if(Array.isArray(val)) {
-      for(var i in val) {
-        var item = val[i];
-        typeof item !== "object"
-          ? fn(val, i, item, parent)
-          : Object.loop(item, fn, parent);
+    if(obj[key] !== undefined) {
+      var val = obj[key];
+      
+      if(Array.isArray(val)) {
+        for(var i in val) {
+          if(val[i] !== undefined) {
+           var item = val[i];
+           typeof item !== "object"
+              ? fn(val, i, item, parent)
+              : Object.loop(item, fn, parent);
+          }
+        }
+      } else if(typeof val === "object") {
+        Object.loop(val, fn, parent);
+      } else {
+        fn(obj, key, val, parent); 
       }
-    } else if(typeof val === "object") {
-      Object.loop(val, fn, parent);
-    } else {
-      fn(obj, key, val, parent); 
     }
   }
   
   return obj;
 };
 var obj = function(o) {
-  for (var key in o) this[key] = o[key];
+  for (var key in o) {
+  	if(o[key] !== undefined) this[key] = o[key];
+  }
 };
 obj.prototype.loop = Object.loop;
 
@@ -209,7 +214,7 @@ Instance.prototype.step = function(stepName) {
                 });
             }).then(finished);
           } else {
-            for(var i in list) {
+            for(var i=0; i<list.length; i++) {
               loopChain.import(instance.memory._storage)
                 .import({i: i, item: list[i], list: list})
                 .start().catch(function(e) {
@@ -270,9 +275,9 @@ Instance.prototype.step = function(stepName) {
     _memory: instance.memory,
     _method: function(step, data) {
       instance.memory.import(this.input());
-      var data = data || Object.assign({}, instance.memory._storage, this),
-          step = step || instance.library.steps[stepName],
-          res = data.last,
+      data = data || Object.assign({}, instance.memory._storage, this);
+      step = step || instance.library.steps[stepName];
+      var res = data.last,
           next = data.next || this.next,
           vm = instance.memory.vue;
       if(typeof stepName == "function") step = stepName;
@@ -320,18 +325,17 @@ function Memory(data, exclusions) {
   this._hardSet = {};
   this._storage = {};
   if(!Array.isArray(data)) data = [data];
-  for(i in data) this.init(data[i]);
+  for(var i=0; i<data.length; i++) this.init(data[i]);
 }
 Memory.prototype.init = function(data) {
   data = this.format(data);
-  for(key in data) {
-    var value = data[key];
-    if(value === undefined) {
-      this._expecting.push(key);
+  for(var key in data) {
+    if(data[key] === undefined) {
+  		this._expecting.push(key);    
     } else {
-      this._storage[key] = value;
+			this._storage[key] = data[key];
       var expectIndex = this._expecting.indexOf(key);
-      if(expectIndex > -1) this._expecting.splice(expectIndex, 1);
+      if(expectIndex > -1) this._expecting.splice(expectIndex, 1);    
     }
   }
 };
