@@ -192,7 +192,7 @@ global.buildSchema = new Chain({
     },
     formatAllowed: function() {
       this.convert = this.types[this.value];
-      this.next(this.convert !== undefined);
+      this.next(convert !== undefined);
     },
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
