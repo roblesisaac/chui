@@ -104,7 +104,7 @@ global.api = new Chain({
       });
     },
     debug: function() {
-      this.next("Method:"+this.event);
+      this.next(this.event);
     }
   },
   instructions: [
