@@ -128,7 +128,7 @@ Chain.prototype.automate = function(number) {
   
   if(step._is("aChain")) {
     var nestedChain = step._name;
-    instance.memory.import(nestedChain.input.call(instance._memory._storage));
+    instance.memory.import(nestedChain.input.call(instance.memory._storage));
     instructions.insert(nestedChain.instructions);
     instance.automate();
     return instance;
