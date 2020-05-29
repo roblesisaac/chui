@@ -96,7 +96,7 @@ global.getModelFromSheetName = new Chain({
         collection: this.sheet.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id)
       };
       this.model = mongoose.model(options.collection, new mongoose.Schema(this.schema, options));
-      this.next(this.model);
+      this.next(options.collection);
     }
   },
   instructions: [
