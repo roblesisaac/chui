@@ -118,7 +118,7 @@ global.getModelFromSheetName = new Chain({
     }
   ]  
 });
-global.model = new Chain({
+global.model = new Chain({ // creates obj ready to convert into model
   input: function() {
     return {
       schema: this.schema || { skus: "number" },
@@ -134,7 +134,7 @@ global.model = new Chain({
       this.next(this.convert !== undefined);
     },
     convertToFuncion: function() {
-      this.obj[this.key] = this.convert;
+      this.obj[this.key] = "this.convert";
       this.next();
     },
     formatSchema: function() {
