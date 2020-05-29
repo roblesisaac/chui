@@ -109,6 +109,7 @@ global.api = new Chain({
     }
   },
   instructions: [
+    "getDbSchema",
     {
       if: "routeMethod",
       get: "relayData",
@@ -141,16 +142,15 @@ global.getDbSchema = new Chain({
     }
   },
   instructions: [
-    "buildSchema"
-    // {
-    //   if: "sheetIsNative",
-    //   true: "relayNativeModel",
-    //   false: [
-    //     "lookupSheet",
-    //     "relaySheetSchemaObj",
-    //     "buildSchema"
-    //   ]
-    // }
+    {
+      if: "sheetIsNative",
+      true: "relayNativeModel",
+      false: [
+        "lookupSheet",
+        "relaySheetSchemaObj",
+        "buildSchema"
+      ]
+    }
   ]  
 });
 global.buildSchema = new Chain({
@@ -492,7 +492,7 @@ global.port = new Chain({
     }
   },
   instructions: [
-    "connectToDb",
+    connectToDb,
     "lookupSiteInDb",
     {
       if: "noSiteExists",
