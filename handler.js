@@ -120,8 +120,8 @@ global.model = new Chain({ // creates obj ready to convert into model
   steps: {
     forEachItemInSchema: function() {
       this.sheet.db = this.sheet.db || {};
-      this.sheet.db.schema = this.sheet.db.schema || { skus: "number"};
-      this.schema = this.sheet.db.schema;
+      this.schema = this.sheet.db.schema || { noKeysDefined: "string"};
+      this.stringSchema = Object.assign({}, this.schema);
       this.next(this.schema);
     },
     formatAllowed: function() {
@@ -131,9 +131,6 @@ global.model = new Chain({ // creates obj ready to convert into model
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
-    },
-    formatSchema: function() {
-      this.next(this.schema);
     }
   },
   instructions: [
@@ -141,7 +138,9 @@ global.model = new Chain({ // creates obj ready to convert into model
     "forEachItemInSchema", [
       { if: "formatAllowed", true: "convertToFuncion" }  
     ],
-    "formatSchema"
+    function() {
+      this.next(this.stringSchema);
+    }
   ]
 });
 global.connectToDb = new Chain({
