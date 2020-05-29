@@ -94,7 +94,7 @@ global.getModelFromSheetName = new Chain({
       var self = this;
       mongoose.connection.db.collection(this.collectionName, function (err, collection) {
         if(err) return self.error(err);
-        self.collection = collection;
+        self.model = collection;
         self.next(!collection === false);
      });
     },
