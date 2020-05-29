@@ -197,27 +197,17 @@ global.buildSchema = new Chain({
     convertToFuncion: function() {
       this.obj[this.key] = this.convert;
       this.next();
-    },
-    saysay: function() {
-      this.next();
-    },
-    relayObjs: function() {
-      this.next({
-        sch: this.schema,
-        types: this.types
-      });
     }
   },
   instructions: [
     "forEachItemInSchema",
     [
-      "saysay"
-      // {
-      //   if: "formatAllowed",
-      //   true: "convertToFuncion"
-      // }  
+      {
+        if: "formatAllowed",
+        true: "convertToFuncion"
+      }  
     ],
-    "relayObjs"
+    "relayObj"
   ]
 });
 global.connectToDb = new Chain({
