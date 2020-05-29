@@ -86,9 +86,9 @@ global.api = new Chain({
       var self = this;
       this.model.find({
         siteId: self.siteId
-      }).then(function(data) {
+      }, function(data){
         self.data = data;
-        self.next(data);
+        self.next(data);      
       });
     },
     routeMethod: function() {
