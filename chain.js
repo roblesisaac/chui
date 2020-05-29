@@ -57,7 +57,8 @@ if(!Object.loop) Object.loop = function(obj, fn, parent) {
     var val = obj[key];
     
     if(Array.isArray(val)) {
-      for(var i=0; item=val[i]; i++) {
+      for(var i in val) {
+        var item = val[i];
         typeof item !== "object"
           ? fn(val, i, item, parent)
           : Object.loop(item, fn, parent);
@@ -130,6 +131,7 @@ Chain.prototype.automate = function(number) {
   
   if(step._is("aCondition")) {
     step._getAnswer(function(answer){
+      instance.memory.import(this);
       var switcher = step._name[answer];
       if(switcher) instructions.insert(switcher);
       instance.automate();
@@ -187,7 +189,7 @@ function Instance(master, overides) {
 Instance.prototype = Object.create(Chain.prototype);
 Object.defineProperty(Instance.prototype, 'constructor', { value: Instance, enumerable: false, writable: true });
 Instance.prototype.step = function(stepName) {
-  var self = this;
+  var instance = this;
   return {
     _name: stepName,
     completeTheLoop: function(schema) {
@@ -203,7 +205,7 @@ Instance.prototype.step = function(stepName) {
         if(Array.isArray(list) || typeof list !== "object") {
           if(stepName.async) {
             list.loop(function(i, item, nxt) {
-              loopChain.import(self.memory._storage)
+              loopChain.import(instance.memory._storage)
                 .import({i: i, item: item, list: list})
                 .start()
                 .then(nxt).catch(function(e){
@@ -213,7 +215,7 @@ Instance.prototype.step = function(stepName) {
             }).then(finished);
           } else {
             for(var i in list) {
-              loopChain.import(self.memory._storage)
+              loopChain.import(instance.memory._storage)
                 .import({i: i, item: list[i], list: list})
                 .start().catch(function(e) {
                   console.log(e);
@@ -224,7 +226,7 @@ Instance.prototype.step = function(stepName) {
           }
         } else if(typeof list == "object") {
           Object.loop(list, function(obj, key, val) {
-            loopChain.import(self.memory._storage)
+            loopChain.import(instance.memory._storage)
               .import({obj:obj, key: key, value: val})
               .start().catch(function(e) {
                   if(!err) err = e;
@@ -232,27 +234,28 @@ Instance.prototype.step = function(stepName) {
               });
           });
           console.log("FIN::", err);
+          console.log(loopChain);
           finished();
         }
       });
     },
     error: function(e) {
-      self.error = e;
-      self.resolve();      
+      instance.error = e;
+      instance.resolve();      
     },
     set: function(key, val) {
-      self.memory._hardSet[key] = val;
+      instance.memory._hardSet[key] = val;
     },
     _getAnswer: function(next) {
       var condition = stepName.if;
       if(typeof condition == "boolean") {
         return next(condition);
       }
-      var data = Object.assign({}, self.memory._storage, this, {next: next});
-      this._method(self.library.steps[condition], data);
+      var data = Object.assign({}, instance.memory._storage, this, {next: next});
+      this._method(instance.library.steps[condition], data);
     },
     input: function() {
-      return self.input.call(self.memory._storage);
+      return instance.input.call(instance.memory._storage);
     },
     _is: function(condition) {
       return {
@@ -269,22 +272,22 @@ Instance.prototype.step = function(stepName) {
     },
     next: function(returned, keyname) {
       if(keyname) this.set(keyname, returned);
-      self.memory.import(this);
-      self.memory._storage.last = returned;
-      self.automate(null);
+      instance.memory.import(this);
+      instance.memory._storage.last = returned;
+      instance.automate();
     },
-    _memory: self.memory,
+    _memory: instance.memory,
     _method: function(step, data) {
-      self.memory.import(this.input());
-      var data = data || Object.assign({}, self.memory._storage, this),
-          step = step || self.library.steps[stepName],
+      instance.memory.import(this.input());
+      var data = data || Object.assign({}, instance.memory._storage, this),
+          step = step || instance.library.steps[stepName],
           res = data.last,
-          next = this.next.bind(data),
-          vm = self.memory.vue;
+          next = data.next || this.next,
+          vm = instance.memory.vue;
       if(typeof stepName == "function") step = stepName;
       try {
         if(!step) return this.error("No step " + stepName);
-        step.call(data, res, next, vm);
+        step.call(data, res, next.bind(data), vm);
       } catch(err) {
         this.error(err);
       }
