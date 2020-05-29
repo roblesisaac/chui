@@ -102,6 +102,9 @@ global.api = new Chain({
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
         self.next(data);
       });
+    },
+    debug: function() {
+      this.next("Method:"+this.method);
     }
   },
   instructions: [
