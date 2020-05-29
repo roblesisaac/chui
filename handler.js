@@ -146,7 +146,7 @@ global.getDbSchema = new Chain({
       false: [
         "lookupSheet",
         "relaySheetSchemaObj",
-        "buildSchema"
+        buildSchema
       ]
     }
   ]  
