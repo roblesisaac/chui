@@ -129,6 +129,7 @@ global.getDbSchema = new Chain({
       this.next(models[this.sheetName] !== undefined);
     },
     relayNativeModel: function() {
+      this.wasNative = true;
       this.model = models[this.sheetName];
       this.next(this.model);
     },
