@@ -46,14 +46,15 @@ global.api = new Chain({
       this.next(this.sheetName == "sheets");
     },
     addSiteId: function() {
-      this.filter.siteId = "5d040cd9d1e17100079b8500";
+      this.filter.siteId = this.siteId;
+      this.filter.hola = "hi";
       this.next();
     },
     getAllItems: function() {
       var self = this;
       this.model.find({siteId: this.siteId}, function(err, data){
         if(err) return self.error(err);
-        self.next(data);
+        self.next(self.filter);
       }).limit(50);
     },
     routeMethod: function() {
