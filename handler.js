@@ -43,11 +43,11 @@ global.api = new Chain({
       });
     },
     lookingUpSheets: function() {
-      this.next(1===1);
-      // this.next(this.sheetName == "sheets");
+      this.next(this.sheetName == "sheets");
     },
     addSiteId: function() {
       this.filter.siteId = this.siteId;
+      this.next();
     },
     getAllItems: function() {
       var self = this;
