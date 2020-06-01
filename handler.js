@@ -104,7 +104,7 @@ global.getModelFromSheetName = new Chain({
     relayModel: function() {
       this.next({
         collectionName: this.collectionName,
-        index: this.model.index,
+        index: this.modelIndex,
         models: mongoose.modelNames
       });  
     },
