@@ -53,7 +53,7 @@ global.api = new Chain({
       this.model.find({}, function(err, data){
         if(err) return self.error(err);
         self.next(data);      
-      }).limit(50);
+      });
     },
     routeMethod: function() {
       this.next(this.method);
@@ -77,6 +77,7 @@ global.api = new Chain({
           if: "hasId",
           true: "findById",
           false: [
+            { if: "lookingUpSheets", true: "addSiteId" }, 
             "getAllItems"
           ]
         }
