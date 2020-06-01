@@ -117,7 +117,7 @@ global.getModelFromSheetName = new Chain({
           models: mongoose.modelNames(),
           version: mongoose.version,
           db: this.model.db,
-          collection: this.model.collection
+          collection: this.model.collection.toString()
         }
       });  
     },
