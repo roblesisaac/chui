@@ -178,7 +178,7 @@ global.connectToDb = new Chain({
     },
     connect: function() {
       var self = this;
-      mongoose.connect(this.tokens).then(function(database){
+      mongoose.connect(this.tokens, { keepAlive: true }).then(function(database){
         isConnected = database.connections[0].readyState;
         self.next();
       });
