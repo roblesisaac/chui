@@ -134,8 +134,7 @@ global.getModelFromSheetName = new Chain({
       false: [
         "lookupSheet",
         function() {
-          this.collectionName = "test";
-          // this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
+          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
           this.next();
         },
         {
