@@ -111,8 +111,7 @@ global.getModelFromSheetName = new Chain({
         strict: true,
         collection: this.collectionName
       };
-      // this.models = new mongoose.Schema(this.schema, { collection : this.collectionName });
-      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema({sku: String}, options));
       this.next(this.stringSchema);
     }
   },
