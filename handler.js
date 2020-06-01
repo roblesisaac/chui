@@ -50,7 +50,7 @@ global.api = new Chain({
     },
     getAllItems: function() {
       var self = this;
-      this.model.find({}, function(err, data){
+      this.model.find({limit:50}, function(err, data){
         if(err) return self.error(err);
         self.next(data);      
       });
