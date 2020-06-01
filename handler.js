@@ -98,11 +98,11 @@ global.getModelFromSheetName = new Chain({
       //   self.model = collection;
       //   self.next(collection !== undefined);
       // });
-      var modelIndex = mongoose.modelNames().indexOf(this.collectionName);
-      this.next(modelIndex > -1);
+      this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
+      this.next(this.modelIndex > -1);
     },
     relayModel: function() {
-      this.next(mongoose.modelNames());  
+      this.next(this.modelIndex);  
     },
     createModel: function() {
       var options = {
