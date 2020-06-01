@@ -91,13 +91,15 @@ global.getModelFromSheetName = new Chain({
       this.next(this.model);
     },
     collectionExists: function() {
-      var self = this;
+      // var self = this;
       // use mongoose.connection.collection('someCollection'); when upgrade to mongoose5
-      mongoose.connection.db.collection(this.collectionName, function (err, collection) {
-        if(err) return self.error(err);
-        self.model = collection;
-        self.next(collection !== undefined);
-      });
+      // mongoose.connection.db.collection(this.collectionName, function (err, collection) {
+      //   if(err) return self.error(err);
+      //   self.model = collection;
+      //   self.next(collection !== undefined);
+      // });
+      var modelIndex = mongoose.modelNames().indexOf(this.collectionName);
+      this.next(modelIndex > -1);
     },
     relayModel: function() {
       this.next(mongoose.modelNames());  
