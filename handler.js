@@ -112,7 +112,6 @@ global.getModelFromSheetName = new Chain({
       this.model = model;
       this.next({
         collectionName: this.collectionName,
-        count: model.estimatedDocumentCount(),
         index: this.modelIndex,
         schema: this.stringSchema,
         mongoose: {
