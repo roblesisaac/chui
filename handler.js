@@ -43,7 +43,7 @@ global.api = new Chain({
       });
     },
     lookingUpSheets: function() {
-      this.next(this.sheetName == "sheets");
+      this.next("sheets" == "sheets");
     },
     addSiteId: function() {
       this.filter.siteId = this.siteId;
