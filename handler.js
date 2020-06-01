@@ -127,12 +127,12 @@ global.getModelFromSheetName = new Chain({
           this.next();
         },
         "model",
-        "createCollection"
-        // {
-        //   if: "collectionExists",
-        //   true: "relayModel",
-        //   false: [ "model", "createModel" ]
-        // }
+        // "createCollection"
+        {
+          if: "collectionExists",
+          true: "relayModel",
+          false: [ "model", "createModel" ]
+        }
       ]
     }
   ]  
