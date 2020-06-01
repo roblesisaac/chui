@@ -86,31 +86,31 @@ function loop(arr) {
   return { async: arr };
 }
 
-function Chain(format) {
-  if(Array.isArray(format)) {
-    this.build({ instructions: format });
-  } else if(typeof format == "object") {
-    this.build(format);
+function Chain(master) {
+  if(Array.isArray(master)) {
+    this.build({ instructions: master });
+  } else if(typeof master == "object") {
+    this.build(master);
   } else {
-    this.build({ instructions: [format] });
+    this.build({ instructions: [master] });
   }
 }
-Chain.prototype.build = function(format) {
-  this._master = format;
-  this.learn = format.learn;
-  this.input = !format.input
+Chain.prototype.build = function(master) {
+  this._master = master;
+  this.learn = master.learn;
+  this.input = !master.input
               ? function() { return {}}
-              : typeof format.input == "function"
-              ? format.input
-              : Array.isArray(format.input) || typeof format.input !== "object"
-              ? function() {return {input: format.input}}
-              : function() {return Object.assign({}, format.input)};
-  this.instructions = !format.instructions
+              : typeof master.input == "function"
+              ? master.input
+              : Array.isArray(master.input) || typeof master.input !== "object"
+              ? function() {return {input: master.input}}
+              : function() {return Object.assign({}, master.input)};
+  this.instructions = !master.instructions
                       ? []
-                      : Array.isArray(format.instructions)
-                      ? format.instructions
-                      : [format.instructions];
-  if(format.steps) Object.assign(this.library.steps, format.steps);  
+                      : Array.isArray(master.instructions)
+                      ? master.instructions
+                      : [master.instructions];
+  if(master.steps) Object.assign(this.library.steps, master.steps);  
 };
 Chain.prototype.library = {steps:{}};
 Chain.prototype.automate = function(number) {
@@ -128,7 +128,7 @@ Chain.prototype.automate = function(number) {
   
   if(step._is("aChain")) {
     var nestedChain = step._name;
-    instance.memory.import(nestedChain.input.call(instance.memory._storage));
+    instance.memory.import(nestedChain.input.bind(instance._memory._storage));
     instructions.insert(nestedChain.instructions);
     instance.automate();
     return instance;
@@ -237,9 +237,6 @@ Instance.prototype.step = function(stepName) {
       instance.error = e;
       instance.resolve();      
     },
-    set: function(key, val) {
-      instance.memory._hardSet[key] = val;
-    },
     _getAnswer: function(next) {
       var condition = stepName.if;
       if(typeof condition == "boolean") {
@@ -280,7 +277,7 @@ Instance.prototype.step = function(stepName) {
     },
     _memory: instance.memory,
     _method: function(step, data) {
-      instance.memory.import(this.input());
+      instance.memory.checkExpecting(instance.input);
       data = data || Object.assign({}, instance.memory._storage, this);
       step = step || instance.library.steps[stepName];
       var res = data.last,
@@ -328,24 +325,33 @@ Instructions.prototype.insert = function(stepsArray) {
 function Memory(data, exclusions) {
   this._exclusions = exclusions || [];
   this._expecting = [];
-  this._hardSet = {};
   this._storage = {};
   if(!Array.isArray(data)) data = [data];
-  for(var i=0; i<data.length; i++) this.init(data[i]);
+  for(var i=0; i<data.length; i++) this._init(data[i]);
 }
-Memory.prototype.init = function(data) {
-  data = this.format(data);
+Memory.prototype._init = function(data) {
+  data = this._format(data);
   for(var key in data) {
     if(data[key] === undefined) {
-  		this._expecting.push(key);    
+  		this._expecting.push(key);  
     } else {
 			this._storage[key] = data[key];
-      var expectIndex = this._expecting.indexOf(key);
-      if(expectIndex > -1) this._expecting.splice(expectIndex, 1);    
     }
   }
 };
-Memory.prototype.format = function(data) {
+Memory.prototype.checkExpecting = function(inputFn) {
+  if(this._expecting.length==0) return;
+  for(var i=0; i<this._expecting.length; i++) {
+    var key = this._expecting[i],
+        val = inputFn.call(this._storage)[key];
+    if(val !== undefined) {
+      this._storage[key] = val;
+      var expectIndex = this._expecting.indexOf(key);
+      this._expecting.splice(expectIndex, 1);   
+    }
+  }
+}
+Memory.prototype._format = function(data) {
   return typeof data == "function"
          ? data()
          : !data
@@ -364,22 +370,17 @@ Memory.prototype._keys = function(obj) {
     },
     notInExclusions: function(key) {
       return self._exclusions.indexOf(key) == -1;
-    },
-    isExpecting: function(key) {
-      return self._expecting.indexOf(key) > -1;
     }
   };
 };
-Memory.prototype.import = function(data, overide) {
-  data = this.format(data);
+Memory.prototype.import = function(data) {
+  data = this._format(data);
   var nativeKeys = this._keys(this);
   for(var key in data) {
-    if(overide || nativeKeys.isExpecting(key) || (nativeKeys.excludes(key) && nativeKeys.notInExclusions(key))) {
+    if(nativeKeys.excludes(key) && nativeKeys.notInExclusions(key)) {
       this._storage[key] = data[key];
     }
   }
-  if(overide) Object.assign(this._hardSet, data);
-  Object.assign(this._storage, this._hardSet);
 };
 
 if(typeof module === "undefined") module = {};
