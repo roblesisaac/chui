@@ -100,7 +100,7 @@ global.getModelFromSheetName = new Chain({
       });
     },
     relayModel: function() {
-      this.next(this.model);  
+      this.next();  
     },
     createModel: function() {
       var options = {
@@ -108,7 +108,7 @@ global.getModelFromSheetName = new Chain({
         collection: this.collectionName
       };
       this.model = mongoose.model(this.collectionName, new mongoose.Schema({name: String}, options));
-      this.next(options.collection);
+      this.next();
     },
     createCollection: function() {
       this.models = new mongoose.Schema(this.schema, { collection : this.collectionName }); 
@@ -126,7 +126,7 @@ global.getModelFromSheetName = new Chain({
           this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
           this.next();
         },
-        "model",
+        // "model",
         // "createCollection"
         {
           if: "collectionExists",
