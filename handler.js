@@ -52,11 +52,11 @@ global.api = new Chain({
       this.filter.siteId = this.siteId;
       next();
     },
-    getAllItems: function(res, next) {
+    getAllItems: function() {
       var self = this;
       this.model.find(this.filter, null, this.options, function(err, data){
         if(err) return self.error(err);
-        next(data);
+        self.next(data);
       });
     },
     routeMethod: function() {
