@@ -43,7 +43,7 @@ global.api = new Chain({
       });
     },
     lookingUpSheets: function() {
-      this.next(this.sheetName == "sheetss");
+      this.next(this.sheetName == "sheets");
     },
     addSiteId: function() {
       this.filter.siteId = this.siteId;
@@ -51,7 +51,7 @@ global.api = new Chain({
     },
     getAllItems: function() {
       var self = this;
-      this.model.find({siteId: this.siteId}, function(err, data){
+      this.model.find(this.filter, function(err, data){
         if(err) return self.error(err);
         self.next(data);
       }).limit(50);
