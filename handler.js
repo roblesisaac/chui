@@ -27,7 +27,8 @@ global.api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
-      id: this.arg2
+      id: this.arg2,
+      filter: {}
     };
   },
   steps: {
@@ -45,7 +46,6 @@ global.api = new Chain({
       this.next("sheets" == "sheets");
     },
     addSiteId: function() {
-      this.filter = {};
       this.filter.siteId = this.siteId;
       this.filter.hola = "hi";
       this.next();
