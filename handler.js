@@ -100,7 +100,7 @@ global.getModelFromSheetName = new Chain({
       });
     },
     relayModel: function() {
-      this.next(this.model);  
+      this.next(Object.keys(this.model));  
     },
     createModel: function() {
       var options = {
