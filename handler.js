@@ -100,7 +100,7 @@ global.getModelFromSheetName = new Chain({
       });
     },
     relayModel: function() {
-      this.next();  
+      this.next(this.model);  
     },
     createModel: function() {
       var options = {
@@ -122,12 +122,11 @@ global.getModelFromSheetName = new Chain({
           this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
           this.next();
         },
-        "schema", "createModel"
-        // {
-        //   if: "collectionExists",
-        //   true: "relayModel",
-        //   false: [ "schema", "createModel" ]
-        // }
+        {
+          if: "collectionExists",
+          true: "relayModel",
+          false: [ "schema", "createModel" ]
+        }
       ]
     }
   ]  
