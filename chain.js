@@ -200,6 +200,9 @@ Instance.prototype.step = function(stepName) {
             err,
             finished = function() {
               resolve(err);
+            },
+            catchErr = function(e) {
+              if(!instance.error) instance.error = e;
             };
         if(Array.isArray(list) || typeof list !== "object") {
           if(stepName.async) {
@@ -207,17 +210,13 @@ Instance.prototype.step = function(stepName) {
               loopChain.import(instance.memory._storage)
                 .import({i: i, item: item, list: list})
                 .start()
-                .then(nxt).catch(function(e){
-                  if(!instance.error) instance.error = e;
-                });
+                .then(nxt).catch(catchErr);
             }).then(finished);
           } else {
             for(var i=0; i<list.length; i++) {
               loopChain.import(instance.memory._storage)
                 .import({i: i, item: list[i], list: list})
-                .start().catch(function(e) {
-                  if(!instance.error) instance.error = e;
-                });
+                .start().catch(catchErr);
             }
             finished();
           }
@@ -225,9 +224,7 @@ Instance.prototype.step = function(stepName) {
           Object.loop(list, function(obj, key, val) {
             loopChain.import(instance.memory._storage)
               .import({obj:obj, key: key, value: val})
-              .start().catch(function(e) {
-                  if(!instance.error) instance.error = e;
-              });
+              .start().catch(catchErr);
           });
           finished();
         }
@@ -270,7 +267,7 @@ Instance.prototype.step = function(stepName) {
       }[condition]();
     },
     next: function(returned, keyname) {
-      if(keyname) this.set(keyname, returned);
+      if(keyname) instance.memory._storage[keyname] = returned;
       instance.memory.import(this);
       instance.memory._storage.last = returned;
       instance.automate();
