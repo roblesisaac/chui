@@ -424,7 +424,7 @@ global.port = new Chain({
       }).then(function(site){
         self.site = site;
         self.siteId = site.id;
-        next(site);
+        self.next(site);
       });
     },
     noSiteExists: function(site) {
@@ -448,7 +448,7 @@ global.port = new Chain({
     urlHasAChain: function() {
       this.next(this.chain !== undefined);
     },
-    runChain: function(res, next) {
+    runChain: function() {
       var self = this,
           chain = global[this.chain];
       chain.import(this._memory.storage).start().then(function(memory){
