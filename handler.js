@@ -43,7 +43,8 @@ global.api = new Chain({
       });
     },
     lookingUpSheets: function() {
-      this.next(this.sheetName == "sheets");
+      this.next(1===1);
+      // this.next(this.sheetName == "sheets");
     },
     addSiteId: function() {
       this.filter.siteId = this.siteId;
@@ -52,7 +53,7 @@ global.api = new Chain({
       var self = this;
       this.model.find({}, function(err, data){
         if(err) return self.error(err);
-        self.next(data);      
+        self.next(data);
       });
     },
     routeMethod: function() {
