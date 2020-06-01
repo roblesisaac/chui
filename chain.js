@@ -284,7 +284,7 @@ Instance.prototype.step = function(stepName) {
       if(typeof stepName == "function") step = stepName;
       try {
         if(!step) return this.error("No step " + stepName);
-        step.call(data, res, next(data), vm);
+        step.call(data, res, next.bind(data), vm);
       } catch(err) {
         this.error(err);
       }
