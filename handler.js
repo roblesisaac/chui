@@ -28,7 +28,10 @@ global.api = new Chain({
     return {
       method: this.event.httpMethod.toLowerCase(),
       id: this.arg2,
-      filter: {}
+      filter: {},
+      options: {
+        limit: 50
+      }
     };
   },
   steps: {
@@ -51,10 +54,10 @@ global.api = new Chain({
     },
     getAllItems: function() {
       var self = this;
-      this.model.find(this.filter, function(err, data){
+      this.model.find(this.filter, null, this.options, function(err, data){
         if(err) return self.error(err);
         self.next(data);
-      }).limit(50);
+      });
     },
     routeMethod: function() {
       this.next(this.method);
