@@ -105,7 +105,7 @@ global.getModelFromSheetName = new Chain({
       this.next({
         collectionName: this.collectionName,
         index: this.modelIndex,
-        models: mongoose.modelNames
+        models: mongoose.modelNames()
       });  
     },
     createModel: function() {
