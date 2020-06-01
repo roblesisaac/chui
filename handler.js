@@ -77,7 +77,6 @@ global.api = new Chain({
           if: "hasId",
           true: "findById",
           false: [
-            { if: "lookingUpSheets", true: "addSiteId" }, 
             "getAllItems"
           ]
         }
