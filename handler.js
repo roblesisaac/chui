@@ -107,12 +107,8 @@ global.getModelFromSheetName = new Chain({
         strict: true,
         collection: this.collectionName
       };
-      this.model = mongoose.model(this.collectionName, new mongoose.Schema({name: String}, options));
-      this.next();
-    },
-    createCollection: function() {
-      this.models = new mongoose.Schema(this.schema, { collection : this.collectionName }); 
-      this.model = models.sheets;
+      // this.models = new mongoose.Schema(this.schema, { collection : this.collectionName });
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
       this.next();
     }
   },
@@ -126,19 +122,16 @@ global.getModelFromSheetName = new Chain({
           this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
           this.next();
         },
-        // "model",
-        // "createCollection"
-        // {
-        //   if: "collectionExists",
-        //   true: "relayModel",
-        //   false: [ "model", "createModel" ]
-        // }
-        "createModel"
+        {
+          if: "collectionExists",
+          true: "relayModel",
+          false: [ "schema", "createModel" ]
+        }
       ]
     }
   ]  
 });
-global.model = new Chain({ // creates obj ready to convert into model
+global.schema = new Chain({ // creates obj ready to convert into model
   input: function() {
     return {
       sheetName: this.arg1,
