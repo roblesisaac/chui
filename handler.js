@@ -13,7 +13,11 @@ const fs = require('fs');
 const tmplts = {};
 if(!tmplts.index) {
   fs.readdir('./templates', function (err, data) {
-    for (var i=0; i<data.length; i++) tmplts[data[i].slice(0,-5)] = fs.readFileSync('./templates/' + data[i], 'utf8');
+    for (var i=0; i<data.length; i++) {
+      var fileName = data[i],
+          templateName = data[i].slice(0,-5);    
+      tmplts[templateName] = fs.readFileSync('./templates/' + fileName, 'utf8');
+    }
   });
 }
 const jwt = require('jsonwebtoken');
@@ -110,7 +114,7 @@ global.getModelFromSheetName = new Chain({
       var options = {
         strict: true
       };
-      this.model = mongoose.model(this.collectionName, new mongoose.Schema({sku: String}, options));
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema({sku: String}));
       this.next(this.stringSchema);
     }
   },
