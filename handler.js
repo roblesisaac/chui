@@ -62,9 +62,6 @@ global.api = new Chain({
     routeMethod: function(res, next) {
       next(this.method);
     },
-    sayId: function() {
-      this.next(this.body);  
-    },
     updateItem: function() {
       var self = this;
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
@@ -427,26 +424,26 @@ global.port = new Chain({
         next(site);
       });
     },
-    noSiteExists: function(site) {
-      this.next(site == null);
+    noSiteExists: function(site, next) {
+      next(site == null);
     },
-    askToCreateSite: function() {
-      this.next({
+    askToCreateSite: function(res, next) {
+      next({
         body: "<h1>" + this.siteName + " not found. Would you like to create one?</h1>", 
         contentType: "text/html"
       });
     },
-    getSheetsForSite: function(site) {
+    getSheetsForSite: function(site, next) {
       var self = this;
       models.sheets.find({
         siteId: self.site._id
       }).then(function(sheets) {
         self.sheets = sheets;
-        self.next(sheets);
+        next(sheets);
       });
     },
-    urlHasAChain: function() {
-      this.next(this.chain !== undefined);
+    urlHasAChain: function(res, next) {
+      next(this.chain !== undefined);
     },
     runChain: function(res, next) {
       var self = this,
@@ -458,13 +455,13 @@ global.port = new Chain({
         self.error(err);
       });
     },
-    isVerbose: function() {
-      this.next(this.query.verbose);
+    isVerbose: function(res, next) {
+      next(this.query.verbose);
     },
-    addDetails: function(last) {
+    addDetails: function(last, next) {
       var index = Object.assign({}, this._memory.storage);
       delete index.callback;
-      this.next(index);
+      next(index);
     }
   },
   instructions: [
