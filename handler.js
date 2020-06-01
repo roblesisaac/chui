@@ -54,7 +54,7 @@ global.api = new Chain({
       var self = this;
       this.model.find({siteId: this.siteId}, function(err, data){
         if(err) return self.error(err);
-        self.next(self.filter);
+        self.next(data);
       }).limit(50);
     },
     routeMethod: function() {
@@ -142,8 +142,8 @@ global.getModelFromSheetName = new Chain({
         "schema",
         {
           if: "collectionExists",
-          true: [ "relayModel" ],
-          false: [ "createModel" ]
+          true: "relayModel",
+          false: "createModel"
         }
       ]
     }
