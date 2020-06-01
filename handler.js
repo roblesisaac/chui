@@ -448,8 +448,8 @@ global.port = new Chain({
     runChain: function() {
       var self = this,
           chain = global[this.chain];
-      chain.import(this._memory._storage).start().then(function(memory){
-        self._memory.import(memory);
+      chain.import(this._memory.storage).start().then(function(memory){
+        self.memory.import(memory);
         self.next(memory.last);
       }).catch(function(err){
         self.error(err);
@@ -459,7 +459,7 @@ global.port = new Chain({
       this.next(this.query.verbose);
     },
     addDetails: function(last) {
-      var index = Object.assign({}, this._memory._storage);
+      var index = Object.assign({}, this._memory.storage);
       delete index.callback;
       this.next(index);
     }
