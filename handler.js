@@ -27,7 +27,8 @@ global.api = new Chain({
   input: function() {
     return {
       method: this.event.httpMethod.toLowerCase(),
-      id: this.arg2
+      id: this.arg2,
+      filter: {}
     };
   },
   steps: {
@@ -41,11 +42,15 @@ global.api = new Chain({
         self.next(item);
       });
     },
-    getItems: function() {
+    lookingUpSheets: function() {
+      this.next(this.sheetName == "sheets");
+    },
+    addSiteId: function() {
+      this.filter.siteId = this.siteId;
+    },
+    getAllItems: function() {
       var self = this;
-      this.model.find({
-        siteId: self.siteId
-      }, function(err, data){
+      this.model.find(this.filter, function(err, data){
         if(err) return self.error(err);
         self.next(data);      
       });
@@ -71,7 +76,10 @@ global.api = new Chain({
         {
           if: "hasId",
           true: "findById",
-          false: "getItems"
+          false: [
+            { if: "lookingUpSheets", true: "addSiteId" }, 
+            "getAllItems"
+          ]
         }
       ],
       put: "updateItem",
@@ -112,9 +120,10 @@ global.getModelFromSheetName = new Chain({
     },
     createModel: function() {
       var options = {
-        strict: true
+        strict: true,
+        collection: this.collectionName 
       };
-      this.model = mongoose.model(this.collectionName, new mongoose.Schema({sku: String}));
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
       this.next(this.stringSchema);
     }
   },
@@ -131,7 +140,7 @@ global.getModelFromSheetName = new Chain({
         },
         {
           if: "collectionExists",
-          true: "relayModel",
+          true: ["schema", "relayModel"],
           false: [ "schema", "createModel" ]
         }
       ]
