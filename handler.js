@@ -424,7 +424,7 @@ global.port = new Chain({
       }).then(function(site){
         self.site = site;
         self.siteId = site.id;
-        self.next(site);
+        next(site);
       });
     },
     noSiteExists: function(site) {
