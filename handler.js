@@ -111,12 +111,12 @@ global.getModelFromSheetName = new Chain({
       this.model = mongoose.model(this.collectionName);
       this.next({
         collectionName: this.collectionName,
+        count: this.model.estimatedDocumentCount(),
         index: this.modelIndex,
         schema: this.stringSchema,
         mongoose: {
           models: mongoose.modelNames(),
-          version: mongoose.version,
-          collection: this.model.collection.toString
+          version: mongoose.version
         }
       });  
     },
