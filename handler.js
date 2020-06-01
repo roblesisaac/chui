@@ -35,32 +35,32 @@ global.api = new Chain({
     };
   },
   steps: {
-    hasId: function() {
-      this.next(this.id !== undefined);
+    hasId: function(res, next) {
+      next(this.id !== undefined);
     },
-    findById: function() {
+    findById: function(res, next) {
       var self = this;
       this.model.findById(this.id, function(err, item) {
         if(err) return self.error(err);
-        self.next(item);
+        next(item);
       });
     },
-    lookingUpSheets: function() {
-      this.next(this.sheetName == "sheets");
+    lookingUpSheets: function(res, next) {
+      next(this.sheetName == "sheets");
     },
-    addSiteId: function() {
+    addSiteId: function(res, next) {
       this.filter.siteId = this.siteId;
-      this.next();
+      next();
     },
-    getAllItems: function() {
+    getAllItems: function(res, next) {
       var self = this;
       this.model.find(this.filter, null, this.options, function(err, data){
         if(err) return self.error(err);
-        self.next(data);
+        next(data);
       });
     },
-    routeMethod: function() {
-      this.next(this.method);
+    routeMethod: function(res, next) {
+      next(this.method);
     },
     sayId: function() {
       this.next(this.body);  
@@ -73,7 +73,7 @@ global.api = new Chain({
     }
   },
   instructions: [
-    "getModelFromSheetName",
+    "model",
     {
       if: "routeMethod",
       get: [
@@ -92,7 +92,7 @@ global.api = new Chain({
     }
   ]
 });
-global.getModelFromSheetName = new Chain({
+global.model = new Chain({
   input: function() {
     return {
       sheetName: this.arg1
@@ -424,7 +424,7 @@ global.port = new Chain({
       }).then(function(site){
         self.site = site;
         self.siteId = site.id;
-        self.next(site);
+        next(site);
       });
     },
     noSiteExists: function(site) {
@@ -448,12 +448,12 @@ global.port = new Chain({
     urlHasAChain: function() {
       this.next(this.chain !== undefined);
     },
-    runChain: function() {
+    runChain: function(res, next) {
       var self = this,
           chain = global[this.chain];
       chain.import(this._memory.storage).start().then(function(memory){
         self._memory.import(memory);
-        self.next(memory.last);
+        next(memory.last);
       }).catch(function(err){
         self.error(err);
       });
