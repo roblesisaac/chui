@@ -91,22 +91,19 @@ global.getModelFromSheetName = new Chain({
       this.next(this.model);
     },
     collectionExists: function() {
-      // var self = this;
-      // use mongoose.connection.collection('someCollection'); when upgrade to mongoose5
-      // mongoose.connection.db.collection(this.collectionName, function (err, collection) {
-      //   if(err) return self.error(err);
-      //   self.model = collection;
-      //   self.next(collection !== undefined);
-      // });
       this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
       this.next(this.modelIndex > -1);
     },
     relayModel: function() {
+      this.model = mongoose.model(this.collectonName);
       this.next({
         collectionName: this.collectionName,
         index: this.modelIndex,
-        models: mongoose.modelNames(),
-        version: mongoose.version
+        schema: this.stringSchema,
+        mongoose: {
+          models: mongoose.modelNames(),
+          version: mongoose.version 
+        }
       });  
     },
     createModel: function() {
@@ -116,7 +113,7 @@ global.getModelFromSheetName = new Chain({
       };
       // this.models = new mongoose.Schema(this.schema, { collection : this.collectionName });
       this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
-      this.next(Object.keys(this.schema));
+      this.next(this.stringSchema);
     }
   },
   instructions: [
