@@ -178,11 +178,11 @@ Chain.prototype.import = function(overides) {
   return instance;
 };
     
-function Instance(master, overides) {
-  this._parent = master;
-  this.input = master.input;
-  this.instructions = new Instructions(master.instructions);
-  this.memory = new Memory([master.input.call(overides), overides]);
+function Instance(chain, overides) {
+  this._parent = chain;
+  this.input = chain.input;
+  this.instructions = new Instructions(chain.instructions);
+  this.memory = new Memory([chain.input.call(overides), overides]);
   this.memory.exclude(Object.keys(this.step()));
   this.resolved = false;
 }
