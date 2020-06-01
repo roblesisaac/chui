@@ -122,11 +122,12 @@ global.getModelFromSheetName = new Chain({
           this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
           this.next();
         },
-        {
-          if: "collectionExists",
-          true: "relayModel",
-          false: [ "schema", "createModel" ]
-        }
+        "schema", "createModel"
+        // {
+        //   if: "collectionExists",
+        //   true: "relayModel",
+        //   false: [ "schema", "createModel" ]
+        // }
       ]
     }
   ]  
