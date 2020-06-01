@@ -52,15 +52,15 @@ global.api = new Chain({
       this.filter.siteId = this.siteId;
       next();
     },
-    getAllItems: function() {
+    getAllItems: function(res, next) {
       var self = this;
       this.model.find(this.filter, null, this.options, function(err, data){
         if(err) return self.error(err);
-        self.next(data);
+        next(data);
       });
     },
-    routeMethod: function() {
-      this.next(this.method);
+    routeMethod: function(res, next) {
+      next(this.method);
     },
     sayId: function() {
       this.next(this.body);  
@@ -424,7 +424,7 @@ global.port = new Chain({
       }).then(function(site){
         self.site = site;
         self.siteId = site.id;
-        self.next(site);
+        next(site);
       });
     },
     noSiteExists: function(site) {
@@ -448,12 +448,12 @@ global.port = new Chain({
     urlHasAChain: function() {
       this.next(this.chain !== undefined);
     },
-    runChain: function() {
+    runChain: function(res, next) {
       var self = this,
           chain = global[this.chain];
       chain.import(this._memory.storage).start().then(function(memory){
         self._memory.import(memory);
-        self.next(memory.last);
+        next(memory.last);
       }).catch(function(err){
         self.error(err);
       });
