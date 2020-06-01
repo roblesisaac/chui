@@ -108,8 +108,7 @@ global.getModelFromSheetName = new Chain({
     },
     createModel: function() {
       var options = {
-        strict: true,
-        collection: "test"
+        strict: true
       };
       this.model = mongoose.model(this.collectionName, new mongoose.Schema({sku: String}, options));
       this.next(this.stringSchema);
