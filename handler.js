@@ -109,7 +109,7 @@ global.getModelFromSheetName = new Chain({
       };
       // this.models = new mongoose.Schema(this.schema, { collection : this.collectionName });
       this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
-      this.next();
+      this.next(Object.keys(this.schema));
     }
   },
   instructions: [
