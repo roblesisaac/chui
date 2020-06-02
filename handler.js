@@ -29,6 +29,17 @@ global.api = new Chain({
       method: this.event.httpMethod.toLowerCase(),
       id: this.arg2,
       filter: {},
+      nativeOptions: [
+        "tailable",
+        "sort",
+        "skip",
+        "maxscan",
+        "batchSize",
+        "comment",
+        "snapshot",
+        "readPreference",
+        "hint"
+      ],
       options: {
         limit: 50
       }
@@ -66,7 +77,8 @@ global.api = new Chain({
       this.next(Object.keys(this.options).indexOf(this.key) > -1);
     },
     addToOptions: function() {
-      this.options[this.key] = this.value;
+      this.options.limit = 3;
+      // this.options[this.key] = this.value;
       this.next();
     },
     addToFilter: function() {
