@@ -30,7 +30,16 @@ global.api = new Chain({
       id: this.arg2,
       filter: {},
       options: {
-        limit: 50
+        limit: 50,
+        tailable: null,
+        sort: null,
+        skip: null,
+        maxscan: null,
+        batchSize: null,
+        comment: null,
+        snapshot: null,
+        readPreference: null,
+        hint: null
       }
     };
   },
@@ -58,6 +67,9 @@ global.api = new Chain({
         if(err) return self.error(err);
         next(data);
       });
+    },
+    forEachQueryKey: function() {
+      this.next(this.query);
     },
     itIsANativeOption: function() {
       this.next(Object.keys(this.options).indexOf(this.key) > -1);
