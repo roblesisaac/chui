@@ -26,7 +26,7 @@ let token;
 global.api = new Chain({
   input: function() {
     return {
-      method: this.event.httpMethod.toLowerCase(),
+      method: this.method.toLowerCase(),
       id: this.arg2,
       filter: {},
       nativeOptions: {
@@ -530,6 +530,7 @@ module.exports.port = function(event, context, callback) {
     chain: params.chain,
     context: context,
     headers: event.headers || {},
+    method: this.event.httpMethod,
     siteName: params.site,
     arg1: params.arg1,
     arg2: params.arg2,
