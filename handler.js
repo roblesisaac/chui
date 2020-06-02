@@ -30,16 +30,7 @@ global.api = new Chain({
       id: this.arg2,
       filter: {},
       options: {
-        limit: 50,
-        tailable: null,
-        sort: null,
-        skip: null,
-        maxscan: null,
-        batchSize: null,
-        comment: null,
-        snapshot: null,
-        readPreference: null,
-        hint: null
+        limit: 50
       }
     };
   },
@@ -68,7 +59,7 @@ global.api = new Chain({
         next(data);
       });
     },
-    itIsANativeOpiton: function() {
+    itIsANativeOption: function() {
       this.next(Object.keys(this.options).indexOf(this.key) > -1);
     },
     addToOptions: function() {
@@ -79,7 +70,7 @@ global.api = new Chain({
       this.filter[this.key] = this.value;
       this.next();
     },
-    routeMethod: function(res, next) {
+    decideRouteMethod: function(res, next) {
       next(this.method);
     },
     updateItem: function() {
@@ -92,11 +83,11 @@ global.api = new Chain({
   instructions: [
     "model",
     {
-      if: "routeMethod",
+      if: "decideRouteMethod",
       get: [
         "forEachQueryKey", [
           {
-            if: "itIsANativeOpiton",
+            if: "itIsANativeOption",
             true: "addToOptions",
             false: "addToFilter"
           }  
