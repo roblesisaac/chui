@@ -535,7 +535,7 @@ module.exports.port = function(event, context, callback) {
     event: event,
     headers: event.headers || {},
     host: "https://"+event.headers.Host+"/dev/exhaustbarn",
-    method: this.event.httpMethod,
+    method: event.httpMethod,
     query: event.queryStringParameters || {},
     siteName: params.site
   }).start().catch(function(error){
