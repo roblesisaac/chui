@@ -39,7 +39,7 @@ global.api = new Chain({
         comment: String,
         snapshot: null,
         readPreference: null,
-        hint: String
+        hint: Object
       },
       options: {
         limit: 50
