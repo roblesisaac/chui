@@ -26,7 +26,7 @@ let token;
 global.api = new Chain({
   input: function() {
     return {
-      method: this.method.toLowerCase(),
+      method: this.event.httpMethod.toLowerCase(),
       id: this.arg2,
       filter: {},
       nativeOptions: {
@@ -535,7 +535,6 @@ module.exports.port = function(event, context, callback) {
     event: event,
     headers: event.headers || {},
     host: "https://"+event.headers.Host+"/dev/exhaustbarn",
-    method: event.httpMethod,
     query: event.queryStringParameters || {},
     siteName: params.site
   }).start().catch(function(error){
