@@ -29,17 +29,6 @@ global.api = new Chain({
       method: this.event.httpMethod.toLowerCase(),
       id: this.arg2,
       filter: {},
-      nativeOptionss: [
-        "tailable",
-        "sort",
-        "skip",
-        "maxscan",
-        "batchSize",
-        "comment",
-        "snapshot",
-        "readPreference",
-        "hint"
-      ],
       nativeOptions: {
         limit: Number,
         tailable: null,
@@ -50,7 +39,7 @@ global.api = new Chain({
         comment: String,
         snapshot: null,
         readPreference: null,
-        hint: null
+        hint: String
       },
       options: {
         limit: 50
