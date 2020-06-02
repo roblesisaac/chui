@@ -29,7 +29,7 @@ global.api = new Chain({
       method: this.event.httpMethod.toLowerCase(),
       id: this.arg2,
       filter: {},
-      nativeOptions: [
+      nativeOptionss: [
         "tailable",
         "sort",
         "skip",
@@ -40,6 +40,18 @@ global.api = new Chain({
         "readPreference",
         "hint"
       ],
+      nativeOptions: {
+        limit: Number,
+        tailable: null,
+        sort: String,
+        skip: Number,
+        maxscan: null,
+        batchSize: null,
+        comment: String,
+        snapshot: null,
+        readPreference: null,
+        hint: null
+      },
       options: {
         limit: 50
       }
@@ -74,11 +86,10 @@ global.api = new Chain({
       this.next(this.query);
     },
     itIsANativeOption: function() {
-      this.next(Object.keys(this.options).indexOf(this.key) > -1);
+      this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
     },
     addToOptions: function() {
-      this.options.limit = 3;
-      // this.options[this.key] = this.value;
+      this.options[this.key] = this.nativeOptions[this.key](this.value);
       this.next();
     },
     addToFilter: function() {
