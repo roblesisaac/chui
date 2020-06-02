@@ -525,19 +525,19 @@ module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
   port.import({
-    event: event,
+    arg1: params.arg1,
+    arg2: params.arg2,
+    body: JSON.parse(event.body || "{}"),
     callback: callback,
     chain: params.chain,
     context: context,
-    headers: event.headers || {},
-    method: this.event.httpMethod,
-    siteName: params.site,
-    arg1: params.arg1,
-    arg2: params.arg2,
-    query: event.queryStringParameters || {},
-    body: JSON.parse(event.body || "{}"),
     domain: event.headers.Host,
-    host: "https://"+event.headers.Host+"/dev/exhaustbarn"
+    event: event,
+    headers: event.headers || {},
+    host: "https://"+event.headers.Host+"/dev/exhaustbarn",
+    method: this.event.httpMethod,
+    query: event.queryStringParameters || {},
+    siteName: params.site
   }).start().catch(function(error){
     callback(null, {
       statusCode: 200,
