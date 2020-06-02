@@ -39,11 +39,13 @@ global.api = new Chain({
         comment: String,
         snapshot: null,
         readPreference: null,
-        hint: Object
+        hint: Object,
+        select: String
       },
       options: {
         limit: 50
-      }
+      },
+      selectOnly: null
     };
   },
   steps: {
@@ -66,7 +68,7 @@ global.api = new Chain({
     },
     getAllItems: function(res, next) {
       var self = this;
-      this.model.find(this.filter, null, this.options, function(err, data){
+      this.model.find(this.filter, this.selectOnly, this.options, function(err, data){
         if(err) return self.error(err);
         next(data);
       });
