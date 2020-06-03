@@ -81,7 +81,6 @@ var obj = function(o) {
   }
 };
 obj.prototype.loop = Object.loop;
-
 function loop(arr) {
   return { async: arr };
 }
@@ -251,11 +250,7 @@ Instance.prototype.step = function(stepName) {
       return {
         aChain: function(){
           var nestedChain = stepName;
-          if(typeof stepName == "string") {
-            typeof global == "undefined"
-              ? nestedChain = window[stepName]
-              : nestedChain = global[stepName];
-          }
+          if(typeof stepName == "string") nestedChain = globalThis[stepName];
           if(nestedChain && nestedChain._master !== undefined) self._name = nestedChain;
           return self._name._master !== undefined;
         },
