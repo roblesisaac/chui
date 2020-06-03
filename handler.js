@@ -1,3 +1,5 @@
+"use strict";
+
 try {
 const Chain = require('./chain');
 const models = {
