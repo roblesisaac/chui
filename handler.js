@@ -55,7 +55,7 @@ global.api = new Chain({
     },
     findById: function(res, next) {
       var self = this;
-      this.model.findById(this.id, function(err, item) {
+      this.model.findById(this.id, null, this.options, function(err, item) {
         if(err) return self.error(err);
         next(item);
       });
