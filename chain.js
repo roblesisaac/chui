@@ -1,3 +1,5 @@
+"use strict";
+
 function addMethodToArray(name, fn) {
   Object.defineProperty(Array.prototype, name, {
     enumerable: false,
@@ -379,5 +381,5 @@ Memory.prototype.import = function(data) {
   }
 };
 
-if(typeof module === "undefined") module = {};
+if(typeof globalThis.module === "undefined") globalThis.module = {};
 module.exports = Chain;
