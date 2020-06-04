@@ -54,12 +54,15 @@ global.authorize = new Chain({
     },
     askThemToLogIn: function() {
       this.next("Log in you must first.");
+    },
+    sayAuthorized: function() {
+      this.next("Authorized already you are.");
     }
   },
   instructions: [
     {
       if: "authorizedAlready",
-      true: "runProtectedChain",
+      true: "sayAuthorized",
       false: [
         "lookupSheet",
         {
