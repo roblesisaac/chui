@@ -32,7 +32,7 @@ global.authorize = new Chain({
     },
     runSpecial: function() {
       var self = this;
-      this.protectedChain.start().then(function(memory){
+      this.protectedChain.import(this._memory.storage).start().then(function(memory){
         self.next(memory.last);  
       });
     },
