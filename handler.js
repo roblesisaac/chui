@@ -31,7 +31,10 @@ global.authorize = new Chain({
       this.next(this.sheet.db);
     },
     runChain: function() {
-      this.chain.start();
+      var self = this;
+      this.chain.start().then(function(memory){
+        self.next(memory.last);  
+      });
     },
     userHasToken: function() {
       this.next(true);
