@@ -33,14 +33,14 @@ global.authorize = new Chain({
     runChain: function() {
       var self = this;
       this.chain.start().then(function(memory){
-        self.next(memory.last);  
+        self.next("memory.last");  
       });
     },
     userHasToken: function() {
       this.next(true);
     },
     tokenIsValid: function() {
-      this.next(false);
+      this.next(true);
     },
     alertLoggedOut: function() {
       this.next("You are logged out.");
