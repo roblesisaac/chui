@@ -26,6 +26,11 @@ const jwt = require('jsonwebtoken');
 let token;
 
 global.authorize = new Chain({
+  input: function() {
+    return {
+      name: "eli"
+    };
+  },
   steps: {
     authorizedAlready: function() {
       this.next(this.authorized === false);
