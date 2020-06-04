@@ -65,7 +65,7 @@ global.authorize = new Chain({
       true: [
         function() {
           this.testtokens.push("authorized");
-          this.next(this.testtokens);
+          this.last = "Authorized already you are.";
           this.resolve();
         }
       ],
@@ -115,7 +115,7 @@ global.api = new Chain({
         };
       },
       steps: {
-        addSiteId: function(res, next) {
+        addSiteIdToFilter: function(res, next) {
           this.filter.siteId = this.siteId;
           next();
         },
@@ -143,7 +143,7 @@ global.api = new Chain({
           });
         },
         forEachQueryKey: function() {
-          this.next("this.query");
+          this.next(this.query);
         },
         getAllItems: function() {
           var self = this;
@@ -163,7 +163,7 @@ global.api = new Chain({
               lastIsSlash = this.value.charAt(this.value.length-1) == '/';
           this.next(firstIsSlash && lastIsSlash);
         },
-        lookingUpSheets: function(res, next) {
+        needsASiteId: function(res, next) {
           next(this.sheetName == "sheets");
         },
         updateItem: function() {
@@ -192,7 +192,7 @@ global.api = new Chain({
               if: "hasId",
               true: "findById",
               false: [
-                { if: "lookingUpSheets", true: "addSiteId" }, 
+                { if: "needsASiteId", true: "addSiteIdToFilter" }, 
                 "getAllItems"
               ]
             }
