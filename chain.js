@@ -175,7 +175,7 @@ Chain.prototype.import = function(overides, options) {
   var instance = !this._parent
                  ? new Instance(this, overides)
                  : this;
-  // if(options.exclude) instance.memory.exclude(options.exclude);
+  if(options.exclude) instance.memory.exclude(options.exclude);
   instance.memory.import(overides);
   return instance;
 };
@@ -327,7 +327,7 @@ function Memory(data) {
 }
 Memory.prototype.exclude = function(arr) {
   if(!arr) return;
-  // if(!Array.isArray(arr)) arr = [arr];
+  if(!Array.isArray(arr)) arr = [arr];
   this.exclusions = this.exclusions.concat(arr);
 };
 Memory.prototype.init = function(data) {
