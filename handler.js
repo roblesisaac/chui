@@ -74,12 +74,16 @@ global.authorize = new Chain({
           if: "sheetDbIsPublic",
           true: [
           function() {
-            this.sheetIsPublic = true;
+            this.sheetIsPublic = this.sheet.db.public+"TRUE";
             this.next();
           },
           "runProtectedChain"  
           ],
-          false: {
+          false: [
+            function() {
+              this.sheetIsPublic = this.sheet.db.public+"FALSE";
+            },
+            {
             if: "userHasToken",
             true: {
               if: "tokenIsValid",
@@ -87,7 +91,7 @@ global.authorize = new Chain({
               false: "alertLoggedOut"
             },
             false: "askThemToLogIn"
-          }
+          }]
         } 
       ]
     }
