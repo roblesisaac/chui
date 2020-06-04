@@ -31,7 +31,7 @@ global.authorize = new Chain({
       this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
-      this.next(this.sheet.db.public == true);
+      this.next(this.sheet.db.public === true);
     },
     runProtectedChain: function() {
       var self = this,
@@ -596,7 +596,7 @@ global.port = new Chain({
     }
   },
   instructions: [
-    connectToDb,
+    "connectToDb",
     "lookupSiteInDb",
     {
       if: "noSiteExists",
@@ -606,7 +606,7 @@ global.port = new Chain({
         {
           if: "urlHasAChain",
           true: "runChain",
-          false: loadLandingPage
+          false: "loadLandingPage"
         }
       ]
     },
@@ -614,14 +614,14 @@ global.port = new Chain({
       if: "isVerbose",
       true: "addDetails"
     },
-    serve
+    "serve"
   ]
 });
 
 module.exports.port = function(event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
   var params = event.pathParameters || {};
-  port.import({
+  global.port.import({
     arg1: params.arg1,
     arg2: params.arg2,
     body: JSON.parse(event.body || "{}"),
