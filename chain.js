@@ -269,7 +269,7 @@ Instance.prototype.step = function(stepName) {
     next: function(returned, keyname) {
       if(keyname) storage[keyname] = returned;
       instance.memory.import(this);
-      storage.last = returned;
+      if(arguments.length > 0 ) storage.last = returned;
       instance.automate();
     },
     _memory: instance.memory,
