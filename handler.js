@@ -34,7 +34,7 @@ global.authorize = new Chain({
       this.next(false);
     },
     runProtectedChain: function() {
-      // this.authorized = true;
+      this.authorized = true;
       var self = this,
           storage = Object.assign({}, this._memory.storage);
       delete storage.protectedChain;
