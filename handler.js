@@ -32,8 +32,7 @@ global.authorize = new Chain({
       this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
-      this.sheetDbIsPublic = true;
-      this.next(true);
+      this.next(true.sheet.db.public == "true");
     },
     runProtectedChain: function() {
       var self = this,
@@ -68,7 +67,13 @@ global.authorize = new Chain({
         "lookupSheet",
         {
           if: "sheetDbIsPublic",
-          true: "runProtectedChain",
+          true: [
+          function() {
+            this.sheetIsPublic = true;
+            this.next();
+          },
+          "runProtectedChain"  
+          ],
           false: {
             if: "userHasToken",
             true: {
