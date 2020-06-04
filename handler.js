@@ -187,9 +187,11 @@ global.api = new Chain({
   instructions: ["authorize"]
 });
 global.model = new Chain({
+  input: {
+    protectedChain: new Chain({
       input: function() {
         return {
-          sheetName: this.arg1
+          sheetName: "store"
         };
       },
       steps: {
@@ -248,7 +250,10 @@ global.model = new Chain({
           ]
         }
       ]
-    });
+    })
+  },
+  instructions: ["authorize"]
+});
 global.schema = new Chain({
   input: {
     protectedChain: new Chain({ // creates obj ready to convert into model
