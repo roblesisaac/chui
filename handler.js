@@ -143,7 +143,7 @@ global.api = new Chain({
           });
         },
         forEachQueryKey: function() {
-          this.next(this.query);
+          this.next("this.query");
         },
         getAllItems: function() {
           var self = this;
