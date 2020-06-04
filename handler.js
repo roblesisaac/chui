@@ -28,7 +28,7 @@ let token;
 global.authorize = new Chain({
   input: function() {
     return {
-      name: "eli"
+      sheetName: "store"
     };
   },
   steps: {
