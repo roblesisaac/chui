@@ -27,6 +27,9 @@ let token;
 
 global.authorize = new Chain({
   steps: {
+    authorizedAlready: function() {
+      this.next(true);
+    },
     sheetDbIsPublic: function() {
       this.next(false);
     },
@@ -53,19 +56,25 @@ global.authorize = new Chain({
     }
   },
   instructions: [
-    "lookupSheet",
     {
-      if: "sheetDbIsPublic",
+      if: "authorizedAlready",
       true: "runSpecial",
-      false: {
-        if: "userHasToken",
-        true: {
-          if: "tokenIsValid",
+      false: [
+        "lookupSheet",
+        {
+          if: "sheetDbIsPublic",
           true: "runSpecial",
-          false: "alertLoggedOut"
-        },
-        false: "askThemToLogIn"
-      }
+          false: {
+            if: "userHasToken",
+            true: {
+              if: "tokenIsValid",
+              true: "runSpecial",
+              false: "alertLoggedOut"
+            },
+            false: "askThemToLogIn"
+          }
+        } 
+      ]
     }
   ]
 });
