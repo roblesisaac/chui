@@ -53,12 +53,15 @@ global.authorize = new Chain({
     },
     askThemToLogIn: function() {
       this.next("Log in you must first.");
+    },
+    runSpecials: function() {
+      this.next("alreadyAuthorize!");
     }
   },
   instructions: [
     {
       if: "authorizedAlready",
-      true: "runSpecial",
+      true: "runSpecials",
       false: [
         "lookupSheet",
         {
