@@ -35,12 +35,21 @@ global.authorize = new Chain({
     },
     runProtectedChain: function() {
       var self = this,
-          storage = Object.assign({ authorized: true }, this);
-      delete storage.protectedChain;
-      this.protectedChain.import(storage).start().then(function(memory){
+          chain = this.protectedChain;
+      chain.import(this._memory.storage).start().then(function(memory){
         self._memory.import(memory);
         self.next(memory.last);
+      }).catch(function(err){
+        self.error(err);
       });
+      
+      // var self = this,
+      //     storage = Object.assign({ authorized: true }, this);
+      // delete storage.protectedChain;
+      // this.protectedChain.import(storage).start().then(function(memory){
+      //   self._memory.import(memory);
+      //   self.next(memory.last);
+      // });
     },
     userHasToken: function() {
       this.next(true);
