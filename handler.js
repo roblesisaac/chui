@@ -32,8 +32,8 @@ global.authorize = new Chain({
     },
     runChain: function() {
       var self = this;
-      this.chain.import(this._memory.storage).start().then(function(memory){
-        // self.next("memory.last");  
+      this.ifAuthorized.import(this._memory.storage).start().then(function(memory){
+        self.next("memory.last");  
       });
     },
     userHasToken: function() {
@@ -69,7 +69,7 @@ global.authorize = new Chain({
 
 global.api = new Chain({
   input: {
-    chain : new Chain({
+    ifAuthorized : new Chain({
       input: function() {
         return {
           method: this.event.httpMethod.toLowerCase(),
