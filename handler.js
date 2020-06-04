@@ -183,122 +183,127 @@ global.api = new Chain({
       ]
     })
   },
-  instructions: ["authorize"]
+  steps: {
+    debug: function() {
+      this.next("debug");
+    }
+  },
+  instructions: ["authorize", "debug"]
 });
 
-global.getApi = new Chain({
-  input: function() {
-    return {
-      method: this.event.httpMethod.toLowerCase(),
-      id: this.arg2,
-      filter: {},
-      nativeOptions: {
-        limit: Number,
-        tailable: null,
-        sort: String,
-        skip: Number,
-        maxscan: null,
-        batchSize: null,
-        comment: String,
-        snapshot: null,
-        readPreference: null,
-        hint: Object,
-        select: String
-      },
-      options: {
-        limit: 50
-      }
-    };
-  },
-  steps: {
-    addSiteId: function(res, next) {
-      this.filter.siteId = this.siteId;
-      next();
-    },
-    addToOptions: function() {
-      this.options[this.key] = this.nativeOptions[this.key](this.value);
-      this.next();
-    },
-    addToFilter: function() {
-      this.filter[this.key] = this.value;
-      this.next();
-    },
-    convertToRegex: function() {
-      this.value = this.value.replace(/\//g,'');
-      this.value = { $regex: new RegExp(this.value) };
-      this.next();
-    },
-    decideRouteMethod: function(res, next) {
-      next(this.method);
-    },
-    findById: function(res, next) {
-      var self = this;
-      this.model.findById(this.id, null, this.options, function(err, item) {
-        if(err) return self.error(err);
-        next(item);
-      });
-    },
-    forEachQueryKey: function() {
-      this.next(this.query);
-    },
-    getAllItems: function(res, next) {
-      var self = this;
-      this.model.find(this.filter, null, this.options, function(err, data){
-        if(err) return self.error(err);
-        next(data);
-      });
-    },
-    hasId: function(res, next) {
-      next(this.id !== undefined);
-    },
-    itIsANativeOption: function() {
-      this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
-    },
-    keyValueIsRegex: function() {
-      var firstIsSlash = this.value.charAt(0) == '/',
-          lastIsSlash = this.value.charAt(this.value.length-1) == '/';
-      this.next(firstIsSlash && lastIsSlash);
-    },
-    lookingUpSheets: function(res, next) {
-      next(this.sheetName == "sheets");
-    },
-    updateItem: function() {
-      var self = this;
-      this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
-        self.next(data);
-      });
-    }
-  },
-  instructions: [
-    "model",
-    {
-      if: "decideRouteMethod",
-      get: [
-        "forEachQueryKey", [
-          {
-            if: "itIsANativeOption",
-            true: "addToOptions",
-            false: [
-              { if: "keyValueIsRegex", true: "convertToRegex" },
-              "addToFilter"
-            ]
-          }  
-        ],
-        {
-          if: "hasId",
-          true: "findById",
-          false: [
-            { if: "lookingUpSheets", true: "addSiteId" }, 
-            "getAllItems"
-          ]
-        }
-      ],
-      put: "updateItem",
-      post: "postItem",
-      delete: "deleteItem"
-    }
-  ]
-});
+// global.getApi = new Chain({
+//   input: function() {
+//     return {
+//       method: this.event.httpMethod.toLowerCase(),
+//       id: this.arg2,
+//       filter: {},
+//       nativeOptions: {
+//         limit: Number,
+//         tailable: null,
+//         sort: String,
+//         skip: Number,
+//         maxscan: null,
+//         batchSize: null,
+//         comment: String,
+//         snapshot: null,
+//         readPreference: null,
+//         hint: Object,
+//         select: String
+//       },
+//       options: {
+//         limit: 50
+//       }
+//     };
+//   },
+//   steps: {
+//     addSiteId: function(res, next) {
+//       this.filter.siteId = this.siteId;
+//       next();
+//     },
+//     addToOptions: function() {
+//       this.options[this.key] = this.nativeOptions[this.key](this.value);
+//       this.next();
+//     },
+//     addToFilter: function() {
+//       this.filter[this.key] = this.value;
+//       this.next();
+//     },
+//     convertToRegex: function() {
+//       this.value = this.value.replace(/\//g,'');
+//       this.value = { $regex: new RegExp(this.value) };
+//       this.next();
+//     },
+//     decideRouteMethod: function(res, next) {
+//       next(this.method);
+//     },
+//     findById: function(res, next) {
+//       var self = this;
+//       this.model.findById(this.id, null, this.options, function(err, item) {
+//         if(err) return self.error(err);
+//         next(item);
+//       });
+//     },
+//     forEachQueryKey: function() {
+//       this.next(this.query);
+//     },
+//     getAllItems: function(res, next) {
+//       var self = this;
+//       this.model.find(this.filter, null, this.options, function(err, data){
+//         if(err) return self.error(err);
+//         next(data);
+//       });
+//     },
+//     hasId: function(res, next) {
+//       next(this.id !== undefined);
+//     },
+//     itIsANativeOption: function() {
+//       this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
+//     },
+//     keyValueIsRegex: function() {
+//       var firstIsSlash = this.value.charAt(0) == '/',
+//           lastIsSlash = this.value.charAt(this.value.length-1) == '/';
+//       this.next(firstIsSlash && lastIsSlash);
+//     },
+//     lookingUpSheets: function(res, next) {
+//       next(this.sheetName == "sheets");
+//     },
+//     updateItem: function() {
+//       var self = this;
+//       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
+//         self.next(data);
+//       });
+//     }
+//   },
+//   instructions: [
+//     "model",
+//     {
+//       if: "decideRouteMethod",
+//       get: [
+//         "forEachQueryKey", [
+//           {
+//             if: "itIsANativeOption",
+//             true: "addToOptions",
+//             false: [
+//               { if: "keyValueIsRegex", true: "convertToRegex" },
+//               "addToFilter"
+//             ]
+//           }  
+//         ],
+//         {
+//           if: "hasId",
+//           true: "findById",
+//           false: [
+//             { if: "lookingUpSheets", true: "addSiteId" }, 
+//             "getAllItems"
+//           ]
+//         }
+//       ],
+//       put: "updateItem",
+//       post: "postItem",
+//       delete: "deleteItem"
+//     }
+//   ]
+// });
 global.model = new Chain({
   input: function() {
     return {
