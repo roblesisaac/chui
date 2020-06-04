@@ -157,7 +157,7 @@ global.api = new Chain({
         "model",
         {
           if: "decideRouteMethod",
-          get: "schema",
+          get: function(){this.next("gotten")},
           gets: [
             "forEachQueryKey", [
               {
