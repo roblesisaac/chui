@@ -29,7 +29,7 @@ global.authorize = new Chain({
   input: {testtokens: []},
   steps: {
     authorizedAlready: function() {
-      this.next(this.authorized === true);
+      this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
       this.next(false);
