@@ -66,6 +66,7 @@ global.authorize = new Chain({
         function() {
           this.testtokens.push("authorized");
           this.next(this.testtokens);
+          this.resolve();
         }
       ],
       false: [
