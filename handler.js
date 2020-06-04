@@ -28,7 +28,7 @@ let token;
 global.authorize = new Chain({
   steps: {
     sheetDbIsPublic: function() {
-      this.next(this.sheet.db);
+      this.next(true);
     },
     runChain: function() {
       var self = this;
