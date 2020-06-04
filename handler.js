@@ -37,7 +37,7 @@ global.authorize = new Chain({
       });
     },
     userHasToken: function() {
-      this.next(true);
+      this.next(false);
     },
     tokenIsValid: function() {
       this.next(true);
@@ -124,11 +124,11 @@ global.api = new Chain({
         forEachQueryKey: function() {
           this.next(this.query);
         },
-        getAllItems: function(res, next) {
+        getAllItems: function() {
           var self = this;
           this.model.find(this.filter, null, this.options, function(err, data){
             if(err) return self.error(err);
-            next(data);
+            self.next(data);
           });
         },
         hasId: function(res, next) {
