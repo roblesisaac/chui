@@ -28,7 +28,7 @@ let token;
 global.authorize = new Chain({
   input: function() {
     return {
-      sheetName: "store"
+      sheetName: this.arg1
     };
   },
   steps: {
@@ -47,14 +47,6 @@ global.authorize = new Chain({
       }).catch(function(err){
         self.error(err);
       });
-      
-      // var self = this,
-      //     storage = Object.assign({ authorized: true }, this);
-      // delete storage.protectedChain;
-      // this.protectedChain.import(storage).start().then(function(memory){
-      //   self._memory.import(memory);
-      //   self.next(memory.last);
-      // });
     },
     userHasToken: function() {
       this.next(true);
