@@ -153,7 +153,8 @@ global.api = new Chain({
           });
         }
       },
-      instructions: [
+      instructions: ["schema"],
+      instruction: [
         "model",
         {
           if: "decideRouteMethod",
@@ -191,7 +192,7 @@ global.model = new Chain({
     protectedChain: new Chain({
       input: function() {
         return {
-          sheetName: "store"
+          sheetName: this.arg1
         };
       },
       steps: {
