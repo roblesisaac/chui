@@ -32,7 +32,7 @@ global.authorize = new Chain({
       this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
-      this.next(true.sheet.db.public == "true");
+      this.next(this.sheet.db.public == "true");
     },
     runProtectedChain: function() {
       var self = this,
