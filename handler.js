@@ -65,9 +65,8 @@ global.authorize = new Chain({
       true: [
         function() {
           this.testtokens.push("authorized");
-          this.next();
-        },
-        "runProtectedChain"
+          this.next(this.testtokens);
+        }
       ],
       false: [
         "lookupSheet",
