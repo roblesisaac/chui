@@ -63,7 +63,7 @@ global.api = new Chain({
       this.next();
     },
     convertToRegex: function() {
-      this.value = { $regex: this.value };
+      this.value = { $regex: new RegExp("hond") };
       this.next();
     },
     decideRouteMethod: function(res, next) {
