@@ -157,7 +157,7 @@ global.api = new Chain({
         "model",
         {
           if: "decideRouteMethod",
-          get: function(){this.next("gotten")},
+          get: function(){this.next(this.schema)},
           gets: [
             "forEachQueryKey", [
               {
@@ -232,7 +232,6 @@ global.model = new Chain({
           });
         }
       },
-      instruction: ["schema"],
       instructions: [
         {
           if: "sheetNameIsNative",
