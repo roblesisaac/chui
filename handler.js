@@ -606,11 +606,11 @@ global.port = new Chain({
         {
           if: "urlHasAChain",
           true: [
-              function(){
-                this.aWave = this.sheet;
-                this.next();
-              },
-            "runChain"
+            "runChain",             
+            function(){
+              this.aWave = this.sheet;
+              this.next();
+            }
           ],
           false: "loadLandingPage"
         }
