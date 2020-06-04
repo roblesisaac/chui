@@ -32,7 +32,8 @@ global.authorize = new Chain({
       this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
-      this.next(false);
+      this.sheetDbIsPublic = true;
+      this.next(true);
     },
     runProtectedChain: function() {
       var self = this,
@@ -62,13 +63,7 @@ global.authorize = new Chain({
   instructions: [
     {
       if: "authorizedAlready",
-      true: [
-        "sayAuthorized",
-        function() {
-          this.testtokens.push("authorized");
-          this.resolve();
-        }
-      ],
+      true: "runProtectedChain",
       false: [
         "lookupSheet",
         {
