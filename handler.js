@@ -49,7 +49,7 @@ global.authorize = new Chain({
       });
     },
     userHasToken: function() {
-      this.next(true);
+      this.next(this.query.token == "true");
     },
     tokenIsValid: function() {
       this.next(true);
@@ -96,6 +96,7 @@ global.api = new Chain({
           id: this.arg2,
           filter: {},
           nativeOptions: {
+            token: String,
             limit: Number,
             tailable: null,
             sort: String,
