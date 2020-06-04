@@ -469,6 +469,7 @@ global.scripts = new Chain({
   steps: {
     lookupSheet: function() {
       var self = this;
+      this.aaaaa = self.sheetName;
       this.sheet = this.sheets.findOne({
         name: self.sheetName,
         siteId: self.siteId
