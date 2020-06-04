@@ -82,6 +82,7 @@ global.authorize = new Chain({
           false: [
             function() {
               this.sheetIsPublic = this.sheet.db.public+"FALSE";
+              this.next();
             },
             {
             if: "userHasToken",
