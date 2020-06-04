@@ -68,6 +68,7 @@ global.authorize = new Chain({
           if: "sheetDbIsPublic",
           true: [
           function() {
+            this.bbbbbb = this.sheetName;
             this.sheetIsPublic = true;
             this.next();
           },
