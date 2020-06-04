@@ -197,10 +197,6 @@ global.api = new Chain({
               if: "hasId",
               true: "findById",
               false: [
-                function() {
-                  this.cccccc = this.sheet;
-                  this.next();
-                },
                 { if: "needsASiteId", true: "addSiteIdToFilter" },
                 "getAllItems"
               ]
@@ -479,7 +475,6 @@ global.scripts = new Chain({
   steps: {
     lookupSheet: function() {
       var self = this;
-      this.aaaaa = self.sheetName;
       this.sheet = this.sheets.findOne({
         name: self.sheetName,
         siteId: self.siteId
