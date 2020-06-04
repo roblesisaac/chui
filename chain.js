@@ -235,6 +235,9 @@ Instance.prototype.step = function(stepName) {
       instance.error = e;
       instance.resolve();      
     },
+    resolve: function() {
+      instance.resolve();
+    },
     _getAnswer: function(next) {
       var condition = stepName.if;
       if(typeof condition == "boolean") {
