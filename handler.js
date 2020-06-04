@@ -26,13 +26,12 @@ const jwt = require('jsonwebtoken');
 let token;
 
 global.authorize = new Chain({
-  input: {testtokens: []},
   steps: {
     authorizedAlready: function() {
       this.next(this.authorized === false);
     },
     sheetDbIsPublic: function() {
-      this.next(this.sheet.db.public == "true");
+      this.next(this.sheet.db.public == true);
     },
     runProtectedChain: function() {
       var self = this,
