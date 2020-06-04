@@ -30,7 +30,7 @@ global.authorize = new Chain({
     sheetDbIsPublic: function() {
       this.next(false);
     },
-    runChain: function() {
+    runSpecial: function() {
       var self = this;
       this.ifAuthorized.start().then(function(memory){
         self.next("memory.last");  
@@ -53,12 +53,12 @@ global.authorize = new Chain({
     "lookupSheet",
     {
       if: "sheetDbIsPublic",
-      true: "runChain",
+      true: "runSpecial",
       false: {
         if: "userHasToken",
         true: {
           if: "tokenIsValid",
-          true: "runChain",
+          true: "runSpecial",
           false: "alertLoggedOut"
         },
         false: "askThemToLogIn"
