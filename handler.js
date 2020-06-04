@@ -50,35 +50,9 @@ global.api = new Chain({
     };
   },
   steps: {
-    hasId: function(res, next) {
-      next(this.id !== undefined);
-    },
-    findById: function(res, next) {
-      var self = this;
-      this.model.findById(this.id, null, this.options, function(err, item) {
-        if(err) return self.error(err);
-        next(item);
-      });
-    },
-    lookingUpSheets: function(res, next) {
-      next(this.sheetName == "sheets");
-    },
     addSiteId: function(res, next) {
       this.filter.siteId = this.siteId;
       next();
-    },
-    getAllItems: function(res, next) {
-      var self = this;
-      this.model.find(this.filter, null, this.options, function(err, data){
-        if(err) return self.error(err);
-        next(data);
-      });
-    },
-    forEachQueryKey: function() {
-      this.next(this.query);
-    },
-    itIsANativeOption: function() {
-      this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
     },
     addToOptions: function() {
       this.options[this.key] = this.nativeOptions[this.key](this.value);
@@ -88,8 +62,43 @@ global.api = new Chain({
       this.filter[this.key] = this.value;
       this.next();
     },
+    convertToRegex: function() {
+      this.value = { $regex: this.value };
+      this.next();
+    },
     decideRouteMethod: function(res, next) {
       next(this.method);
+    },
+    findById: function(res, next) {
+      var self = this;
+      this.model.findById(this.id, null, this.options, function(err, item) {
+        if(err) return self.error(err);
+        next(item);
+      });
+    },
+    forEachQueryKey: function() {
+      this.next(this.query);
+    },
+    getAllItems: function(res, next) {
+      var self = this;
+      this.model.find(this.filter, null, this.options, function(err, data){
+        if(err) return self.error(err);
+        next(data);
+      });
+    },
+    hasId: function(res, next) {
+      next(this.id !== undefined);
+    },
+    itIsANativeOption: function() {
+      this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
+    },
+    keyValueIsRegex: function() {
+      var firstIsSlash = this.value.charAt(0) == '/',
+          lastIsSlash = this.value.charAt(this.value.length-1) == '/';
+      this.next(firstIsSlash && lastIsSlash);
+    },
+    lookingUpSheets: function(res, next) {
+      next(this.sheetName == "sheets");
     },
     updateItem: function() {
       var self = this;
@@ -107,7 +116,13 @@ global.api = new Chain({
           {
             if: "itIsANativeOption",
             true: "addToOptions",
-            false: "addToFilter"
+            false: [
+              {
+                if: "keyValueIsRegex", // todo
+                true: "convertToRegex" // todo
+              },
+              "addToFilter"
+            ]
           }  
         ],
         {
