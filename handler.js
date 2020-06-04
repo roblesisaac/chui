@@ -395,6 +395,7 @@ global.login = new Chain({
 global.serve = new Chain({
   steps: {
     formatObject: function(res) {
+      res.atesttest = this.sheet;
       this.format = {
         statusCode: 200,
         body: res
