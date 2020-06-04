@@ -191,11 +191,11 @@ global.api = new Chain({
               if: "hasId",
               true: "findById",
               false: [
-                { if: "needsASiteId", true: "addSiteIdToFilter" },
                 function() {
                   this.cccccc = this.sheet;
                   this.next();
                 },
+                { if: "needsASiteId", true: "addSiteIdToFilter" },
                 "getAllItems"
               ]
             }
