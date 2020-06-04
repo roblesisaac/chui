@@ -28,12 +28,13 @@ let token;
 global.authorize = new Chain({
   steps: {
     authorizedAlready: function() {
-      this.next(true);
+      this.next(this.authorized === true);
     },
     sheetDbIsPublic: function() {
       this.next(false);
     },
-    runSpecial: function() {
+    runProtectedChain: function() {
+      // this.authorized = true;
       var self = this,
           storage = Object.assign({}, this._memory.storage);
       delete storage.protectedChain;
@@ -53,25 +54,22 @@ global.authorize = new Chain({
     },
     askThemToLogIn: function() {
       this.next("Log in you must first.");
-    },
-    runSpecials: function() {
-      this.next("alreadyAuthorize!");
     }
   },
   instructions: [
     {
       if: "authorizedAlready",
-      true: "runSpecials",
+      true: "runProtectedChain",
       false: [
         "lookupSheet",
         {
           if: "sheetDbIsPublic",
-          true: "runSpecial",
+          true: "runProtectedChain",
           false: {
             if: "userHasToken",
             true: {
               if: "tokenIsValid",
-              true: "runSpecial",
+              true: "runProtectedChain",
               false: "alertLoggedOut"
             },
             false: "askThemToLogIn"
