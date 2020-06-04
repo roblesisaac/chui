@@ -31,8 +31,9 @@ global.authorize = new Chain({
       this.next(false);
     },
     runSpecial: function() {
-      var self = this;
-      this.next(this.protectedChain);
+      var self = this,
+          storage = Object.assign({}, this._memory.storage);
+      this.next(storage);
       // this.protectedChain.import(this._memory.storage, { exclude: "protectedChain" }).start().then(function(memory){
       //   self.next(memory.last);  
       // });
