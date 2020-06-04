@@ -63,7 +63,7 @@ global.authorize = new Chain({
         },
         false: "askThemToLogIn"
       }
-    }  
+    }
   ]
 });
 
@@ -185,7 +185,7 @@ global.api = new Chain({
   },
   steps: {
     debug: function(res) {
-      this.next(res, "debug");
+      // this.next(res, "debug");
     }
   },
   instructions: ["authorize", "debug"]
