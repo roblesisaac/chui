@@ -32,7 +32,7 @@ global.authorize = new Chain({
     },
     runSpecial: function() {
       var self = this;
-      this.authorizedChain.import(this._memory.storage).start().then(function(memory){
+      this.protectedChain.import(this._memory.storage).start().then(function(memory){
         self.next(memory.last);  
       });
     },
@@ -66,10 +66,9 @@ global.authorize = new Chain({
     }
   ]
 });
-
 global.api = new Chain({
   input: {
-    authorizedChain : new Chain({
+    protectedChain : new Chain({
       input: function() {
         return {
           method: this.event.httpMethod.toLowerCase(),
@@ -183,222 +182,113 @@ global.api = new Chain({
       ]
     })
   },
-  steps: {
-    debug: function(res) {
-      this.next(res);
-    }
+  instructions: ["authorize"]
+});
+global.model = new Chain({
+  input: {
+    protectedChain: new Chain({
+      input: function() {
+        return {
+          sheetName: this.arg1
+        };
+      },
+      steps: {
+        sheetNameIsNative: function() {
+          this.next(models[this.sheetName] !== undefined);
+        },
+        relayNativeModel: function() {
+          this.model = models[this.sheetName];
+          this.next(this.model);
+        },
+        collectionExists: function() {
+          this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
+          this.next(this.modelIndex > -1);
+        },
+        relayModel: function() {
+          var model = mongoose.model(this.collectionName);
+          this.model = model;
+          this.next({
+            collectionName: this.collectionName,
+            index: this.modelIndex,
+            schema: this.stringSchema,
+            mongoose: {
+              models: mongoose.modelNames(),
+              version: mongoose.version
+            }
+          });  
+        },
+        createModel: function() {
+          var options = {
+            strict: true,
+            collection: this.collectionName 
+          };
+          this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
+          this.next({
+            name: this.collectionName,
+            schema: this.stringSchema
+          });
+        }
+      },
+      instructions: [
+        {
+          if: "sheetNameIsNative",
+          true: "relayNativeModel",
+          false: [
+            "lookupSheet",
+            function() {
+              this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
+              this.next();
+            },
+            "schema",
+            {
+              if: "collectionExists",
+              true: "relayModel",
+              false: "createModel"
+            }
+          ]
+        }
+      ]
+    })
   },
   instructions: ["authorize"]
 });
-
-// global.getApi = new Chain({
-//   input: function() {
-//     return {
-//       method: this.event.httpMethod.toLowerCase(),
-//       id: this.arg2,
-//       filter: {},
-//       nativeOptions: {
-//         limit: Number,
-//         tailable: null,
-//         sort: String,
-//         skip: Number,
-//         maxscan: null,
-//         batchSize: null,
-//         comment: String,
-//         snapshot: null,
-//         readPreference: null,
-//         hint: Object,
-//         select: String
-//       },
-//       options: {
-//         limit: 50
-//       }
-//     };
-//   },
-//   steps: {
-//     addSiteId: function(res, next) {
-//       this.filter.siteId = this.siteId;
-//       next();
-//     },
-//     addToOptions: function() {
-//       this.options[this.key] = this.nativeOptions[this.key](this.value);
-//       this.next();
-//     },
-//     addToFilter: function() {
-//       this.filter[this.key] = this.value;
-//       this.next();
-//     },
-//     convertToRegex: function() {
-//       this.value = this.value.replace(/\//g,'');
-//       this.value = { $regex: new RegExp(this.value) };
-//       this.next();
-//     },
-//     decideRouteMethod: function(res, next) {
-//       next(this.method);
-//     },
-//     findById: function(res, next) {
-//       var self = this;
-//       this.model.findById(this.id, null, this.options, function(err, item) {
-//         if(err) return self.error(err);
-//         next(item);
-//       });
-//     },
-//     forEachQueryKey: function() {
-//       this.next(this.query);
-//     },
-//     getAllItems: function(res, next) {
-//       var self = this;
-//       this.model.find(this.filter, null, this.options, function(err, data){
-//         if(err) return self.error(err);
-//         next(data);
-//       });
-//     },
-//     hasId: function(res, next) {
-//       next(this.id !== undefined);
-//     },
-//     itIsANativeOption: function() {
-//       this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
-//     },
-//     keyValueIsRegex: function() {
-//       var firstIsSlash = this.value.charAt(0) == '/',
-//           lastIsSlash = this.value.charAt(this.value.length-1) == '/';
-//       this.next(firstIsSlash && lastIsSlash);
-//     },
-//     lookingUpSheets: function(res, next) {
-//       next(this.sheetName == "sheets");
-//     },
-//     updateItem: function() {
-//       var self = this;
-//       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
-//         self.next(data);
-//       });
-//     }
-//   },
-//   instructions: [
-//     "model",
-//     {
-//       if: "decideRouteMethod",
-//       get: [
-//         "forEachQueryKey", [
-//           {
-//             if: "itIsANativeOption",
-//             true: "addToOptions",
-//             false: [
-//               { if: "keyValueIsRegex", true: "convertToRegex" },
-//               "addToFilter"
-//             ]
-//           }  
-//         ],
-//         {
-//           if: "hasId",
-//           true: "findById",
-//           false: [
-//             { if: "lookingUpSheets", true: "addSiteId" }, 
-//             "getAllItems"
-//           ]
-//         }
-//       ],
-//       put: "updateItem",
-//       post: "postItem",
-//       delete: "deleteItem"
-//     }
-//   ]
-// });
-global.model = new Chain({
-  input: function() {
-    return {
-      sheetName: this.arg1
-    };
-  },
-  steps: {
-    sheetNameIsNative: function() {
-      this.next(models[this.sheetName] !== undefined);
-    },
-    relayNativeModel: function() {
-      this.model = models[this.sheetName];
-      this.next(this.model);
-    },
-    collectionExists: function() {
-      this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
-      this.next(this.modelIndex > -1);
-    },
-    relayModel: function() {
-      var model = mongoose.model(this.collectionName);
-      this.model = model;
-      this.next({
-        collectionName: this.collectionName,
-        index: this.modelIndex,
-        schema: this.stringSchema,
-        mongoose: {
-          models: mongoose.modelNames(),
-          version: mongoose.version
-        }
-      });  
-    },
-    createModel: function() {
-      var options = {
-        strict: true,
-        collection: this.collectionName 
-      };
-      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
-      this.next({
-        name: this.collectionName,
-        schema: this.stringSchema
-      });
-    }
-  },
-  instructions: [
-    {
-      if: "sheetNameIsNative",
-      true: "relayNativeModel",
-      false: [
-        "lookupSheet",
-        function() {
-          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
-          this.next();
+global.schema = new Chain({
+  input: {
+    protectedChain: new Chain({ // creates obj ready to convert into model
+      input: function() {
+        return {
+          sheetName: this.arg1,
+          types: { "string": String, "number": Number, "date": Date, "boolean": Boolean, "array": Array }
+        };
+      },
+      steps: {
+        forEachItemInSchema: function() {
+          this.sheet.db = this.sheet.db || {};
+          this.schema = this.sheet.db.schema || { noKeysDefined: "string"};
+          this.stringSchema = Object.assign({}, this.schema);
+          this.next(this.schema);
         },
-        "schema",
-        {
-          if: "collectionExists",
-          true: "relayModel",
-          false: "createModel"
+        formatAllowed: function() {
+          this.convert = this.types[this.value];
+          this.next(this.convert !== undefined);
+        },
+        convertToFuncion: function() {
+          this.obj[this.key] = this.convert;
+          this.next();
+        }
+      },
+      instructions: [
+        "lookupSheet",
+        "forEachItemInSchema", [
+          { if: "formatAllowed", true: "convertToFuncion" }  
+        ],
+        function() {
+          this.next(this.stringSchema);
         }
       ]
-    }
-  ]
-});
-global.schema = new Chain({ // creates obj ready to convert into model
-  input: function() {
-    return {
-      sheetName: this.arg1,
-      types: { "string": String, "number": Number, "date": Date, "boolean": Boolean, "array": Array }
-    };
+    })
   },
-  steps: {
-    forEachItemInSchema: function() {
-      this.sheet.db = this.sheet.db || {};
-      this.schema = this.sheet.db.schema || { noKeysDefined: "string"};
-      this.stringSchema = Object.assign({}, this.schema);
-      this.next(this.schema);
-    },
-    formatAllowed: function() {
-      this.convert = this.types[this.value];
-      this.next(this.convert !== undefined);
-    },
-    convertToFuncion: function() {
-      this.obj[this.key] = this.convert;
-      this.next();
-    }
-  },
-  instructions: [
-    "lookupSheet",
-    "forEachItemInSchema", [
-      { if: "formatAllowed", true: "convertToFuncion" }  
-    ],
-    function() {
-      this.next(this.stringSchema);
-    }
-  ]
+  instructions: ["authorize"]
 });
 global.connectToDb = new Chain({
   input: {
