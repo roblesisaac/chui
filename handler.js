@@ -35,7 +35,7 @@ global.authorize = new Chain({
           storage = Object.assign({}, this._memory.storage);
       delete storage.protectedChain;
       this.protectedChain.import(storage).start().then(function(memory){
-        self.memory.import(memory);
+        self._memory.import(memory);
         self.next(memory.last);
       });
     },
