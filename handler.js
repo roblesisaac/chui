@@ -26,7 +26,7 @@ const jwt = require('jsonwebtoken');
 let token;
 
 global.authorize = new Chain({
-  input: {tokens: []},
+  input: {testtokens: []},
   steps: {
     authorizedAlready: function() {
       this.next(this.authorized === true);
@@ -64,7 +64,7 @@ global.authorize = new Chain({
       if: "authorizedAlready",
       true: [
         function() {
-          this.tokens.push("authorized");
+          this.testtokens.push("authorized");
           this.next();
         },
         "runProtectedChain"
