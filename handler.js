@@ -26,6 +26,7 @@ const jwt = require('jsonwebtoken');
 let token;
 
 global.authorize = new Chain({
+  input: {tokens: []},
   steps: {
     authorizedAlready: function() {
       this.next(this.authorized === true);
@@ -61,7 +62,13 @@ global.authorize = new Chain({
   instructions: [
     {
       if: "authorizedAlready",
-      true: "runProtectedChain",
+      true: [
+        function() {
+          this.tokens.push("authorized");
+          this.next();
+        },
+        "runProtectedChain"
+      ],
       false: [
         "lookupSheet",
         {
