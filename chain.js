@@ -171,11 +171,11 @@ Chain.prototype.start = function(number) {
     });
   });
 };
-Chain.prototype.import = function(overides, excludes) {
+Chain.prototype.import = function(overides, options) {
   var instance = !this._parent
                  ? new Instance(this, overides)
                  : this;
-  if(excludes) instance.memory.exclude(excludes);
+  if(options.excludes) instance.memory.exclude(excludes);
   instance.memory.import(overides);
   return instance;
 };
@@ -327,6 +327,7 @@ function Memory(data) {
 }
 Memory.prototype.exclude = function(arr) {
   if(!arr) return;
+  if(!Array.isArray(arr)) arr = [arr];
   this.exclusions = this.exclusions.concat(arr);
 };
 Memory.prototype.init = function(data) {
