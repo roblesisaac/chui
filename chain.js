@@ -327,7 +327,7 @@ function Memory(data) {
 }
 Memory.prototype.exclude = function(arr) {
   if(!arr) return;
-  if(!Array.isArray(arr)) arr = [arr];
+  // if(!Array.isArray(arr)) arr = [arr];
   this.exclusions = this.exclusions.concat(arr);
 };
 Memory.prototype.init = function(data) {
