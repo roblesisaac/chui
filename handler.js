@@ -32,7 +32,7 @@ global.authorize = new Chain({
     },
     runChain: function() {
       var self = this;
-      this.ifAuthorized.import(this._memory.storage).start().then(function(memory){
+      this.ifAuthorized.start().then(function(memory){
         self.next("memory.last");  
       });
     },
