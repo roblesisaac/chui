@@ -605,12 +605,14 @@ global.port = new Chain({
         "getSheetsForSite",
         {
           if: "urlHasAChain",
-          true: "runChain",
+          true: [
+              function(){
+                this.aWave = this.sheet;
+                this.next();
+              },
+            "runChain"
+          ],
           false: "loadLandingPage"
-        },
-        function(){
-          this.aTootieFrootie = this.sheet;
-          this.next();
         }
       ]
     },
