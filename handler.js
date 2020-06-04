@@ -232,8 +232,8 @@ global.model = new Chain({
           });
         }
       },
-      instructions: ["schema"],
-      instruction: [
+      instruction: ["schema"],
+      instructions: [
         {
           if: "sheetNameIsNative",
           true: "relayNativeModel",
