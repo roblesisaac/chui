@@ -153,7 +153,7 @@ global.api = new Chain({
           });
         }
       },
-      instructions: ["schema"],
+      instructions: ["model"],
       instruction: [
         "model",
         {
@@ -232,7 +232,8 @@ global.model = new Chain({
           });
         }
       },
-      instructions: [
+      instructions: ["schema"],
+      instruction: [
         {
           if: "sheetNameIsNative",
           true: "relayNativeModel",
