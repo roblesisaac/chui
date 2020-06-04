@@ -37,10 +37,10 @@ global.authorize = new Chain({
       });
     },
     userHasToken: function() {
-      this.next(false);
+      this.next(true);
     },
     tokenIsValid: function() {
-      this.next(true);
+      this.next(false);
     },
     alertLoggedOut: function() {
       this.next("You are logged out.");
