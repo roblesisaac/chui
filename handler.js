@@ -68,7 +68,6 @@ global.authorize = new Chain({
           if: "sheetDbIsPublic",
           true: [
           function() {
-            this.bbbbbb = this.sheet;
             this.sheetIsPublic = true;
             this.next();
           },
@@ -192,8 +191,12 @@ global.api = new Chain({
               if: "hasId",
               true: "findById",
               false: [
-                { if: "needsASiteId", true: "addSiteIdToFilter" }, 
-                "getAllItems"
+                { if: "needsASiteId", true: "addSiteIdToFilter" },
+                "getAllItems",
+                function() {
+                  this.cccccc = this.sheet;
+                  this.next();
+                }
               ]
             }
           ],
