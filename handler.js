@@ -141,11 +141,14 @@ global.api = new Chain({
 global.model = new Chain({
   input: function() {
     return {
-      sheetName: this.arg1
+      sheetName: this.arg1,
+      collectionName: !this.sheet
+                        ? undefined
+                        : this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id)
     };
   },
   steps: {
-    sheetIsNative: function() {
+    sheetNameIsNative: function() {
       this.next(models[this.sheetName] !== undefined);
     },
     relayNativeModel: function() {
@@ -180,14 +183,10 @@ global.model = new Chain({
   },
   instructions: [
     {
-      if: "sheetIsNative",
+      if: "sheetNameIsNative",
       true: "relayNativeModel",
       false: [
         "lookupSheet",
-        function() {
-          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
-          this.next();
-        },
         "schema",
         {
           if: "collectionExists",
