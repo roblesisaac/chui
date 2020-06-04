@@ -187,8 +187,6 @@ global.api = new Chain({
   instructions: ["authorize"]
 });
 global.model = new Chain({
-  input: {
-    protectedChain: new Chain({
       input: function() {
         return {
           sheetName: this.arg1
@@ -250,11 +248,10 @@ global.model = new Chain({
           ]
         }
       ]
-    })
-  },
-  instructions: ["authorize"]
-});
-global.schema = new Chain({ // creates obj ready to convert into model
+    });
+global.schema = new Chain({
+  input: {
+    protectedChain: new Chain({ // creates obj ready to convert into model
       input: function() {
         return {
           sheetName: this.arg1,
@@ -286,7 +283,10 @@ global.schema = new Chain({ // creates obj ready to convert into model
           this.next(this.stringSchema);
         }
       ]
-    });
+    })
+  },
+  instructions: ["authorize"]
+});
 global.connectToDb = new Chain({
   input: {
     tokens: process.env.DB
