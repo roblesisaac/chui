@@ -141,10 +141,7 @@ global.api = new Chain({
 global.model = new Chain({
   input: function() {
     return {
-      sheetName: this.arg1,
-      collectionName: !this.sheet
-                        ? undefined
-                        : this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id)
+      sheetName: this.arg1
     };
   },
   steps: {
@@ -178,7 +175,10 @@ global.model = new Chain({
         collection: this.collectionName 
       };
       this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
-      this.next(this.stringSchema);
+      this.next({
+        name: this.collectionName,
+        schema: this.stringSchema
+      });
     }
   },
   instructions: [
@@ -187,6 +187,10 @@ global.model = new Chain({
       true: "relayNativeModel",
       false: [
         "lookupSheet",
+        function() {
+          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
+          this.next();
+        },
         "schema",
         {
           if: "collectionExists",
