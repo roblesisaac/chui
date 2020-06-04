@@ -153,12 +153,12 @@ global.api = new Chain({
           });
         }
       },
-      instructions: ["model"],
-      instruction: [
+      instructions: [
         "model",
         {
           if: "decideRouteMethod",
-          get: [
+          get: "schema",
+          gets: [
             "forEachQueryKey", [
               {
                 if: "itIsANativeOption",
