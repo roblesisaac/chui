@@ -63,9 +63,9 @@ global.authorize = new Chain({
     {
       if: "authorizedAlready",
       true: [
+        "sayAuthorized",
         function() {
           this.testtokens.push("authorized");
-          this.last = "Authorized already you are.";
           this.resolve();
         }
       ],
