@@ -175,7 +175,7 @@ Chain.prototype.import = function(overides, options) {
   var instance = !this._parent
                  ? new Instance(this, overides)
                  : this;
-  if(options.excludes) instance.memory.exclude(excludes);
+  if(options.excludes) instance.memory.exclude(options.excludes);
   instance.memory.import(overides);
   return instance;
 };
