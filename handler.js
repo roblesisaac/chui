@@ -61,7 +61,7 @@ global.authorize = new Chain({
   instructions: [
     {
       if: "authorizedAlready",
-      true: "sayAuthorized",
+      true: "runProtectedChain",
       false: [
         "lookupSheet",
         {
