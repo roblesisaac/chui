@@ -35,7 +35,7 @@ global.authorize = new Chain({
           storage = Object.assign({}, this._memory.storage);
       delete storage.protectedChain;
       this.protectedChain.import(storage).start().then(function(memory){
-        self.next(memory.last);  
+        self.next(memory.last);
       });
     },
     userHasToken: function() {
@@ -187,72 +187,67 @@ global.api = new Chain({
   instructions: ["authorize"]
 });
 global.model = new Chain({
-  input: {
-    protectedChain: new Chain({
-      input: function() {
-        return {
-          sheetName: this.arg1
-        };
-      },
-      steps: {
-        sheetNameIsNative: function() {
-          this.next(models[this.sheetName] !== undefined);
-        },
-        relayNativeModel: function() {
-          this.model = models[this.sheetName];
-          this.next(this.model);
-        },
-        collectionExists: function() {
-          this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
-          this.next(this.modelIndex > -1);
-        },
-        relayModel: function() {
-          var model = mongoose.model(this.collectionName);
-          this.model = model;
-          this.next({
-            collectionName: this.collectionName,
-            index: this.modelIndex,
-            schema: this.stringSchema,
-            mongoose: {
-              models: mongoose.modelNames(),
-              version: mongoose.version
-            }
-          });  
-        },
-        createModel: function() {
-          var options = {
-            strict: true,
-            collection: this.collectionName 
-          };
-          this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
-          this.next({
-            name: this.collectionName,
-            schema: this.stringSchema
-          });
+  input: function() {
+    return {
+      sheetName: this.arg1
+    };
+  },
+  steps: {
+    sheetNameIsNative: function() {
+      this.next(models[this.sheetName] !== undefined);
+    },
+    relayNativeModel: function() {
+      this.model = models[this.sheetName];
+      this.next(this.model);
+    },
+    collectionExists: function() {
+      this.modelIndex = mongoose.modelNames().indexOf(this.collectionName);
+      this.next(this.modelIndex > -1);
+    },
+    relayModel: function() {
+      var model = mongoose.model(this.collectionName);
+      this.model = model;
+      this.next({
+        collectionName: this.collectionName,
+        index: this.modelIndex,
+        schema: this.stringSchema,
+        mongoose: {
+          models: mongoose.modelNames(),
+          version: mongoose.version
         }
-      },
-      instructions: [
+      });  
+    },
+    createModel: function() {
+      var options = {
+        strict: true,
+        collection: this.collectionName 
+      };
+      this.model = mongoose.model(this.collectionName, new mongoose.Schema(this.schema, options));
+      this.next({
+        name: this.collectionName,
+        schema: this.stringSchema
+      });
+    }
+  },
+  instructions: [
+    {
+      if: "sheetNameIsNative",
+      true: "relayNativeModel",
+      false: [
+        "lookupSheet",
+        function() {
+          this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
+          this.next();
+        },
+        "schema",
         {
-          if: "sheetNameIsNative",
-          true: "relayNativeModel",
-          false: [
-            "lookupSheet",
-            function() {
-              this.collectionName = this.siteId+'_'+this.sheetName+'_'+JSON.stringify(this.sheet._id);
-              this.next();
-            },
-            "schema",
-            {
-              if: "collectionExists",
-              true: "relayModel",
-              false: "createModel"
-            }
-          ]
+          if: "collectionExists",
+          true: "relayModel",
+          false: "createModel"
         }
       ]
-    })
-  },
-  instructions: ["authorize"]
+    }
+  ]
 });
 global.schema = new Chain({
   input: {
