@@ -117,10 +117,7 @@ global.api = new Chain({
             if: "itIsANativeOption",
             true: "addToOptions",
             false: [
-              {
-                if: "keyValueIsRegex", // todo
-                true: "convertToRegex" // todo
-              },
+              { if: "keyValueIsRegex", true: "convertToRegex" },
               "addToFilter"
             ]
           }  
