@@ -72,19 +72,8 @@ global.authorize = new Chain({
         "lookupSheet",
         {
           if: "sheetDbIsPublic",
-          true: [
-          function() {
-            this.sheetIsPublic = this.sheet.db.public+"TRUE";
-            this.next();
-          },
-          "runProtectedChain"  
-          ],
-          false: [
-            function() {
-              this.sheetIsPublic = this.sheet.db.public+"FALSE";
-              this.next();
-            },
-            {
+          true: "runProtectedChain",
+          false: {
             if: "userHasToken",
             true: {
               if: "tokenIsValid",
@@ -92,7 +81,7 @@ global.authorize = new Chain({
               false: "alertLoggedOut"
             },
             false: "askThemToLogIn"
-          }]
+          }
         } 
       ]
     }
