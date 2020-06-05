@@ -58,7 +58,7 @@ global.authorize = new Chain({
       this.next("You are logged out.");
     },
     askThemToLogIn: function() {
-      this.next("Log in you must first.");
+      this.next("Log in first, you must.");
     },
     sayAuthorized: function() {
       this.next("Authorized already you are.");
