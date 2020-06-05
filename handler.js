@@ -136,7 +136,7 @@ global.api = new Chain({
       this.value = { $regex: new RegExp(this.value) };
       this.next();
     },
-    routeMethodIs: function(res, next) {
+    toRouteMethod: function(res, next) {
       next(this.method);
     },
     findById: function(res, next) {
@@ -181,7 +181,7 @@ global.api = new Chain({
     "authorize",
     "model", // get model
     {
-      switch: "routeMethodIs", 
+      switch: "toRouteMethod",
       get: [
         "forEachQueryKey", [
           {
