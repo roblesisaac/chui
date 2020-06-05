@@ -8,6 +8,7 @@ const models = {
   users: require('./models/users')
 };
 const mongoose = require('mongoose');
+const Cookies = require('cookies');
 const db = mongoose.connection;
 mongoose.Promise = global.Promise;
 let isConnected;
@@ -214,6 +215,26 @@ global.api = new Chain({
     }
   ]
 });
+global.cookie = new Chain({
+  input: function() {
+    return {
+      user: new Cookies(this.event, this.callback)
+    };
+  },
+  steps: {
+    getUserCookie: function() {
+      this.end(this.user);  
+    }
+  },
+  instructions: [
+    "getUserCookie",
+    {
+      if: "noCookie",
+      true: ["alertFirstWelcome", "setCookie"],
+      false: "alertWelcomeBack"
+    }
+  ]
+});
 global.model = new Chain({
   input: function() {
     return {
@@ -359,7 +380,8 @@ global.login = new Chain({
     passwordAuthenticates: function(user) {
       var self = this;
 			user.comparePassword(self.user.password, function(err, isMatch) {
-			  err ? self.next(err) : self.next(isMatch && isMatch === true);
+			 // err ? self.next(err) : self.next(isMatch && isMatch === true);
+			 self.next(isMatch && isMatch === true);
 			});  
     },
     sendCredentials: function() {
@@ -374,7 +396,7 @@ global.login = new Chain({
   		});
     },
     sayPasswordsDontMatch: function(res) {
-      this.next("Unjust password, this is. " + res);
+      this.next("Unjust password, this is.");
     }
   },
   instructions: [
