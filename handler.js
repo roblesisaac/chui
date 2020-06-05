@@ -52,10 +52,10 @@ global.authorize = new Chain({
     },
     missingTokenOrId: function() {
       // this.next(false);
-      this.next(!this.token || !this.userid);
+      this.end(!this.token || !this.userid);
     },
     alertMissing: function() {
-      this.next("Missing tokens, you are.");
+      this.end("Missing tokens, you are.");
     },
     tokenIsValid: function(res, next) {
       var self = this;
@@ -72,13 +72,10 @@ global.authorize = new Chain({
     	});
     },
     alertLoggedOut: function() {
-      this.next("Logged out, you have become.");
+      this.end("Logged out, you have become.");
     },
-    askThemToLogIn: function() {
-      this.next("Log in first, you must.");
-    },
-    sayAuthorized: function() {
-      this.next("Authorized already you are.");
+    alertThemToLogIn: function() {
+      this.end("Log in first, you must.");
     },
     proceed: function() {
       this.next();
@@ -95,7 +92,7 @@ global.authorize = new Chain({
           true: "proceed",
           false: {
             if: "missingTokenOrId",
-            true: "askThemToLogIn",
+            true: "alertThemToLogIn",
             false: {
               if: "tokenIsValid", // todo
               true: "proceed",
