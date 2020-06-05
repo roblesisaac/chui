@@ -50,7 +50,7 @@ global.authorize = new Chain({
     tokenIsValid: function(res, next) {
       var self = this;
     	models.users.findById(this.userid, function (err, user) {
-    	  if(!user) return self.end("Not found, this user is");
+    	  if(!user) return self.end("Not found, user "+ user +" is.");
         jwt.verify(self.token, user.password, function (tokenErr, decoded) {
     			if(tokenErr) {
     				self.end("Unjust password, this is.");
