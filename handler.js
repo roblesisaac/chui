@@ -181,7 +181,7 @@ global.api = new Chain({
     "authorize",
     "model", // get model
     {
-      if: "routeMethodIs", 
+      switch: "routeMethodIs", 
       get: [
         "forEachQueryKey", [
           {
