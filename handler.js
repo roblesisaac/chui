@@ -353,13 +353,13 @@ global.login = new Chain({
     userDoesntExist: function(user) {
       this.next(user===null);
     },
-    askToCreateUser: function() {
-      this.next("Not existing in archives, "+ this.user.username +" isaac is.");
+    alertUserDoesntExist: function() {
+      this.next("Not existing in archives, "+ this.user.username +" is.");
     },
     passwordAuthenticates: function(user) {
       var self = this;
 			user.comparePassword(self.user.password, function(err, isMatch) {
-			  self.next(isMatch && isMatch === true);
+			  err ? self.next(err) : self.next(isMatch && isMatch === true);
 			});  
     },
     sendCredentials: function() {
@@ -369,19 +369,19 @@ global.login = new Chain({
   		    username: this.dbUser.username,
   		    name: this.dbUser.name,
   		    password: this.dbUser.password
-  		  }, this.dbUser.password, {	expiresIn: '1m' }),
+  		  }, this.dbUser.password, {	expiresIn: '15h' }),
   		  userid: this.dbUser._id
   		});
     },
-    sayPasswordsDontMatch: function(user) {
-      this.next("Unjust password, this is.");
+    sayPasswordsDontMatch: function(res) {
+      this.next("Unjust password, this is. " + res);
     }
   },
   instructions: [
     "lookupUser",
     {
       if: "userDoesntExist",
-      true: "askToCreateUser",
+      true: "alertUserDoesntExist",
       false: [
         {
           if: "passwordAuthenticates",
