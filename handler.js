@@ -52,7 +52,7 @@ global.authorize = new Chain({
     },
     missingTokenOrId: function() {
       // this.next(false);
-      this.end(!this.token || !this.userid);
+      this.next(!this.token || !this.userid);
     },
     alertMissing: function() {
       this.end("Missing tokens, you are.");
