@@ -186,11 +186,16 @@ function Instance(chain, overides) {
   this.memory.exclude(Object.keys(this.step()));
   this.resolved = false;
 }
+
 Instance.prototype = Object.create(Chain.prototype);
 Object.defineProperty(Instance.prototype, 'constructor', { value: Instance, enumerable: false, writable: true });
 Instance.prototype.step = function(stepName) {
   var instance = this,
-      storage = this.memory.storage;
+      storage = this.memory.storage,
+      end = function(res) {
+        storage.last = res; 
+        instance.resolve();
+      };
   return {
     _name: stepName,
     completeTheLoop: function(schema) {
@@ -235,9 +240,8 @@ Instance.prototype.step = function(stepName) {
       instance.error = e;
       instance.resolve();      
     },
-    resolve: function() {
-      instance.resolve();
-    },
+    resolve: end,
+    end: end,
     _getAnswer: function(next) {
       var condition = stepName.if;
       if(typeof condition == "boolean") {
@@ -269,7 +273,10 @@ Instance.prototype.step = function(stepName) {
     next: function(returned, keyname) {
       if(keyname) storage[keyname] = returned;
       instance.memory.import(this);
-      if(arguments.length > 0 ) storage.last = returned;
+      if(arguments.length > 0 ) {
+        storage.last = returned;
+        storage.lastLocation = stepName;
+      }
       instance.automate();
     },
     _memory: instance.memory,
@@ -283,7 +290,7 @@ Instance.prototype.step = function(stepName) {
       if(typeof stepName == "function") step = stepName;
       try {
         if(!step) return this.error("No step " + stepName);
-        step.call(data, res, next.bind(data), vm);
+        step.call(data, res, next.bind(data), vm, data.lastLocation);
       } catch(err) {
         this.error(err);
       }
