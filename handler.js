@@ -52,10 +52,10 @@ global.authorize = new Chain({
       this.next(this.query.token == "true");
     },
     tokenIsValid: function() {
-      this.next(true);
+      this.next(false);
     },
     alertLoggedOut: function() {
-      this.next("You are logged out.");
+      this.next("Logged out, you have become.");
     },
     askThemToLogIn: function() {
       this.next("Log in first, you must.");
