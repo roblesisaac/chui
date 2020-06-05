@@ -294,7 +294,7 @@ global.model = new Chain({
   },
   instructions: ["authorize"]
 });
-global.schema = new Chain({
+global.schema1 = new Chain({
   input: {
     protectedChain: new Chain({ // creates obj ready to convert into model
       input: function() {
@@ -331,6 +331,39 @@ global.schema = new Chain({
     })
   },
   instructions: ["authorize"]
+});
+global.schema = new Chain({
+  input: function() {
+    return {
+      sheetName: this.arg1,
+      types: { "string": String, "number": Number, "date": Date, "boolean": Boolean, "array": Array }
+    };
+  },
+  steps: {
+    forEachItemInSchema: function() {
+      this.sheet.db = this.sheet.db || {};
+      this.schema = this.sheet.db.schema || { noKeysDefined: "string"};
+      this.stringSchema = Object.assign({}, this.schema);
+      this.next(this.schema);
+    },
+    formatAllowed: function() {
+      this.convert = this.types[this.value];
+      this.next(this.convert !== undefined);
+    },
+    convertToFuncion: function() {
+      this.obj[this.key] = this.convert;
+      this.next();
+    }
+  },
+  instructions: [
+    "lookupSheet",
+    "forEachItemInSchema", [
+      { if: "formatAllowed", true: "convertToFuncion" }  
+    ],
+    function() {
+      this.next(this.stringSchema);
+    }
+  ]
 });
 global.connectToDb = new Chain({
   input: {
