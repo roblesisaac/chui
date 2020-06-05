@@ -50,9 +50,6 @@ global.authorize = new Chain({
         self.error(err);
       });
     },
-    userHasToken: function() {
-      this.next(this.query.token == "true");
-    },
     missingTokenOrId: function() {
       // this.next(false);
       this.next(!this.token || !this.userid);
@@ -64,15 +61,14 @@ global.authorize = new Chain({
       var self = this;
     	models.users.findById(this.userid, function (err, user) {
     		if(!user) return self.error('no user found with this id: '+this.userid);
-        jwt.verify(this.token, user.password, (err2, decoded) => {
+        jwt.verify(self.token, user.password, function (err2, decoded) {
     			if (err2) {
-    				next('You are logged out with this error: '+ err2);
+    				next(false);
     			} else {
-    				next(null, decoded);
+    				next(true);
     			}
     		});
     	});
-      this.next(false);
     },
     alertLoggedOut: function() {
       this.next("Logged out, you have become.");
@@ -97,7 +93,7 @@ global.authorize = new Chain({
             if: "missingTokenOrId",
             true: "askThemToLogIn",
             false: {
-              if: "tokenIsValid",
+              if: "tokenIsValid", // todo
               true: "runProtectedChain",
               false: "alertLoggedOut"
             }
