@@ -218,21 +218,31 @@ global.api = new Chain({
 global.cookie = new Chain({
   input: function() {
     return {
-      user: new Cookies(this.event, this.callback)
+      cookito: new Cookies(this.event, this.callback)
     };
   },
   steps: {
-    getUserCookie: function() {
-      this.end(this.user);  
+    noCookie: function() {
+      this.lastVisit = this.cookito.get('LastVisit', { signed: true });
+      this.next(!this.lastVisit);
+    },
+    alertFirstWelcome:  function() {
+      this.next("First time here it is.");
+    },
+    alertWelcomeBack: function() {
+      this.next("Welcome back. Last time was " + this.lastVisit);
+    },
+    setCookie: function() {
+      this.cookito.set('LastVisit', new Date().toISOString(), { signed: true });
     }
   },
   instructions: [
-    "getUserCookie",
     {
       if: "noCookie",
-      true: ["alertFirstWelcome", "setCookie"],
+      true: "alertFirstWelcome",
       false: "alertWelcomeBack"
-    }
+    },
+    "setCookie"
   ]
 });
 global.model = new Chain({
