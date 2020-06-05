@@ -175,6 +175,11 @@ global.api = new Chain({
       this.model.findByIdAndUpdate(this.id, this.body, { new: true }).then(function(data){
         self.next(data);
       });
+    },
+    postItem: function(res, next) {
+      this.model.create(JSON.parse(this.event.body)).then(function(data){
+        next(data);
+      });
     }
   },
   instructions: [
