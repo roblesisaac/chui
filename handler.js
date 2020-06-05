@@ -65,7 +65,7 @@ global.authorize = new Chain({
     			if(err2) {
     				self.error("err2");
     			} else {
-    				next(true);
+    				next("true");
     			}
     		});
     	});
