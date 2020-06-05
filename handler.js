@@ -30,7 +30,7 @@ global.authorize = new Chain({
     return {
       sheetName: this.arg1,
       token: this.query.token || this.headers.token,
-      userid: this.query.userid || this.header.userid
+      userid: this.query.userid || this.headers.userid
     };
   },
   steps: {
