@@ -353,7 +353,7 @@ global.login = new Chain({
       this.next(user===null);
     },
     askToCreateUser: function() {
-      this.next("No user " + this.user.username + " exists? Create one?");
+      this.next("Not existing in archives, "+ this.user.username +" isaac is.");
     },
     passwordAuthenticates: function(user) {
       var self = this;
@@ -368,7 +368,7 @@ global.login = new Chain({
   		    username: this.dbUser.username,
   		    name: this.dbUser.name,
   		    password: this.dbUser.password
-  		  }, this.dbUser.password, {	expiresIn: '15h' }),
+  		  }, this.dbUser.password, {	expiresIn: '5s' }),
   		  userid: this.dbUser._id
   		});
     },
