@@ -87,18 +87,18 @@ global.authorize = new Chain({
   instructions: [
     {
       if: "authorizedAlready",
-      true: "runProtectedChain",
+      true: "proceed",
       false: [
         "lookupSheet",
         {
           if: "sheetDbIsPublic",
-          true: "runProtectedChain",
+          true: "proceed",
           false: {
             if: "missingTokenOrId",
             true: "askThemToLogIn",
             false: {
               if: "tokenIsValid", // todo
-              true: "runProtectedChain",
+              true: "proceed",
               false: "alertLoggedOut"
             }
           }
@@ -332,7 +332,7 @@ global.schema1 = new Chain({
   },
   instructions: ["authorize"]
 });
-global.schema = new Chain({
+global.schema = new Chain({ // gets schema obj from sheeet, ready to convert into model
   input: function() {
     return {
       sheetName: this.arg1,
@@ -356,6 +356,7 @@ global.schema = new Chain({
     }
   },
   instructions: [
+    "authorize",
     "lookupSheet",
     "forEachItemInSchema", [
       { if: "formatAllowed", true: "convertToFuncion" }  
