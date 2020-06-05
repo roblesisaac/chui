@@ -60,10 +60,10 @@ global.authorize = new Chain({
     tokenIsValid: function(res, next) {
       var self = this;
     	models.users.findById(this.userid, function (err, user) {
-    		if(!user) return self.error('no user found with this id: '+this.userid);
+    		if(!user) return self.error('no user found with this id: '+self.userid);
         jwt.verify(self.token, user.password, function (err2, decoded) {
-    			if (err2) {
-    				next(false);
+    			if(err2) {
+    				self.error(err2);
     			} else {
     				next(true);
     			}
@@ -78,6 +78,9 @@ global.authorize = new Chain({
     },
     sayAuthorized: function() {
       this.next("Authorized already you are.");
+    },
+    proceed: function() {
+      this.next();
     }
   },
   instructions: [
