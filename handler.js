@@ -101,6 +101,7 @@ global.api = new Chain({
       filter: {},
       nativeOptions: {
         token: String,
+        userid: String,
         limit: Number,
         tailable: null,
         sort: String,
