@@ -28,7 +28,9 @@ let token;
 global.authorize = new Chain({
   input: function() {
     return {
-      sheetName: this.arg1
+      sheetName: this.arg1,
+      token: this.query.token || this.headers.token,
+      userid: this.query.userid || this.header.userid
     };
   },
   steps: {
@@ -52,17 +54,17 @@ global.authorize = new Chain({
       this.next(this.query.token == "true");
     },
     missingTokenOrId: function() {
-      this.token = this.headers.token,
-      this.userid = this.headers.userid;
+      // this.next(false);
       this.next(!this.token || !this.userid);
     },
     alertMissing: function() {
-      this.next("Missing tokens, you are");
+      this.next("Missing tokens, you are.");
     },
-    tokenIsValid: function() {
+    tokenIsValid: function(res, next) {
+      var self = this;
     	models.users.findById(this.userid, function (err, user) {
-    		if(!user) return next('no user found with this id: '+userid);
-        jwt.verify(token, user.password, (err2, decoded) => {
+    		if(!user) return self.error('no user found with this id: '+this.userid);
+        jwt.verify(this.token, user.password, (err2, decoded) => {
     			if (err2) {
     				next('You are logged out with this error: '+ err2);
     			} else {
@@ -92,17 +94,13 @@ global.authorize = new Chain({
           if: "sheetDbIsPublic",
           true: "runProtectedChain",
           false: {
-            if: "userHasToken",
-            true: {
-              if: "missingTokenOrId",
-              true: "alertMissing",
-              false: {
-                if: "tokenIsValid",
-                true: "runProtectedChain",
-                false: "alertLoggedOut"
-              }
-            },
-            false: "askThemToLogIn"
+            if: "missingTokenOrId",
+            true: "askThemToLogIn",
+            false: {
+              if: "tokenIsValid",
+              true: "runProtectedChain",
+              false: "alertLoggedOut"
+            }
           }
         } 
       ]
