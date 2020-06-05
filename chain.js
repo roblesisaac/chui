@@ -243,12 +243,11 @@ Instance.prototype.step = function(stepName) {
     resolve: end,
     end: end,
     _getAnswer: function(next) {
-      var condition = stepName.if;
-      if(typeof condition == "boolean") {
-        return next(condition);
-      }
-      var data = Object.assign({}, storage, this, {next: next});
-      this._method(instance.library.steps[condition], data);
+      var condition = stepName.if || stepName.switch;
+      if(typeof condition == "boolean") return next(condition);
+      var data = Object.assign({}, storage, this, {next: next}),
+          conditionStepName = instance.library.steps[condition];
+      this._method(conditionStepName, data);
     },
     input: function() {
       return instance.input.call(storage);
@@ -263,7 +262,7 @@ Instance.prototype.step = function(stepName) {
           return self._name._master !== undefined;
         },
         aCondition: function() {
-          return stepName.if;
+          return stepName.if || stepName.switch;
         },
         aLoop: function() {
           return Array.isArray(stepName) || stepName.async;
