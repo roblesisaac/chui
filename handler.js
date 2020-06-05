@@ -179,6 +179,7 @@ global.api = new Chain({
     }
   },
   instructions: [
+    "authorize",
     "model", // get model
     {
       if: "routeMethodIs", 
@@ -252,6 +253,7 @@ global.model = new Chain({
     }
   },
   instructions: [
+    "authorize",
     {
       if: "sheetNameIsNative",
       true: "relayNativeModel",
