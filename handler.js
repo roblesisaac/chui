@@ -63,9 +63,9 @@ global.authorize = new Chain({
     		if(!user) return self.error('no user found with this id: '+self.userid);
         jwt.verify(self.token, user.password, function (err2, decoded) {
     			if(err2) {
-    				self.error("err2");
+    				next(false);
     			} else {
-    				next("true");
+    				next(true);
     			}
     		});
     	});
