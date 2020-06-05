@@ -53,7 +53,7 @@ global.authorize = new Chain({
     	  if(!user) return self.end("Not existing in archives, user "+ self.userid +" is.");
         jwt.verify(self.token, user.password, function (tokenErr, decoded) {
     			if(tokenErr) {
-    				self.end("Unjust password, this is.");
+    				self.end("Ceased to be valid, this token has.");
     			} else {
     				next(true);
     			}
@@ -374,7 +374,7 @@ global.login = new Chain({
   		});
     },
     sayPasswordsDontMatch: function(user) {
-      this.next("Wrong password.");
+      this.next("Unjust password, this is.");
     }
   },
   instructions: [
