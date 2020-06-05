@@ -369,7 +369,7 @@ global.login = new Chain({
   		    username: this.dbUser.username,
   		    name: this.dbUser.name,
   		    password: this.dbUser.password
-  		  }, this.dbUser.password, {	expiresIn: '5s' }),
+  		  }, this.dbUser.password, {	expiresIn: '1m' }),
   		  userid: this.dbUser._id
   		});
     },
