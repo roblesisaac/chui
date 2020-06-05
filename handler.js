@@ -49,7 +49,7 @@ global.authorize = new Chain({
       });
     },
     userHasToken: function() {
-      this.next(this.query.token == "true");
+      this.next(false);
     },
     tokenIsValid: function() {
       this.next(true);
