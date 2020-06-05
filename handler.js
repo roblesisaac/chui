@@ -51,7 +51,25 @@ global.authorize = new Chain({
     userHasToken: function() {
       this.next(this.query.token == "true");
     },
+    missingTokenOrId: function() {
+      this.token = this.headers.token,
+      this.userid = this.headers.userid;
+      this.next(!this.token || !this.userid);
+    },
+    alertMissing: function() {
+      this.next("Missing tokens, you are");
+    },
     tokenIsValid: function() {
+    	models.users.findById(this.userid, function (err, user) {
+    		if(!user) return next('no user found with this id: '+userid);
+        jwt.verify(token, user.password, (err2, decoded) => {
+    			if (err2) {
+    				next('You are logged out with this error: '+ err2);
+    			} else {
+    				next(null, decoded);
+    			}
+    		});
+    	});
       this.next(false);
     },
     alertLoggedOut: function() {
@@ -76,9 +94,13 @@ global.authorize = new Chain({
           false: {
             if: "userHasToken",
             true: {
-              if: "tokenIsValid",
-              true: "runProtectedChain",
-              false: "alertLoggedOut"
+              if: "missingTokenOrId",
+              true: "alertMissing",
+              false: {
+                if: "tokenIsValid",
+                true: "runProtectedChain",
+                false: "alertLoggedOut"
+              }
             },
             false: "askThemToLogIn"
           }
@@ -132,7 +154,7 @@ global.api = new Chain({
           this.value = { $regex: new RegExp(this.value) };
           this.next();
         },
-        decideRouteMethod: function(res, next) {
+        routeMethodIs: function(res, next) {
           next(this.method);
         },
         findById: function(res, next) {
@@ -174,9 +196,9 @@ global.api = new Chain({
         }
       },
       instructions: [
-        "model",
+        "model", // get model
         {
-          if: "decideRouteMethod",
+          if: "routeMethodIs", 
           get: [
             "forEachQueryKey", [
               {
