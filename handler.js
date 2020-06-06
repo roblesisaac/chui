@@ -237,7 +237,7 @@ global.cookie = new Chain({
       this.cookito.response.getHeader = function(key) {
         return self.headers[key];
       };
-      this.next(this.cookito.getHeader("Set-Cookie") || "notCookie");
+      this.next(this.cookito.response.getHeader("Set-Cookie") || "notCookie");
       // this.cookito.set('LastVisit', new Date().toISOString(), { signed: true });
     }
   },
