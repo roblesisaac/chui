@@ -233,6 +233,10 @@ global.cookie = new Chain({
       this.next("Welcome back. Last time was " + this.lastVisit);
     },
     setCookie: function() {
+      var self = this;
+      this.cookito.response.getHeader = function(key) {
+        return self.headers[key];
+      };
       this.cookito.set('LastVisit', new Date().toISOString(), { signed: true });
     }
   },
