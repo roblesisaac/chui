@@ -8,7 +8,7 @@ const models = {
   users: require('./models/users')
 };
 const mongoose = require('mongoose');
-const Cookies = require('cookie');
+// const Cookies = require('cookie');
 const db = mongoose.connection;
 mongoose.Promise = global.Promise;
 let isConnected;
