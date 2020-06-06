@@ -19,7 +19,6 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "braintree": "^2.22.0",
-    "cookies": "^0.8.0",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.10"
