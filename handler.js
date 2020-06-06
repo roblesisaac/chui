@@ -218,7 +218,7 @@ global.api = new Chain({
 global.cookie = new Chain({
   input: function() {
     return {
-      cookito: new Cookies(this.event, this.callback)
+      cookito: new Cookies(this.event, this.event)
     };
   },
   steps: {
