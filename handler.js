@@ -9,7 +9,6 @@ const models = {
 };
 const mongoose = require('mongoose');
 const cookie = require('cookie');
-const Cookies = require('cookies');
 const db = mongoose.connection;
 mongoose.Promise = global.Promise;
 let isConnected;
