@@ -244,9 +244,6 @@ global.cookie = new Chain({
   },
   instructions: [
     function() {
-      this.end(Object.keys(this.context));
-    },
-    function() {
       this.end(this.cookies);
     },
     {
