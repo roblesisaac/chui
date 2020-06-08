@@ -405,6 +405,7 @@ global.login = new Chain({
     setCookies: function() {
       var sessionId = "Session::"+this.user.username;
       this.newCookie = cookie.serialize("SID", sessionId);
+      this.next();
     },
     sendCredentials: function() {
       this.next({
