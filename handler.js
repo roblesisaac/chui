@@ -402,13 +402,18 @@ global.login = new Chain({
 			 self.next(isMatch && isMatch === true);
 			});  
     },
+    setCookies: function() {
+      var sessionId = "Session::"+this.username;
+      this.newCookie = cookie.serialize("SID", sessionId);
+    },
     sendCredentials: function() {
       this.next({
   		  token: jwt.sign({
   		    _id: this.dbUser._id,
   		    username: this.dbUser.username,
   		    name: this.dbUser.name,
-  		    password: this.dbUser.password
+  		    password: this.dbUser.password,
+  		    cookie: this.newCookie
   		  }, this.dbUser.password, {	expiresIn: '15h' }),
   		  userid: this.dbUser._id
   		});
