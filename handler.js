@@ -403,7 +403,7 @@ global.login = new Chain({
 			});  
     },
     setCookies: function() {
-      var sessionId = "Session::"+this.username;
+      var sessionId = "Session::"+this.user.username;
       this.newCookie = cookie.serialize("SID", sessionId);
     },
     sendCredentials: function() {
@@ -411,7 +411,7 @@ global.login = new Chain({
   		  token: jwt.sign({
   		    _id: this.dbUser._id,
   		    username: this.dbUser.username,
-  		    name: this.dbUser.name,
+  		    name: this.user.username,
   		    password: this.dbUser.password,
   		    cookie: this.newCookie
   		  }, this.dbUser.password, {	expiresIn: '15h' }),
