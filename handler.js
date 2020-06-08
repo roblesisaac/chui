@@ -430,7 +430,7 @@ global.login = new Chain({
       false: [
         {
           if: "passwordAuthenticates",
-          true: "sendCredentials",
+          true: ["setCookies", "sendCredentials"],
           false: "sayPasswordsDontMatch"
         }
       ]
