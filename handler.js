@@ -668,7 +668,7 @@ module.exports.port = function(event, context, callback) {
     callback: callback,
     chain: params.chain,
     context: context,
-    cookie: this.headers.Cookie || "",
+    cookie: event.headers.Cookie || "",
     domain: event.headers.Host,
     event: event,
     headers: event.headers || {},
