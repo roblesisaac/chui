@@ -218,7 +218,7 @@ global.api = new Chain({
 global.cookie = new Chain({
   input: function() {
     return {
-      cookito: new cookie(this.event, this.event)
+      cookies: cookie.parse(this.cookie)
     };
   },
   steps: {
@@ -242,6 +242,9 @@ global.cookie = new Chain({
     }
   },
   instructions: [
+    function() {
+      this.end(this.cookies);
+    },
     {
       if: "noCookie",
       true: "alertFirstWelcome",
@@ -665,6 +668,7 @@ module.exports.port = function(event, context, callback) {
     callback: callback,
     chain: params.chain,
     context: context,
+    cookie: this.headers.Cookie || "",
     domain: event.headers.Host,
     event: event,
     headers: event.headers || {},
