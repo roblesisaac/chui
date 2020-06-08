@@ -8,7 +8,7 @@ const models = {
   users: require('./models/users')
 };
 const mongoose = require('mongoose');
-// const Cookies = require('cookie');
+const cookie = require('cookie');
 const db = mongoose.connection;
 mongoose.Promise = global.Promise;
 let isConnected;
@@ -26,7 +26,7 @@ if(!tmplts.index) {
 const jwt = require('jsonwebtoken');
 let token;
 
-global.authorize = new Chain({
+global.protect = new Chain({
   input: function() {
     return {
       sheetName: this.arg1,
@@ -185,7 +185,7 @@ global.api = new Chain({
     }
   },
   instructions: [
-    "authorize",
+    "protect",
     "model", // get model
     {
       switch: "toRouteMethod",
@@ -218,7 +218,7 @@ global.api = new Chain({
 global.cookie = new Chain({
   input: function() {
     return {
-      cookito: new Cookies(this.event, this.event)
+      cookito: new cookie(this.event, this.event)
     };
   },
   steps: {
@@ -294,7 +294,7 @@ global.model = new Chain({
     }
   },
   instructions: [
-    "authorize",
+    "protect",
     {
       if: "sheetNameIsNative",
       true: "relayNativeModel",
@@ -338,7 +338,7 @@ global.schema = new Chain({ // gets schema obj from sheeet, ready to convert int
     }
   },
   instructions: [
-    "authorize",
+    "protect",
     "lookupSheet",
     "forEachItemInSchema", [
       { if: "formatAllowed", true: "convertToFuncion" }  
@@ -549,6 +549,7 @@ global.scripts = new Chain({
     }
   },
   instructions: [
+    "protect",
     "lookupSheet",
     {
       if: "noSheetFound",
