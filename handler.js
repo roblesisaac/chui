@@ -258,16 +258,7 @@ global.cookie = new Chain({
       } else {
         this.end('Welcome back! Nothing much changed since your last visit at ' + lastVisit + '.')
       }
-    },
-    function() {
-      this.end(this.cookies);
-    },
-    {
-      if: "noCookie",
-      true: "alertFirstWelcome",
-      false: "alertWelcomeBack"
-    },
-    "setCookie"
+    }
   ]
 });
 global.model = new Chain({
