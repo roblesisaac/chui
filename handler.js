@@ -405,16 +405,16 @@ global.login = new Chain({
     setCookies: function() {
       var sessionId = "Session::"+this.user.username;
       this.newCookie = cookie.serialize("SID", sessionId);
-      this.next();
+      this.end(this.newCookie);
     },
     sendCredentials: function() {
       this.next({
   		  token: jwt.sign({
   		    _id: this.dbUser._id,
   		    username: this.dbUser.username,
-  		    name: this.user.username,
+  		    name: this.dbUser.username,
   		    password: this.dbUser.password,
-  		    cookie: this.newCookie
+  		    cookie: "this.newCookie"
   		  }, this.dbUser.password, {	expiresIn: '15h' }),
   		  userid: this.dbUser._id
   		});
