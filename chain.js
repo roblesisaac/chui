@@ -240,8 +240,7 @@ Instance.prototype.step = function(stepName) {
       instance.error = e;
       instance.resolve();      
     },
-    resolve: end,
-    end: end,
+    resolve: end, end: end, done: end,
     _getAnswer: function(next) {
       var condition = stepName.if || stepName.switch;
       if(typeof condition == "boolean") return next(condition);
