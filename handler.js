@@ -244,21 +244,17 @@ global.cookie = new Chain({
   },
   instructions: [
     function() {
-      // Create a cookies object
-      var cookies = new Cookies(this.event, this.context, { keys: ['keyboard cat'] });
-    
-      // Get a cookie
-      var lastVisit = cookies.get('LastVisit', { signed: true })
-    
-      // Set the cookie to a value
-      cookies.set('LastVisit', new Date().toISOString(), { signed: true })
-    
-      if (!lastVisit) {
-        this.end('Welcome, first time visitor!');
-      } else {
-        this.end('Welcome back! Nothing much changed since your last visit at ' + lastVisit + '.')
-      }
-    }
+      this.end(this.event);
+    },
+    function() {
+      this.end(this.cookies);
+    },
+    {
+      if: "noCookie",
+      true: "alertFirstWelcome",
+      false: "alertWelcomeBack"
+    },
+    "setCookie"
   ]
 });
 global.model = new Chain({
