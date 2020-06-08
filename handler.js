@@ -405,7 +405,7 @@ global.login = new Chain({
     setCookies: function() {
       var sessionId = "Session::"+this.user.username;
       this.newCookie = cookie.serialize("SID", sessionId);
-      this.context.done(null, this.newCookie);
+      this.next();
     },
     sendCredentials: function() {
       var tokenContent = {
@@ -454,7 +454,10 @@ global.serve = new Chain({
     },
     addHeaders: function(res) {
       this.format.headers = {
-        'Content-Type': res.contentType 
+        "Content-Type": res.contentType,
+        "Set-Cookie": {
+          "type": "string"
+        }
       };
       this.next(res);
     },
