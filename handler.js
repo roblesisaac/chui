@@ -405,7 +405,7 @@ global.login = new Chain({
     setCookies: function() {
       var sessionId = "Session::"+this.user.username;
       this.newCookie = cookie.serialize("SID", sessionId);
-      this.end(this.newCookie);
+      this.next(this.newCookie);
     },
     sendCredentials: function() {
       this.next({
@@ -414,7 +414,7 @@ global.login = new Chain({
   		    username: this.dbUser.username,
   		    name: this.dbUser.username,
   		    password: this.dbUser.password,
-  		    cookie: "this.newCookie"
+  		    cookie: this.newCookie
   		  }, this.dbUser.password, {	expiresIn: '15h' }),
   		  userid: this.dbUser._id
   		});
