@@ -408,14 +408,16 @@ global.login = new Chain({
       this.next(this.newCookie);
     },
     sendCredentials: function() {
+      var tokenContent = {
+		    _id: this.dbUser._id,
+		    username: this.dbUser.username,
+		    password: this.dbUser.password,
+		    cookie: this.newCookie
+      };
       this.next({
-  		  token: jwt.sign({
-  		    _id: this.dbUser._id,
-  		    username: this.dbUser.username,
-  		    name: this.dbUser.username,
-  		    password: this.dbUser.password,
-  		    cookie: this.newCookie
-  		  }, this.dbUser.password, {	expiresIn: '15h' }),
+  		  token: jwt.sign(tokenContent, this.dbUser.password, {	expiresIn: '15h' }),
+  		  cookie: this.newCookie,
+  		  username: this.dbUser.username,
   		  userid: this.dbUser._id
   		});
     },
