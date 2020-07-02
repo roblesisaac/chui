@@ -18,10 +18,11 @@
   "homepage": "https://github.com/roblesisaac/chui#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "braintree": "^2.22.0",
+    "braintree": "^2.23.0",
     "cookie": "^0.4.1",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.10"
+    "mongoose": "^5.9.21",
+    "smartsheet": "^2.86.0"
   }
 }

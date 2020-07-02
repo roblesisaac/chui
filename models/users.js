@@ -29,7 +29,8 @@ userSchema.methods.comparePassword = function (candidatePassword, callback) {
     if (err) return callback(err);
     callback(undefined, isMatch);
   });
-}
+};
 
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('user', userSchema);
+
