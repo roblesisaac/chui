@@ -1,19 +1,27 @@
 const mongoose = require('mongoose');
 
-var permitSchema = new mongoose.Schema({
-  username: String,
-  sheetName: String,
-  siteId: String,
-  db: {
-    methods: Array
+
+const sheetSchema = new mongoose.Schema({
+  "name": String,
+  "htmlButton": String,
+  "onStart": String,
+  "sort": Number,
+  "siteId": String,
+  "author": String,
+  "db": {
+      "schema": {}
   },
-  ui: {
-    apps: Array
-  },
-  permit: {
-    methods: Array
+  "ui": {
+      "js": String,
+      "html": String,
+      "blocks": [{
+          "sort": Number,
+          "span": Number,
+          "html": String,
+          "css": String,
+          "javascript": String
+      }]
   }
 });
 
-module.exports = mongoose.model('permit', permitSchema);
-
+module.exports = mongoose.model('sheet', sheetSchema);
