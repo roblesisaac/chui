@@ -7,6 +7,8 @@ provider:
   timeout: 10 # the timeout is 10 seconds (default is 6 seconds)
   environment:
     DB: ${file(./variables.json):DB}
+    SPACES_KEY: ${file(./variables.json):SPACES_KEY}
+    SPACES_SECRET: ${file(./variables.json):SPACES_SECRET}
     
 functions:
   get:
