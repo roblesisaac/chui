@@ -1,6 +1,13 @@
 "use strict";
 
 try {
+const AWS = require('aws-sdk');
+const spacesEndpoint = new AWS.Endpoint('nyc3.digitaloceanspaces.com');
+const s3 = new AWS.S3({
+    endpoint: spacesEndpoint,
+    accessKeyId: process.env.SPACES_KEY,
+    secretAccessKey: process.env.SPACES_SECRET
+});
 const Utils = require("./scripts/utils");
 const Chain = require("./scripts/chain");
 var models = {
@@ -574,6 +581,21 @@ global.getUserPermitForSheet = new Chain({
       ]
     }
   ]
+});
+global.images = new Chain({
+  input: {
+    buckets: []
+  },
+  steps: {
+    showBuckets: function() {
+      var self = this;
+      s3.listBuckets({}, function(err, data) {
+        if (err) return self.error(err);
+        self.next("Data", data.Buckets.length);
+      });
+    }
+  },
+  instruct: ["showBuckets"]
 });
 global.temporary = new Chain({
   steps: {
