@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+const blockCell = { 
+  width: Number,
+  rows: Array
+};
 
 const sheetSchema = new mongoose.Schema({
   "name": String,
@@ -9,18 +13,15 @@ const sheetSchema = new mongoose.Schema({
   "siteId": String,
   "author": String,
   "db": {
-      "schema": {}
+    "schema": {}
   },
   "ui": {
-      "js": String,
-      "html": String,
-      "blocks": [{
-          "sort": Number,
-          "span": Number,
-          "html": String,
-          "css": String,
-          "javascript": String
-      }]
+    "js": String,
+    "html": String,
+    "css": String,
+    "blocks": [
+      [ blockCell ]  
+    ]
   }
 });
 

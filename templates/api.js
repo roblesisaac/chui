@@ -25,7 +25,11 @@ var api = new Chain({
                 "Content-Type": "application/json"
               },
               body: JSON.stringify(data || this.data)
-            }).then(response => response.json ? response.json() : response)
+            }).then(response => !!response.json ? 
+                                    response.json() 
+                                    : !!response.text
+                                    ? response.text()
+                                    : respo)
             .then(json => self.next(json));
         },
         respond: function(res) {

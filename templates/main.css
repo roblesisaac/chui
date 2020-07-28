@@ -1,3 +1,18 @@
-body {
-    background: #222;
+.pad5 {
+    padding: 5px;
+}
+.pad10 {
+    padding: 10px;
+}
+.pad15 {
+    padding: 15px;
+}
+.pad20 {
+    padding: 20px;
+}
+.pad25 {
+    padding: 25px;
+}
+.pad30 {
+    padding: 30px;
 }

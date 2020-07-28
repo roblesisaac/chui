@@ -2,17 +2,16 @@ Vue.component("new-site", {
   data: function() {
     return {
       newSite: {
-        email: "    CUSTOMEmail@email.com    ",
-        htmlButton: "htmlButton",
-        author: {{ userid }},
-        testNumber: 1,
-        testString: 1
+        name: "newSiteTest",
+        htmlButton: "htmlButtonTest",
+        author: {{ userid }}
       }
     };
   },
   methods: {
     newsite: function() {
-      api.method("post", "/db/bugtests", this.newSite).then(function(res){
+      console.log(this.newSite);
+      api.method("post", "/db/sites", this.newSite).then(function(res){
         console.log(res.last);
       });
     }
@@ -25,7 +24,7 @@ Vue.component("new-site", {
             Site Name:
           </div>
           <div class="cell auto">
-            <input type="text" v-model="newSite.email">
+            <input type="text" v-model="newSite.name">
           </div>
         </div>
       </div>
@@ -64,8 +63,9 @@ Vue.component("top-nav", {
 Vue.component("user-site", {
   props: ["site", "i"],
   template: `
-  <div>
-    {{ site }}, <br> {{ i }}
+  <div class="column column-block text-center">
+    <h3>{{ site.name }}</h3>
+    <a :href="'https://{{ domain }}/dev/' + site.name"><b><(-_-)> Enter</b></a>
   </div>
   `
 });
@@ -77,14 +77,16 @@ new Vue({
   },
   template: `
     <div class="grid-x">
-      <div class="cell small-12">
+      <div class="cell small-12 pad15">
         <top-nav></top-nav>
       </div>
-      <div class="columns medium-4">
+      <div class="columns medium-4 pad15">
         <new-site></new-site>
       </div>
-      <div class="columns medium-8">
-        <user-site :site="site" :i="i" v-for="(site, i) in sites"></user-site>
+      <div class="columns medium-8 pad15">
+        <div class="row small-up-2 medium-up-3">
+          <user-site :site="site" :i="i" v-for="(site, i) in sites"></user-site>
+        </div>
       </div>
     </div>
   `

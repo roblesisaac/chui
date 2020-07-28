@@ -1,0 +1,506 @@
+body * {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.ace {
+  position: fixed;
+  width: 100%;
+  height: 95%;
+  font-weight: 700;
+}
+
+.borderL {
+  border-left: 1px dotted #94c0cc;
+}
+.borderR {
+  border-right: 1px dotted #94c0cc;
+}
+.borderB {
+  border-bottom: 1px dotted #94c0cc;
+}
+
+.button {
+  background-color: #f4f4f0;
+  border-radius: 3px;
+  color: #000;
+  font-weight: bold;
+  padding: 5px;
+  margin-bottom: 0;
+  font-size: 1.2rem;
+}
+.noHover:hover {
+  background-color: inherit;
+  color: inherit;
+} 
+.button.left {
+  text-align: left
+}
+.button.material-icons, .button i, .button span {
+  color: #4285f4;
+}
+.form {
+  display: block;
+  width: 100%;
+  margin-right: 0;
+  margin-left: 0;
+  padding: 30px;
+}
+
+.bgCover {
+  background-size: cover;
+}
+
+.bgBlack {
+  background-color: #333;
+  color: #fff
+}
+
+.bgClear, .bgTransparent {
+  background-color: transparent;
+}
+
+.bgBlack a, .bgRoyal a {
+  color: #fff
+}
+
+.bgBlack a:hover, .bgRoyal a:hover {
+  color: #94c0cc;
+  transition: all .3s ease;
+}
+
+.bgBleach {
+  background-color: #fff;
+}
+
+.bgBleachClear {
+  background-color: rgba(255,255,255,.4);
+}
+
+.bgBluePastel {
+  background-color: #94c0cc;
+}
+
+.bgBlue, .bgBlue.colorBlack, .bgBlue .colorBlue {
+  background-color: #4285f4;
+  color: #fff;
+}
+
+.bgContain {
+  background-size: contain;
+}
+
+.bgDarkBlue {
+  background-color: #1779ba
+}
+
+.bgDarkGreen {
+  background-color: #54bf98
+}
+
+.bgDarkOrange {
+  background-color: #4caf50
+}
+
+.bgEgg {
+  background-color: #f4f4f0
+}
+
+.bgGreen {
+  background-color: #bcdf8a
+}
+
+.bgJet {
+  background-color: #000;
+  color: #fff;
+}
+
+.bgLight {
+  background-color: #fafafa
+}
+
+.bgLightRed {
+  background-color: #f4b2a6
+}
+
+.bgLightYellow {
+  background-color: #f5f9ad
+}
+
+.bgOrange {
+  background-color: #fad48b
+}
+
+.bgPink {
+  background-color: #f2a3bd
+}
+
+.bgPurple {
+  background-color: #c4adc9
+}
+
+.bgRed {
+  background-color: #ed7777
+}
+
+.bgGrey {
+  background-color: #777;
+}
+
+.bgDarkRed {
+  background-color: #ff0000
+}
+
+.bgRoyal {
+  background-color: #273f87;
+  color: #fff;
+}
+
+.bgSky {
+  background-color: #F0F8FF
+}
+
+.bgTurquoise, .bgTurq {
+  background-color: #6fe7db
+}
+
+.bgWhite {
+  background-color: #fafafa
+}
+
+.bgYellow {
+  background-color: #d6d963
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.colorBlue {
+  color: #4285f4;
+}
+
+.colorBluePastel {
+  color: #94c0cc;
+}
+
+.colorDarkBlue {
+  color: #1779ba;
+}
+
+.colorBlack {
+  color: #333;
+}
+
+.colorBleach {
+  color: #fff;
+}
+
+.colorDarkGreen {
+  color: #54bf98;
+}
+
+
+.colorDarkOrange {
+  color: #4caf50;
+}
+
+.colorGreen {
+  color: #bcdf8a;
+}
+
+.colorGrey {
+  color: #777;
+}
+
+.colorJet {
+  color: #000;
+}
+
+.colorLight {
+  color: #fafafa;
+}
+
+.colorLightRed {
+  color: #f4b2a6;
+}
+
+.colorLightYellow {
+  color: #f5f9ad;
+}
+
+.colorOrange {
+  color: #fad48b;
+}
+
+.colorPink {
+  color: #f2a3bd;
+}
+
+.colorPurple {
+  color: #c4adc9;
+}
+
+.colorRed {
+  color: #ed7777;
+}
+
+.colorDarkRed {
+  color: #ff0000;
+}
+
+.colorRoyal {
+  color: #273f87;
+}
+
+.colorTurquoise, .colorTurq {
+  color: #6fe7db;
+}
+
+.colorWhite {
+  color: #f4f4f0;
+}
+
+
+.colorYellow {
+  color: #d6d963;
+}
+
+.f1 {
+  font-size: 1rem;
+}
+
+.f12 {
+  font-size: 1.2rem;
+}
+
+textarea,
+input[type] {
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+  background-color: #f4f4f0;
+  border-bottom: 2px dotted #94c0cc;
+  border-radius: 3px;
+}
+
+.m0, .margin0 {
+    margin: 0;
+}
+
+.m5, .margin5 {
+  margin: 5px;
+}
+
+.m5B {
+  margin-bottom: 5px;
+}
+
+#notify {
+  position: fixed;
+  padding: 10px 20px;
+  font-weight: bold;
+  text-transform: capitalize;
+  border-radius: 2px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1000;
+}
+
+.pad0, .p0 {
+  padding: 0;
+}
+
+.pad5, .p5 {
+  padding: 5px;
+}
+.pad10, .p10 {
+  padding: 10px;
+}
+.pad15, .p15 {
+  padding: 15px;
+}
+.pad20, .p20 {
+  padding: 20px;
+}
+.pad25, .p25 {
+  padding: 25px;
+}
+.pad30, .p30, .padding {
+  padding: 30px;
+}
+
+.pad0B, .p0B {
+  padding-bottom: 0;
+}
+
+.pad5B, .p5B {
+  padding-bottom: 5px;
+}
+.pad10B, .p10B {
+  padding-bottom: 10px;
+}
+.pad15B, .p15B {
+  padding-bottom: 15px;
+}
+.pad20B, .p20B {
+  padding-bottom: 20px;
+}
+.pad25B, .p25B {
+  padding-bottom: 25px;
+}
+.pad30B, .p30B {
+  padding-bottom: 30px;
+}
+
+.pad0X, .p0X {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.pad5X, .p5X {
+  padding-left:5px;
+  padding-right: 5px;
+}
+.pad10X, .p10X {
+  padding-left:10px;
+  padding-right: 10px;
+}
+.pad15X, .p15X {
+  padding-left:15px;
+  padding-right: 15px;
+}
+.pad20X, .p20X {
+  padding-left:20px;
+  padding-right: 20px;
+}
+.pad25X, .p25X {
+  padding-left:25px;
+  padding-right: 25px;
+}
+.pad30X, .p30X {
+  padding-left:30px;
+  padding-right: 30px;
+}
+
+.p0Left, .p0L {
+  padding-left: 0;
+}
+
+.pad5Left, .p5L {
+  padding-left:5px;
+}
+.pad10Left, .p10L {
+  padding-left:10px;
+}
+.pad15Left, .p15L {
+  padding-left:15px;
+}
+.pad20Left, .p20L {
+  padding-left:20px;
+}
+.pad25Left, .p25L {
+  padding-left:25px;
+}
+.pad30Left, .p30L {
+  padding-left:30px;
+}
+
+.pad0Right, .p0R {
+  padding-right: 0;
+}
+
+.pad5Right, .p5R {
+  padding-right:5px;
+}
+.pad10Right, .p10R {
+  padding-right:10px;
+}
+.pad15Right, .p15R {
+  padding-right:15px;
+}
+.pad20Right, .p20R {
+  padding-right:20px;
+}
+.pad25Right, .p25R {
+  padding-right:25px;
+}
+.pad30Right, .p30R {
+  padding-right:30px;
+}
+
+.pad0Y, .p0Y {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+ 
+.pad5Y, .p5Y {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.pad10Y, .p10Y {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.pad15Y, .p15Y {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.pad20Y, .p20Y {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.pad25Y, .p25Y {
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+.pad30Y, .p30Y {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.proper {
+  text-transform: capitalize;
+}
+
+.r5 {
+  border-radius: 5px;
+}
+.r10 {
+  border-radius: 10px;
+}
+.r15 {
+  border-radius: 15px;
+}
+.r20 {
+  border-radius: 20px;
+}
+.r25 {
+  border-radius: 25px;
+}
+.r30 {
+  border-radius: 30px;
+}
+
+select {
+  margin: 0;
+  box-shadow: none;
+  background-color: #f4f4f0;
+  border: 1px solid #94c0cc;
+  height: auto;
+  border-radius: 3px;
+}
+
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-enter {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+@media screen and (max-width: 39.9375em) {
+  .button:hover {
+    background-color: inherit;
+    color: inherit;
+  } 
+}

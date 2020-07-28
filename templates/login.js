@@ -1,4 +1,4 @@
-window.Vue.component("log-in", {
+window.Vue.component("user-portal", {
   data: function() {
     return {
       user: {
@@ -8,14 +8,18 @@ window.Vue.component("log-in", {
     };
   },
   methods: {
-    newsite: function() {
-      window.api.method("post", "/login", this.user).then(function(res){
-        location.reload();
+    userAction: function() {
+      window.api.method("post", "/"+this.method, this.user).then(function(res){
+        window.location.reload();
       });
     }
   },
+  props: ["method"],
   template: `
     <div class="grid-x">
+      <div class="cell small-12 text-center">
+      <h3><(-_-)> {{ method }}, you may.</h3>
+      </div>
       <div class="cell small-12">
         <div class="grid-x">
           <div class="cell shrink">
@@ -36,7 +40,7 @@ window.Vue.component("log-in", {
           </div> 
         </div>
       </div>
-      <a @click="newsite"><(-_-)> Login, </a>
+      <a @click="userAction"><b><(-_-)> {{ method }}</b></a>
     </div>
   `
 });
@@ -46,11 +50,14 @@ new window.Vue({
   template: `
     <div class="grid-x">
       <div class="columns medium-4">
-        <log-in></log-in>
+        <user-portal method="login"></user-portal>
       </div>
-      <div class="columns medium-8">
-        <(-_-)> Login, you may.
+      <div class="columns medium-4">
+        <b>Welcome, you are.</b>
+      </div>
+      <div class="columns medium-4">
+        <user-portal method="signup"></user-portal>
       </div>
     </div>
   `
-})
+});

@@ -1,7 +1,8 @@
 "use strict";
 
 try {
-const Chain = require("./templates/chain");
+const Utils = require("./scripts/utils");
+const Chain = require("./scripts/chain");
 var models = {
   sheets: require("./models/sheets"),
   sites: require("./models/sites"), 
@@ -12,18 +13,21 @@ const permits = require("./models/permits");
 const mongoose = require("mongoose");
 const cookie = require("cookie");
 let isConnected;
+const emptySheet = require("./utils/emptySheet");
+const emptyPermit = require("./utils/emptyPermit");
 const fs = require("fs");
-const tmplts = {};
-if(!tmplts.index) {
-  fs.readdir("./templates", function (err, data) {
-    if(err) return;
+let favicon;
+const scripts = {};
+if(!scripts.index) {
+  fs.readdir("./scripts", function (err, data) {
+    if(err) return err;
     for (var i=0; i<data.length; i++) {
       var fileName = data[i],
           templateName = data[i].split(".")[0],
           fileType = data[i].split(".")[1],
-          text = fs.readFileSync("./templates/" + fileName, "utf8");
-      tmplts[fileName] = text;
-      if(fileType == "html") tmplts[templateName] = text;
+          text = fs.readFileSync("./scripts/" + fileName, "utf8");
+      scripts[fileName] = text;
+      if(fileType == "html") scripts[templateName] = text;
     }
   });
 }
@@ -31,7 +35,18 @@ const jwt = require("jsonwebtoken");
 const loop = function(arr) {
   return { async: arr };
 };
+const render = require("./render");
 
+global.debug = new Chain({
+  instruct: [function(){
+    var self = this,
+        script = require("./scripts/chain.js");
+    self.next({
+      body: script,
+      type: "js"
+    });
+  }]
+});
 global.checkDbPermit = new Chain({
   steps: {
     permitExcludesMethodForDb: function() {
@@ -101,10 +116,19 @@ global.db = new Chain({
       },
       options: {
         limit: 50
-      }
+      },
+      sheetName: this._arg1
     };
   },
   steps: {
+    addAuthorToBody: function() {
+      this._body.author = this.user._id;
+      this.next();
+    },
+    addSiteIdToBody: function () {
+      this._body.siteId = this.siteId;
+      this.next();
+    },
     addSiteIdToFilter: function(res, next) {
       this.filter.siteId = this.siteId;
       next();
@@ -117,10 +141,79 @@ global.db = new Chain({
       this.filter[this.key] = this.value;
       this.next();
     },
+    alertNeedPermissionFromAuthor: function() {
+      this.error("<(-_-)> Permission from site author, you must have.");
+    },
     convertToRegex: function() {
       this.value = this.value.replace(/\//g,'');
       this.value = { $regex: new RegExp(this.value) };
       this.next();
+    },
+    createSheetForNewSite: function(newSite) {
+      var siteSheet = emptySheet("sheets", newSite._id, this.user._id),
+          self = this;
+          
+      models.sheets.create(siteSheet, function(err, newSheet){
+        if(err) return self.error(err);
+        self.newSheet = newSheet;
+        self.next();
+      });
+    },
+    createPermitForNewSite: function(newSite) {
+      var sitePermit = emptyPermit(this.newSheet._id, newSite._id, this.user.username),
+          self = this;
+      permits.create(sitePermit, function(err, newPermit) {
+        if(err) return self.error(err);
+        self.next({
+          newPermit: newPermit,
+          newSheet: self.newSheet,
+          newSite: newSite
+        });
+      });
+    },
+    createPermitForSheet: function (sheet) {
+      var sitePermit = emptyPermit(sheet._id, this.siteId, this.user.username),
+          self = this;
+      permits.create(sitePermit, function(err, newPermit) {
+        if(err) return self.error(err);
+        self.next({
+          newPermit: newPermit,
+          newSheet: self.newSheet
+        });
+      });
+    },
+    deleteItem: function() {
+      if(!this.id) return this.error("<(-_-)> ID, every delete must have.");
+      var self = this;
+      this.model.findByIdAndRemove(this.id, function(err, data){
+        if(err) return self.error(err);
+        self.next(data);
+      }); 
+    },
+    deleteSheet: function() {
+      var self = this;
+      models.sheets.findByIdAndRemove(this.item._id, function(err, data){
+        if(err) return self.error(err);
+        self.next(data);
+      });   
+    },
+    forEachSheetInSite: function() {
+      var self = this;
+      models.sheets.find({
+        siteId: this.id
+      }, function(err, sheets){
+        if(err) return self.error(err);
+        self.next(sheets);
+      });  
+    },
+    forEachPermitInSite: function() {
+      var self = this;
+      permits.find({
+        siteId: this.id
+      }, function(err, permits){
+        if(err) return self.error(err);
+        self.next(permits);
+      });
     },
     findById: function(res, next) {
       var self = this;
@@ -139,20 +232,12 @@ global.db = new Chain({
         self.next(data);
       });
     },
+    hasSpecialCaveates: function () {
+      var caveats = ["sites"];
+      this.next(caveats.indexOf(this.sheetName)>-1);
+    },
     hasId: function(res, next) {
       next(!!this.id);
-    },
-    ensureIndex: function() {
-      if(this.sheetName == "bugtests") {
-        var self= this;
-        this.model.ensureIndexes(function(){
-          self.model.init().then(function(){
-            self.next();
-          });
-        });
-      } else {
-        this.next();
-      }
     },
     isANativeOption: function() {
       this.next(Object.keys(this.nativeOptions).indexOf(this.key) > -1);
@@ -165,27 +250,41 @@ global.db = new Chain({
     needsASiteId: function(res, next) {
       next(this.sheetName == "sheets");
     },
+    lookupSiteAuthor: function () {
+      var self = this;
+      models.sites.findById(this.id, function(err, site){
+        if(err) return self.error(err);
+        self.next(site.author);
+      });
+    },
+    postItem: function() {
+      var self = this;
+      this.model.create(this._body, function(err, data){
+        if(err) return self.error(err);
+        self.next(data);
+      });
+    },
+    toCaveats: function() {
+      this.next(this.sheetName);
+    },
     toRouteMethod: function(res, next) {
       next(this._eventMethod);
     },
     updateItem: function() {
+      if(!this.id) return this.error("<(-_-)> ID, every update must have.");
       var self = this;
-      this.model.findByIdAndUpdate(this.id, this._body, { new: true }).then(function(data){
+      this.model.findByIdAndUpdate(this.id, this._body, { new: true }, function(err, data){
+        if(err) return self.error(err);
         self.next(data);
       });
     },
-    postItem: function(res, next) {
-      var self = this;
-      this.model.create(this._body, function(err, data){
-        if(err) return self.end(err);
-        next(data);
-      });
+    userIsAuthorOfSite: function(author) {
+      this.next(this.user._id.toString() == author);
     }
   },
   instruct: [
     "checkDbPermit",
     "model",
-    "ensureIndex",
     {
       switch: "toRouteMethod",
       get: [
@@ -204,13 +303,169 @@ global.db = new Chain({
           true: "findById",
           false: [
             { if: "needsASiteId", true: "addSiteIdToFilter" },
-            "getAllItems"
+            {
+              if: "hasSpecialCaveates",
+              true: { 
+                switch: "toCaveats",
+                sites: "getAllUserSites"
+              },
+              false: "getAllItems"
+            }
           ]
         }
       ],
-      put: "updateItem",
-      post: "postItem",
-      delete: "deleteItem"
+      put: {
+        if: "hasSpecialCaveates",
+        true: {
+          switch: "toCaveats",
+          sites: [
+            "lookupSiteAuthor",
+            {
+              if: "userIsAuthorOfSite",
+              true: "updateItem",
+              false: "alertNeedPermissionFromAuthor"
+            }  
+          ]
+        },
+        false: "updateItem"
+      },
+      post: [
+        { 
+          switch: "toCaveats",
+          sites: "addAuthorToBody",
+          sheets: ["addAuthorToBody", "addSiteIdToBody" ]
+        },
+        "postItem",
+        {
+          switch: "toCaveats",
+          sites: [ "createSheetForNewSite", "createPermitForNewSite" ],
+          sheets: [ "createPermitForSheet" ]
+        }
+      ],
+      delete: {
+        if: "hasSpecialCaveates",
+        true: {
+          switch: "toCaveats",
+          sites: [
+            "lookupSiteAuthor",
+            {
+              if: "userIsAuthorOfSite",
+              true: [
+                "deleteItem",
+                "forEachSheetInSite", loop([
+                  "deleteSheet"  
+                ]),
+                "forEachPermitInSite", loop([
+                  "deletePermit"  
+                ])
+              ],
+              false: "alertNeedPermissionFromAuthor"
+            }  
+          ]
+        },
+        false:  "deleteItem"
+      }
+    }
+  ]
+});
+global.favicon = new Chain({
+  steps: {
+    getFavicon: function () {
+      if(favicon) return this.next();
+      var self = this;
+      fs.readFile("./favicon.png", function(err, data) {
+        if (err) return self.next(err);
+        self.next();
+      });
+    }, 
+    serveFavicon: function() {
+      this.next({
+        body: favicon,
+        type: "icon"
+      });
+    }
+  },
+  instruct: ["getFavicon", "serveFavicon"]
+});
+global.getAllUserSites = new Chain({
+  input: {
+    userSites: []
+  },
+  steps: {
+    appendToUserSites: function(userSite) {
+      this.userSites.push(userSite);
+      this.next();
+    },
+    getAllPermitsForUser: function() {
+      var self = this;
+      this.userPermits = [];
+      permits.find({
+        username: this.user.username
+      }, function(err, permits){
+        if(err) return self.error(err);
+        self.userPermits = permits;
+        self.next();
+      });
+    },
+    getUniqueSiteIds: function() {
+      var uniqueSiteIds = [];
+      for(var i=0; i<this.userPermits.length; i++) {
+        var permit = this.userPermits[i];
+        if(uniqueSiteIds.indexOf(permit.siteId) == -1) {
+          uniqueSiteIds.push(permit.siteId);
+        }
+      }
+      this.next(uniqueSiteIds);
+    },
+    getUserSite: function() {
+      var self = this;
+      models.sites.findById(this.userSiteId, function(err, userSite) {
+        if(err) return self.error(err);
+        self.next(userSite, "userSite");
+      });
+    }
+  },
+  instruct: [
+    "getAllPermitsForUser",
+    "getUniqueSiteIds", loop([
+      "define=>userSiteId",
+      "getUserSite",
+      "appendToUserSites"
+    ]),
+    function() {
+      this.next(this.userSites);
+    }
+  ]
+});
+global.getScriptsForSite = new Chain({
+  input: {
+    scripts: Object.keys(scripts)
+  },
+  steps: {
+    forEachDefaultScriptsFromUiSheet: function() {
+      var self = this;
+      models.sites.findOne({ name: "uisheet" }, function(err, uiSheet){
+        if(err) return self.next(err);
+        self.next(uiSheet.defaults);
+      });
+    },
+    forEachDefaultScriptsFromUserSite: function() {
+      this.next(this.site.defaults);
+    },
+    notInLibrary: function() {
+      this.next(!!this.site);
+    },
+    overwriteAndAppend: function (res) {
+      var notInScripts = this.scripts.indexOf(this.item.name)<0;
+      if(notInScripts) this.scripts.push(this.item.name);
+      this.next();
+    }
+  },
+  instruct: [
+    "forEachDefaultScriptsFromUiSheet", ["overwriteAndAppend"],
+    {
+      if: "notInLibrary",
+      true: ["forEachDefaultScriptsFromUserSite", ["overwriteAndAppend"]]
     }
   ]
 });
@@ -219,8 +474,8 @@ global.getSheetForEachPermit = new Chain({
     sheets: []
   },
   steps: {
-    appendToSheets: function(sheet) {
-      this.sheets.push(sheet);
+    appendToSheets: function(sheet) { 
+      if(sheet) this.sheets.push(sheet);
       this.next();
     },
     grabUserPermitsForSite: function() {
@@ -228,61 +483,54 @@ global.getSheetForEachPermit = new Chain({
     },
     lookupCorrespondingSheet: function() {
       var self = this;
-      models.sheets.findOne({
-        siteId: this.siteId,
-        name: this.permit.sheetName
-      }, function(err, sheet){
+      models.sheets.findById(this.permit.sheetId, function(err, sheet){
         if(err) return self.error(err);
         self.next(sheet);
-      });
-    },
-    lookupPublicPermitsForSite: function() {
-      var self = this;
-      permits.find({
-        siteId: this.siteId,
-        username: this.user.username
-      }, function(err, permits){
-        if(err) return self.error(err);
-        self.next(permits, "permits");
       });
     },
     permitAllowsHtml: function() {
       var isAll = this.permit.ui.apps.indexOf("all") > -1,
           isHtml = this.permit.ui.apps.indexOf("html") > -1;
       this.next(isAll || isHtml);
+    },
+    sortSheets: function() {
+      this.sheets.sortByProp("sort");
+      this.next();
     }
   },
   instruct: [
     "grabUserPermitsForSite",
     loop([
       "define=>permit",
-      { 
+      {
         if: "permitAllowsHtml",
         true: [
           "lookupCorrespondingSheet",
           "appendToSheets"
         ]
       }
-    ])  
+    ]),
+    "sortSheets"
   ]
 });
 global.getUserPermitForSheet = new Chain({
   input: function() {
     return {
       sheetName: this._arg1 || "sheets",
-      id: this._arg2
+      id: this._arg2,
+      sheet: {}
     };
   },
   steps: {
     alertNoPermitExists: function() {
-      this.end("<(-_-)> Not found in archives, your permit is.");
+      this.error("<(-_-)> Not found in archives, your permit is.");
     },
     lookupPermit: function() {
       var self = this,
           filters = {
             siteId: this.siteId,
             username: this.user.username,
-            sheetName: this.sheetName,
+            sheetId: this.sheet._id,
           };
       permits.findOne(filters, function(error, permit) {
         if(error) return self.error(error);
@@ -291,11 +539,68 @@ global.getUserPermitForSheet = new Chain({
     },
     noPermitExists: function() {
       this.next(!this.permit);
+    },
+    sendDefaultPermit: function() {
+      this.permit = {
+        db: {
+          methods: ["get","put","post","delete"]
+        },
+        ui: {
+          apps: ["all"]
+        },
+        permit: {
+          methods: ["get","put","post","delete"]
+        },
+        _id: "5efbcd318f85e19185438e5b",
+        username: this.user.username,
+        siteId: this.site._id,
+        sheetId: "5d040cb4d1e17100079b84eb",
+        __v: 0
+      };
+      this.next();
+    },
+    siteIsPlysheet: function() {
+      this.next(this.site.name == "plysheet");
     }
   },
   instruct: [
-    "lookupPermit",
-    { if: "noPermitExists", true: "alertNoPermitExists" } 
+    {  
+      if: "siteIsPlysheet",
+      true: ["sendDefaultPermit"],
+      false: [
+        "grabSheet",
+        "lookupPermit",
+        { if: "noPermitExists", true: "alertNoPermitExists" } 
+      ]
+    }
+  ]
+});
+global.temporary = new Chain({
+  steps: {
+    getAllPermits: function() {
+      var self = this;
+      permits.find({}, function(err, permits) {
+        if(err) return self.error(err);
+        self.permits = permits;
+        self.next(permits);
+      });
+    },
+    updateThisPermit: function () {
+      var self = this;
+      permits.findByIdAndUpdate(this.permit._id, this.permit, { new: true }, function(err, data){
+        if(err) return self.error(err);
+        self.next(data);
+      });
+    }
+  },
+  instruct: [
+    "getAllPermits", loop([
+      "define=>permit",
+      "removeSheetName"
+    ]),
+    function() {
+      this.next(this.permits);
+    }
   ]
 });
 global.grabSheet = new Chain({
@@ -313,7 +618,7 @@ global.grabSheet = new Chain({
       this.sheet = this.sheets.findOne({
         name: self.sheetName
       });
-      this.next(!!this.sheet);
+      this.next(this.sheet);
     },
     noSheetFound: function() {
       this.next(this.sheet === null);  
@@ -335,10 +640,10 @@ global.login = new Chain({
   },
   steps: {
     alertPasswordsDontMatch: function(res) {
-      this.next("<(-_-)> Unjust password, this is.");
+      this.error("<(-_-)> Unjust password, this is.");
     },
     alertUserDoesntExist: function() {
-      this.next("<(-_-)> Not existing in archives user, "+ this.username +" is.");
+      this.error("<(-_-)> Not existing in archives user, "+ this.username +" is.");
     },
     createCookies: function() {
       var tokenContent = {
@@ -347,9 +652,9 @@ global.login = new Chain({
     		    password: this.user.password,
     		    cookie: this.newCookie
           },
-          cookieOptions = { secure: true, sameSite: "none", httpOnly: true, maxAge: 60*30, domain: this._domain, path: "/" },
+          cookieOptions = { secure: true, sameSite: true, httpOnly: true, maxAge: 60*60*10, path: "/" },
       		secret = this.user.password;
-      this.token = jwt.sign(tokenContent, secret, {	expiresIn: '30m' });
+      this.token = jwt.sign(tokenContent, secret, {	expiresIn: '10h' });
       this.cookieToken = cookie.serialize("token", String(this.token), cookieOptions);
       this.cookieUserId = cookie.serialize("userid", String(this.user._id), cookieOptions);
       this.cookiePermits = cookie.serialize("permits", JSON.stringify(this.permits), cookieOptions);
@@ -421,7 +726,7 @@ global.login = new Chain({
 global.logout = new Chain({
   steps: {
     createLogoutCookies: function() {
-      var cookieOptions = { secure: true, httpOnly: true, maxAge: 0, domain: this._domain, path: "/" };
+      var cookieOptions = { secure: true, sameSite: "strict", httpOnly: true, maxAge: 0, path: "/" };
       this.cookieToken = cookie.serialize("token", "", cookieOptions);
       this.cookieUserId = cookie.serialize("userid", "", cookieOptions);
       this.cookiePermits = cookie.serialize("permits", "", cookieOptions);
@@ -522,28 +827,29 @@ global.permits = new Chain({
   },
   steps: {
     alertPermitExcludesMethod: function() {
-      this.end("<(-_-)> Method is prohibited, your permit says.");
+      this.error("<(-_-)> Method is prohibited, your permit says.");
     },
     alertNoUsernameSpecified: function() {
-      this.end("<(-_-)> First specify a username for your permit, you must.");
+      this.error("<(-_-)> First specify a username for your permit, you must.");
     },
     alertPermitAlreadyExists: function() {
-      this.end("<(-_-)> Already in archives, " + this._body.username + "'s permit is.");
+      this.error("<(-_-)> Already in archives, " + this._body.username + "'s permit is.");
     },
     deletePermit: function() {
-      var self = this;
-      permits.findByIdAndRemove(this.id).then(function(deleted){
+      var self = this,
+          id = this.item ? this.item._id : this.id;
+      permits.findByIdAndRemove(id).then(function(deleted){
         self.next({
           message: "<(-_-)> Erased from archives, permit has become.",
           body: deleted
         });
       });
     },
-    getPermissions: function() {
+    getPermits: function() {
       var self = this;
       permits.find({
         siteId: this.siteId,
-        sheetName: this.sheetName
+        sheetId: this.sheet._id
       }, function(err, permits){
         if(err) return self.error(err);
         self.next(permits);
@@ -574,7 +880,7 @@ global.permits = new Chain({
           body = {
             username: this._body.username,
             siteId: this.siteId,
-            sheetName: this.sheetName,
+            sheetId: this.sheet._id,
             db: this._body.db || defaults.methods,
             ui: this._body.ui || defaults.ui,
             permit: this._body.permit || defaults.methods
@@ -597,10 +903,11 @@ global.permits = new Chain({
     { if: "permitExcludesMethodForPermit", true: "alertPermitExcludesMethod" },
     {
       switch: "toRouteMethod",
-      get: "getPermissions",
+      get: "getPermits",
       post: [
         { if: "noUsernameSpecified", true: "alertNoUsernameSpecified" },
         { if: "permitAlreadyExists", true: "alertPermitAlreadyExists" },
+        "grabSheet",
         "postNewPermit"
       ],
       put: "updatePermit",
@@ -618,12 +925,10 @@ global.schema = new Chain({
   },
   steps: {
     convertToFuncion: function() {
-      this.obj[this.key] = this.convert;
+      if(!this.value) return this.next();
+      var convert = this.types[this.value.toLowerCase()];
+      this.obj[this.key] = convert || String;
       this.next();
-    },
-    formatAllowed: function() {
-      this.convert = this.types[this.value];
-      this.next(!!this.convert);
     },
     forEachItemInSchema: function() {
       this.sheet.db = this.sheet.db || {};
@@ -635,9 +940,7 @@ global.schema = new Chain({
   instruct: [
     "checkDbPermit",
     "grabSheet",
-    "forEachItemInSchema", [
-      { if: "formatAllowed", true: "convertToFuncion" }  
-    ],
+    "forEachItemInSchema", ["convertToFuncion"],
     function() {
       this.next(this.stringSchema);
     }
@@ -648,6 +951,7 @@ global.serve = new Chain({
 		types: {
 			css: "text/css",
 			html: "text/html",
+			icon: "image/x-icon",
 			js: "application/javascript",
 			javascript: "application/javascript",
 			default: "application/javascript"
@@ -701,7 +1005,8 @@ global.serve = new Chain({
       this.next(!!res.statusCode);
     },
     itDoesntHaveFormatting: function(res) {
-      var hasId = !!res._id; // if is hasId it doesnt have formatting
+      res = res || {};
+      var hasId = !!res._id; // if it hasId it doesnt have formatting
       this.next(hasId || (!res.type && !res.headers));
     },
     renderVariables: function(res) {
@@ -747,84 +1052,29 @@ global.serve = new Chain({
   	"initCallback"
   ]
 });
-global.renderLandingPage = new Chain({
+global.renderUserSiteIndex = new Chain({
   steps: {
     showIndex: function() {
       this.next({
-        data: {
-          domain: this._domain,
-          host: this._host,
-          cookie: this._cookie,
-          siteName: this._siteName,
-          sheets: this.sheets,
-          username: this.user.username,
-          user: this.user
-        },
-        body: tmplts.index,
+        body: render("index", this),
         type: "text/html"
       });
     }
   },
-  instruct: "showIndex"
+  instruct: ["getScriptsForSite", "showIndex"]
 });
 global.renderUserLibrary = new Chain({
-  input: {
-    userSites: []
-  },
   steps: {
-    appendToUserSites: function(userSite) {
-      this.userSites.push(userSite);
-      this.next();
-    },
-    getAllPermitsForUser: function() {
-      var self = this;
-      permits.find({
-        username: this.user.username
-      }, function(err, permits){
-        if(err) return self.error(err);
-        self.userPermits = permits;
-        self.next();
-      });
-    },
-    getUniqueSiteIds: function() {
-      var uniqueSiteIds = [];
-      for(var i=0; i<this.userPermits.length; i++) {
-        var permit = this.userPermits[i];
-        if(uniqueSiteIds.indexOf(permit.siteId) == -1) {
-          uniqueSiteIds.push(permit.siteId);
-        }
-      }
-      this.next(uniqueSiteIds);
-    },
-    getUserSite: function() {
-      var self = this;
-      models.sites.findById(this.userSiteId, function(err, userSite) {
-        if(err) return self.error(err);
-        self.next(userSite, "userSite");
-      });
-    },
     renderLibrary: function() {
       this.next({
-        body: tmplts.library,
-        type: "html",
-        data: {
-          domain: this._domain,
-          host: this._host,
-          username: this.user.username,
-          user: this.user,
-          userSites: this.userSites,
-          siteName: "<(-_-)> Archives, of yours"
-        }
+        body: render("library", this),
+        type: "html"
       });
     }
   },
   instruct: [
-    "getAllPermitsForUser",
-    "getUniqueSiteIds", loop([
-      "define=>userSiteId",
-      "getUserSite",
-      "appendToUserSites"
-    ]),
+    "getAllUserSites",
+    "getScriptsForSite",
     "renderLibrary"
   ]
 });
@@ -851,10 +1101,35 @@ global.scripts = new Chain({
   input: function() {
     return {
       sheetName: this._arg1,
-      scriptName: this._arg2
+      scriptName: this._arg2,
+      data: {
+        domain: this._domain,
+        host: this._host,
+        cookie: this._cookie,
+        siteName: this._siteName,
+        sheets: this.sheets,
+        username: this.user.username,
+        user: this.user,
+        userid: this.user._id       
+      }
     };
   },
   steps: {
+    masterSiteHasAltVersion: function() {
+      var self = this;
+      models.sites.findOne({
+        name: "uisheet"
+      }, function(err, masterSite) {
+          if(err) return self.error(err);
+          self.masterScript = masterSite.defaults.findOne({
+            name: self.sheetName
+          });
+          self.next(!!self.masterScript);
+      });      
+    },
+    noScriptSpecified: function() {
+      this.next(this.scriptName === undefined);
+    },
     renderJavascript: function() {
       this.next({
         body: this.sheet.ui.js,
@@ -872,9 +1147,6 @@ global.scripts = new Chain({
         type: template.type || "javascript"
       });
     },
-    noScriptSpecified: function() {
-      this.next(this.scriptName === undefined);
-    },
     renderFileScript: function() {
       this.end({
         body: this.fileText,
@@ -891,15 +1163,47 @@ global.scripts = new Chain({
         }
       });
     },
+    renderUserSiteVersion: function() {
+      this.end({ 
+        body: this.userSiteScript.text,
+        type: this.fileType,
+        data: this.data
+      });
+    },
+    renderMasterVersion: function() {
+      this.end({ 
+        body: this.masterScript.text,
+        type: this.fileType,
+        data: this.data
+      });
+    },
     sheetNameIsFileScript: function() {
       this.fileType = this.sheetName.split(".")[1];
       this.fileName = this.sheetName.split(".")[0];
-      this.fileText = tmplts[this.sheetName];
-      this.next(!!this.fileType && !!this.fileText);
+      this.fileText = scripts[this.sheetName];
+      this.next(!!this.fileType);
+    },
+    userSiteHasAltVersion: function() {
+      var site = this.site;
+      if(!site || !site.defaults) {
+        this.next(false);
+        return;
+      }
+      this.userSiteScript = this.site.defaults.findOne({
+        name: this.sheetName
+      });
+      this.next(!!this.userSiteScript);
     }
   },
   instruct: [
-    { if: "sheetNameIsFileScript",  true: "renderFileScript"  },
+    { 
+      if: "sheetNameIsFileScript",  
+      true: [
+        { if: "userSiteHasAltVersion", true: "renderUserSiteVersion" },
+        { if: "masterSiteHasAltVersion", true: "renderMasterVersion" },
+        "renderFileScript"
+      ]
+    },
     "grabSheet",
     {
       if: "noScriptSpecified",
@@ -911,7 +1215,7 @@ global.scripts = new Chain({
 global.port = new Chain({
   input: function() {
     return {
-      permits: JSON.parse(this._cookies.permits || "[]"),
+      permits: [],
       sheets: [],
       user: {
         username: "public"
@@ -943,6 +1247,17 @@ global.port = new Chain({
   			self.next(!!tokenErr);
   		});
     },
+    lookupPermitsForSite: function() {
+      var self = this;
+      permits.find({
+        siteId: this.siteId,
+        username: this.user.username
+      }, function(err, permits){
+        if(err) return self.error(err);
+        self.permits = permits;
+        self.next();
+      });
+    },
     lookupSiteInDb: function(res, next) {
       var self = this;
       models.sites.findOne({
@@ -963,15 +1278,8 @@ global.port = new Chain({
     },
     renderLoggedOut: function() {
       this.next({
-        body: tmplts.login,
-        type: "html",
-        data: {
-          siteName: "<(-_-)> Login, you must.",
-          domain: this._domain,
-          host: this._host,
-          username: this.user.username,
-          user: this.user
-        }
+        body: render("login", this),
+        type: "html"
       });
     },
     renderNoSiteExists: function(res, next) {
@@ -982,21 +1290,15 @@ global.port = new Chain({
     },
     renderNoPermitsExistForSite: function() {
       this.next({
-        body: "<(-_-)> Enter this site you will, when permits for it you have.",
+        body: render("login", this),
+        bodys: "<(-_-)> Enter this site you will, when permits for it you have.",
         type: "html"
       });
     },
     renderWelocomeToUiSheet: function() {
       this.next({
-        body: tmplts.login,
-        type: "html",
-        data: {
-          siteName: "<(-_-)> Welcome, you are.",
-          domain: this._domain,
-          host: this._host,
-          username: this.user.username,
-          user: this.user
-        }
+        body: render("login", this),
+        type: "html"
       });
     },
     runChain: function(res, next) {
@@ -1018,8 +1320,8 @@ global.port = new Chain({
     userHasCookies: function() {
       this.next(!!this._cookies.userid);
     },
-    userHasNoPermitsForSite: function() {
-      this.next(this.permits.length == 0);
+    userHasNoPermitsForSiteAndNotPlysheet: function() {
+      this.next(this.permits.length == 0 && this.site.name !== "plysheet");
     },
     userIsPublic: function() {
       this.next(this.user.username == "public");
@@ -1031,12 +1333,13 @@ global.port = new Chain({
       if: "userHasCookies",
       true: [
         "loadUser",
-        { if: "loggedOut", true: ["renderLoggedOut", "serve"] }
+        { if: "loggedOut", true: ["getScriptsForSite", "renderLoggedOut", "serve"] }
       ]
     },
     {
       if: "noSiteSpecified",
       true: [
+        "getScriptsForSite",
         {
           if: "userIsPublic",
           true: "renderWelocomeToUiSheet",
@@ -1047,18 +1350,20 @@ global.port = new Chain({
     },
     "lookupSiteInDb",
     { if: "noSiteExists", true: [ "renderNoSiteExists", "serve" ] },
+    "lookupPermitsForSite",
     {
-      if: "userHasNoPermitsForSite",
+      if: "userHasNoPermitsForSiteAndNotPlysheet",
       true: [
-        "lookupPublicPermitsForSite",
-        { if: "userHasNoPermitsForSite", true: [ "renderNoPermitsExistForSite", "serve" ] }
+        "getScriptsForSite",
+        "renderNoPermitsExistForSite",
+        "serve"
       ]
     },
     "getSheetForEachPermit",
     {
       if: "urlHasAChain",
       true: "runChain",
-      false: "renderLandingPage"
+      false: "renderUserSiteIndex"
     },
     { if: "isVerbose", true: "addDetails" },
     "serve"  
@@ -1086,7 +1391,7 @@ module.exports.port = function(event, context, callback) {
     _siteName: params.site
   }).start().catch(function(error){
     callback(null, {
-      statusCode: 200,
+      statusCode: 400,
       body: error.stack || error
     });
   });
@@ -1094,7 +1399,7 @@ module.exports.port = function(event, context, callback) {
 } catch (e) {
   module.exports.port = function(event, context, callback) {
     callback(null, {
-      statusCode: 200,
+      statusCode: 400,
       body: e.stack || e
     });    
   };
