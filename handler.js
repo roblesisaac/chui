@@ -583,19 +583,63 @@ global.getUserPermitForSheet = new Chain({
   ]
 });
 global.images = new Chain({
-  input: {
-    buckets: []
+  input: function() {
+    return {
+      method: this.arg1,
+      id: this.arg2,
+      buckets: []
+    };
   },
   steps: {
-    showBuckets: function() {
+    createBucket: function() {
+      var params = {
+          Bucket: "example-space-name"
+        },
+        self = this;
+      
+      s3.createBucket(params, function(err, data) {
+        if (err) return self.error(err);
+        self.next(data);
+      });
+    },
+    listBuckets: function() {
       var self = this;
       s3.listBuckets({}, function(err, data) {
         if (err) return self.error(err);
         self.next(data);
       });
+    },
+    files: function() {
+      var params = {
+            Bucket: this.id,
+          },
+          self = this;
+      
+      s3.listObjects(params, function(err, data) {
+          if (err) self.error(err);
+          self.next(data);
+      });
+    },
+    uploadFile: function() {
+      var params = {
+          Bucket: "example-space-name",
+          Key: "file.ext",
+          Body: "The contents of the file.",
+          ACL: "private"
+        },
+        self = this;
+      
+      s3.putObject(params, function(err, data) {
+        if (err) return self.error(err);
+        self.next(data);
+      });
     }
   },
-  instruct: ["showBuckets"]
+  instruct: function(input) {
+    return [
+      input.method
+    ];
+  }
 });
 global.temporary = new Chain({
   steps: {
