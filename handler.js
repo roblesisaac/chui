@@ -591,7 +591,7 @@ global.images = new Chain({
       var self = this;
       s3.listBuckets({}, function(err, data) {
         if (err) return self.error(err);
-        self.next("Data " + data.Buckets.length);
+        self.next(data);
       });
     }
   },
